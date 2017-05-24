@@ -1,0 +1,29 @@
+{
+    "name": "dzer/mll-framework", 
+    "description": "mll framework", 
+    "type": "library", 
+    "keywords": [
+        "framework", 
+        "mllphp"
+    ], 
+    "homepage": "http://www.meilele.com/", 
+    "license": "MIT", 
+    "authors": [
+        {
+            "name": "dzer", 
+            "email": "d20053140@gmail.com", 
+            "homepage": "https://dzer.me"
+        }
+    ], 
+    "require": {
+        "php": ">=5.4.0", 
+        "ext-mbstring": "*", 
+        "ext-ctype": "*", 
+        "lib-pcre": "*"
+    }, 
+    "autoload": {
+        "psr-4": {
+            "mll\\": ""
+        }
+    }
+}
