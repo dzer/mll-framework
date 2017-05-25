@@ -1,7 +1,7 @@
 {
     "name": "dzer/mll-framework", 
     "description": "mll framework", 
-    "type": "library", 
+    "type": "mll-framework",
     "keywords": [
         "framework", 
         "mllphp"
