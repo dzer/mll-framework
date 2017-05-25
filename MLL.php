@@ -2,61 +2,9 @@
 
 namespace mll;
 
-/**
- * 版本号
- */
-define('MLL_VERSION', '1.0.0');
+use mll\core\Config;
 
-/**
- * 程序开始时间戳
- */
-defined('MLL_BEGIN_TIME') or define('MLL_BEGIN_TIME', microtime(true));
-
-/**
- * 目录分隔符
- */
-define('DS', DIRECTORY_SEPARATOR);
-
-/**
- * 框架目录
- */
-defined('MLL_PATH') or define('MLL_PATH', __DIR__);
-
-/**
- * 应用目录
- */
-defined('APP_PATH') or define('APP_PATH', dirname($_SERVER['SCRIPT_FILENAME']) . DS);
-
-/**
- * 框架应用根目录
- */
-defined('ROOT_PATH') or define('ROOT_PATH', dirname(realpath(APP_PATH)) . DS);
-
-/**
- * 调试模式
- */
-defined('MLL_DEBUG') or define('MLL_DEBUG', false);
-
-/**
- * 当前环境
- */
-defined('MLL_ENV') or define('MLL_ENV', 'prod');
-
-/**
- * 是否为生产环境
- */
-defined('MLL_ENV_PROD') or define('MLL_ENV_PROD', MLL_ENV === 'prod');
-
-/**
- * 是否为开发环境
- */
-defined('MLL_ENV_DEV') or define('MLL_ENV_DEV', MLL_ENV === 'dev');
-
-/**
- * 是否为测试环境
- */
-defined('MLL_ENV_TEST') or define('MLL_ENV_TEST', MLL_ENV === 'test');
-
+include __DIR__ . DIRECTORY_SEPARATOR . 'base.php';
 
 class Mll
 {
@@ -81,10 +29,42 @@ class Mll
     public static function run($configPath = null)
     {
         //自动加载
-        spl_autoload_register(['Mll', 'autoload'], true, true);
+        spl_autoload_register(__CLASS__ . '::autoload', true, true);
         //获取配置文件
+        var_dump(ROOT_PATH);
+        //分析路由
 
+        //加载配置文件
+        Config::load(self::getConfigPath('goods'));
+
+       /* $eh = Config::getField('project', 'exception_handler', __CLASS__ . '::exceptionHandler');
+        \set_exception_handler($eh);
+        \register_shutdown_function(Config::getField('project', 'fatal_handler', __CLASS__ . '::fatalHandler'));
+        if (Config::getField('project', 'error_handler')) {
+            \set_error_handler(Config::getField('project', 'error_handler'));
+        }
+        $timeZone = Config::get('time_zone', 'Asia/Shanghai');
+        \date_default_timezone_set($timeZone);*/
         //
+    }
+
+    /**
+     * 获取配置文件目录路径
+     *
+     * @param null $module
+     * @return array
+     */
+    public static function getConfigPath($module = null)
+    {
+        $path = [];
+        if (!empty($module)) {
+            $moduleConfigPath = ROOT_PATH . DS . 'app' . DS . $module . DS . 'config';
+            if (is_dir($moduleConfigPath)) {
+                $path[] = $moduleConfigPath;
+            }
+        }
+        $path[] = ROOT_PATH . DS . 'app' . DS . 'config';
+        return $path;
     }
 
     /**
