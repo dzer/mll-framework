@@ -3,7 +3,7 @@
 namespace mll;
 
 use mll\core\Config;
-
+error_reporting(E_ALL);
 include __DIR__ . DIRECTORY_SEPARATOR . 'base.php';
 
 class Mll
@@ -26,7 +26,7 @@ class Mll
      */
     private static $classMap = [];
 
-    public static function run($configPath = null)
+    public static function run($serveModel = 'Http')
     {
         //自动加载
         spl_autoload_register(__CLASS__ . '::autoload', true, true);
@@ -37,14 +37,14 @@ class Mll
         //加载配置文件
         Config::load(self::getConfigPath('goods'));
 
-       /* $eh = Config::getField('project', 'exception_handler', __CLASS__ . '::exceptionHandler');
-        \set_exception_handler($eh);
-        \register_shutdown_function(Config::getField('project', 'fatal_handler', __CLASS__ . '::fatalHandler'));
-        if (Config::getField('project', 'error_handler')) {
-            \set_error_handler(Config::getField('project', 'error_handler'));
-        }
-        $timeZone = Config::get('time_zone', 'Asia/Shanghai');
-        \date_default_timezone_set($timeZone);*/
+        /* $eh = Config::getField('project', 'exception_handler', __CLASS__ . '::exceptionHandler');
+         \set_exception_handler($eh);
+         \register_shutdown_function(Config::getField('project', 'fatal_handler', __CLASS__ . '::fatalHandler'));
+         if (Config::getField('project', 'error_handler')) {
+             \set_error_handler(Config::getField('project', 'error_handler'));
+         }
+         $timeZone = Config::get('time_zone', 'Asia/Shanghai');
+         \date_default_timezone_set($timeZone);*/
         //
     }
 
@@ -88,7 +88,9 @@ class Mll
 
         include($classFile);
 
-        if (MLL_DEBUG && !class_exists($className, false) && !interface_exists($className, false) && !trait_exists($className, false)) {
+        if (MLL_DEBUG && !class_exists($className, false) && !interface_exists($className, false)
+            && !trait_exists($className, false)
+        ) {
             throw new \Exception("没有找到 '$className'：$classFile");
         }
     }
