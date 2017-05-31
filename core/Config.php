@@ -23,7 +23,6 @@ class Config
                 }, $files);
             }
         }
-        var_dump($config);
         return $config;
     }
 }

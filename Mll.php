@@ -3,9 +3,7 @@
 namespace mll;
 
 use mll\core\Config;
-error_reporting(E_ALL);
 include __DIR__ . DIRECTORY_SEPARATOR . 'base.php';
-
 class Mll
 {
     /**
@@ -30,12 +28,23 @@ class Mll
     {
         //自动加载
         spl_autoload_register(__CLASS__ . '::autoload', true, true);
-        //获取配置文件
-        var_dump(ROOT_PATH);
+        //服务容器
+
         //分析路由
 
         //加载配置文件
         Config::load(self::getConfigPath('goods'));
+
+        //错误注册
+        if (MLL_DEBUG) {
+            $whoops = new \Whoops\Run;
+            $whoops->pushHandler(new \Whoops\Handler\PrettyPageHandler);
+            $whoops->register();
+        } else {
+
+        }
+        $timeZone = Config::get('time_zone', 'Asia/Shanghai');
+        date_default_timezone_set($timeZone);
 
         /* $eh = Config::getField('project', 'exception_handler', __CLASS__ . '::exceptionHandler');
          \set_exception_handler($eh);
