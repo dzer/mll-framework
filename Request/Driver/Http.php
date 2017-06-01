@@ -3,8 +3,9 @@
 namespace Mll\Request\Driver;
 
 use Mll\Core\Config;
+use Mll\Request\IRequest;
 
-class Http extends Base
+class Http extends Base implements IRequest
 {
     /**
      * 将不同server的传输数据统一格式
