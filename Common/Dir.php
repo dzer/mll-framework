@@ -1,19 +1,15 @@
 <?php
-/**
- * author: shenzhe
- * Date: 13-6-17
- * 文件目录操作类
- */
 
-namespace mll\common;
+namespace Mll\Common;
 
 class Dir
 {
-
     /**
-     * 递归创建目录
+     * 递归创建目录.
+     *
      * @param $dir
      * @param int $mode
+     *
      * @return bool
      */
     public static function make($dir, $mode = 0755)
@@ -24,15 +20,18 @@ class Dir
         if (!self::make(dirname($dir), $mode)) {
             return false;
         }
+
         return mkdir($dir, $mode);
     }
 
     /**
-     * 递归获取目录下的文件
+     * 递归获取目录下的文件.
+     *
      * @param $dir
      * @param string $filter
-     * @param array $result
-     * @param bool $deep
+     * @param array  $result
+     * @param bool   $deep
+     *
      * @return mixed
      */
     public static function tree($dir, $filter = '', &$result = array(), $deep = false)
@@ -46,7 +45,7 @@ class Dir
                 $filename = $file->getFilename();
                 if ($file->isDir()) {
                     if ($deep) {
-                        self::tree($dir . DS . $filename, $filter, $result, $deep);
+                        self::tree($dir.DS.$filename, $filter, $result, $deep);
                     }
                 } else {
                     if (!empty($filter) && !preg_match($filter, $filename)) {
@@ -55,10 +54,11 @@ class Dir
                     if ($deep) {
                         $result[$dir] = $filename;
                     } else {
-                        $result[] = $dir . DS . $filename;
+                        $result[] = $dir.DS.$filename;
                     }
                 }
             }
+
             return $result;
         } catch (\Exception $e) {
             return false;
@@ -66,9 +66,11 @@ class Dir
     }
 
     /**
-     * 递归删除目录
+     * 递归删除目录.
+     *
      * @param $dir
      * @param $filter
+     *
      * @return bool
      */
     public static function del($dir, $filter = '')
@@ -83,12 +85,12 @@ class Dir
                 continue;
             }
             if ($file->isDir()) {
-                self::del($dir . DS . $filename);
+                self::del($dir.DS.$filename);
             } else {
-                unlink($dir . DS . $filename);
+                unlink($dir.DS.$filename);
             }
         }
+
         return rmdir($dir);
     }
-
 }

@@ -1,15 +1,15 @@
 <?php
 
-namespace mll\request;
+namespace Mll\Server;
 
-use mll\core\Factory as DFactory;
+use Mll\Core\Factory as DFactory;
 
 class Factory
 {
     public static function getInstance($driver = 'Http')
     {
         $driver = ucfirst(strtolower($driver));
-        $className = __NAMESPACE__ . "\\driver\\{$driver}";
+        $className = __NAMESPACE__ . "\\Driver\\{$driver}";
         return DFactory::getInstance($className);
     }
 }

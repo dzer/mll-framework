@@ -1,6 +1,6 @@
 <?php
 
-namespace mll\core;
+namespace Mll\Core;
 
 class Factory
 {

@@ -1,25 +1,29 @@
 <?php
 
-namespace mll;
+namespace Mll;
 
-use mll\core\Config;
-include __DIR__ . DIRECTORY_SEPARATOR . 'base.php';
+use Mll\Core\Config;
+
+include __DIR__.DIRECTORY_SEPARATOR.'Base.php';
 class Mll
 {
     /**
-     * 配置目录
+     * 配置目录.
+     *
      * @var string
      */
     private static $configPath = 'default';
 
     /**
-     * 系统类库
+     * 系统类库.
+     *
      * @var array
      */
     private static $libMap = [];
 
     /**
-     * 加载类
+     * 加载类.
+     *
      * @var array
      */
     private static $classMap = [];
@@ -27,7 +31,7 @@ class Mll
     public static function run($serveModel = 'Http')
     {
         //自动加载
-        spl_autoload_register(__CLASS__ . '::autoload', true, true);
+        spl_autoload_register(__CLASS__.'::autoload', true, true);
         //服务容器
 
         //分析路由
@@ -37,11 +41,10 @@ class Mll
 
         //错误注册
         if (MLL_DEBUG) {
-            $whoops = new \Whoops\Run;
-            $whoops->pushHandler(new \Whoops\Handler\PrettyPageHandler);
+            $whoops = new \Whoops\Run();
+            $whoops->pushHandler(new \Whoops\Handler\PrettyPageHandler());
             $whoops->register();
         } else {
-
         }
         $timeZone = Config::get('time_zone', 'Asia/Shanghai');
         date_default_timezone_set($timeZone);
@@ -54,32 +57,34 @@ class Mll
          }
          $timeZone = Config::get('time_zone', 'Asia/Shanghai');
          \date_default_timezone_set($timeZone);*/
-        //
     }
 
     /**
-     * 获取配置文件目录路径
+     * 获取配置文件目录路径.
      *
      * @param null $module
+     *
      * @return array
      */
     public static function getConfigPath($module = null)
     {
         $path = [];
         if (!empty($module)) {
-            $moduleConfigPath = ROOT_PATH . DS . 'app' . DS . $module . DS . 'config';
+            $moduleConfigPath = ROOT_PATH.DS.'app'.DS.$module.DS.'config';
             if (is_dir($moduleConfigPath)) {
                 $path[] = $moduleConfigPath;
             }
         }
-        $path[] = ROOT_PATH . DS . 'app' . DS . 'config';
+        $path[] = ROOT_PATH.DS.'app'.DS.'config';
+
         return $path;
     }
 
     /**
-     * 自动加载
+     * 自动加载.
      *
      * @param $className
+     *
      * @throws \Exception
      */
     public static function autoload($className)
@@ -87,7 +92,7 @@ class Mll
         if (isset(static::$classMap[$className])) {
             $classFile = static::$classMap[$className];
         } elseif (strpos($className, '\\') !== false) {
-            $classFile = str_replace('\\', DS, $className) . '.php';
+            $classFile = str_replace('\\', DS, $className).'.php';
             if ($classFile === false || !is_file($classFile)) {
                 return;
             }
@@ -95,7 +100,7 @@ class Mll
             return;
         }
 
-        include($classFile);
+        include $classFile;
 
         if (MLL_DEBUG && !class_exists($className, false) && !interface_exists($className, false)
             && !trait_exists($className, false)

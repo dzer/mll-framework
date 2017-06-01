@@ -1,24 +1,24 @@
 <?php
 
-namespace mll\request\driver;
+namespace Mll\Request\Driver;
 
-use mll\request\IRequest;
+use Mll\Request\IRequest;
 
 class Base implements IRequest
 {
-    protected static $_server;
+    protected static $server;
 
-    protected static $_params;
+    protected static $params;
 
-    protected static $_module;
+    protected static $module;
 
-    protected static $_controller;
+    protected static $controller;
 
-    protected static $_method;
+    protected static $method;
 
     /**
-     * 获取当前请求URL的pathinfo信息(不含URL后缀)
-     * @access public
+     * 获取当前请求URL的pathinfo信息(不含URL后缀).
+     *
      * @return string
      */
     public function path()
@@ -41,8 +41,8 @@ class Base implements IRequest
     }
 
     /**
-     * 获取当前请求URL的pathinfo信息（含URL后缀）
-     * @access public
+     * 获取当前请求URL的pathinfo信息（含URL后缀）.
+     *
      * @return string
      */
     public function pathInfo()
@@ -72,19 +72,17 @@ class Base implements IRequest
         return $this->pathinfo;*/
     }
 
-
     /**
-     * 将不同server的传输数据统一格式
+     * 将不同server的传输数据统一格式.
      *
      * @param $requestParams
-     * @return void
      */
     public static function parse($requestParams)
     {
     }
 
     /**
-     * 获取请求参数
+     * 获取请求参数.
      *
      * @return mixed
      */
@@ -93,16 +91,14 @@ class Base implements IRequest
     }
 
     /**
-     * 设置请求参数
-     *
-     * @return void
+     * 设置请求参数.
      */
     public static function setParams()
     {
     }
 
     /**
-     * 获取模块
+     * 获取模块.
      *
      * @return mixed
      */
@@ -111,7 +107,7 @@ class Base implements IRequest
     }
 
     /**
-     * 获取控制器
+     * 获取控制器.
      *
      * @return mixed
      */
@@ -120,7 +116,7 @@ class Base implements IRequest
     }
 
     /**
-     * 获取方法
+     * 获取方法.
      *
      * @return mixed
      */

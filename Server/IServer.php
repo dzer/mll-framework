@@ -1,6 +1,6 @@
 <?php
 
-namespace mll\server;
+namespace Mll\Server;
 
 interface IServer
 {

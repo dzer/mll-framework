@@ -1,8 +1,8 @@
 <?php
 
-namespace mll\request\driver;
+namespace Mll\Request\Driver;
 
-use mll\core\Config;
+use Mll\Core\Config;
 
 class Http extends Base
 {
