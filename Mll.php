@@ -2,11 +2,21 @@
 
 namespace Mll;
 
-use Mll\Core\Config;
-
-include __DIR__.DIRECTORY_SEPARATOR.'Base.php';
+use Mll\Config;
+use Mll\Core\Container;
+/**
+ * Class BaseApp
+ *
+ * @package Mll
+ * @property \Mll\Config\IConfig $config
+ * @date        2016
+ * @copyright   mll
+ */
 class Mll
 {
+    public static $serveModel;
+
+    public static $app;
     /**
      * 配置目录.
      *
@@ -28,25 +38,62 @@ class Mll
      */
     private static $classMap = [];
 
-    public static function run($serveModel = 'Http')
+    public function __get($name)
     {
-        //自动加载
-        spl_autoload_register(__CLASS__.'::autoload', true, true);
-        //服务容器
+        return Container::get($name);
+    }
 
-        //分析路由
+    public static function app()
+    {
+        return Container::getInstance(__CLASS__);
+    }
 
-        //加载配置文件
-        Config::load(self::getConfigPath('goods'));
-
+    public function run($serveModel = 'Http')
+    {
+        self::$serveModel = $serveModel;
         //错误注册
         if (MLL_DEBUG) {
             $whoops = new \Whoops\Run();
             $whoops->pushHandler(new \Whoops\Handler\PrettyPageHandler());
             $whoops->register();
         } else {
+
         }
-        $timeZone = Config::get('time_zone', 'Asia/Shanghai');
+
+        //自动加载
+        //spl_autoload_register(__CLASS__.'::autoload', true, true);
+        //服务容器
+        Container::addDefinitions([
+            'config' =>  function () {
+                return Config\Factory::getInstance();
+            },
+        ]);
+        $start =  memory_get_usage();
+        $mm = serialize(Container::getInstances());
+        $mid =  memory_get_usage();
+        echo 'argv:', ($mid - $start)/1000 ,'bytes' , '<br>';
+        self::app()->config->load(self::getConfigPath('goods'));
+        var_dump(Mll::app()->config->all());die;
+        //纯静态框架
+
+        //自定义容器 符合psr-11
+        //获取配置 在build get时缓存(暂定)
+        //@property \yii\web\Request|\yii\console\Request $request The request component. This property is read-only.
+        self::$container = new Container();
+
+        self::$config = Config\Factory::getInstance();
+        self::$request = Request\Factory::getInstance(self::$serveModel);
+
+        //分析路由
+
+        //加载配置文件
+        self::$config = self::$config->load(self::getConfigPath('goods'));
+
+        var_dump(self::$config);die;
+        var_dump(Mll::$config->cache->mll->host);
+
+        var_dump(Config::all());
+        $timeZone = Mll::$container->get('config')->get('time_zone', 'Asia/Shanghai');
         date_default_timezone_set($timeZone);
 
         /* $eh = Config::getField('project', 'exception_handler', __CLASS__ . '::exceptionHandler');

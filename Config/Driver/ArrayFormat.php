@@ -1,10 +1,11 @@
 <?php
 
-namespace Mll\Core;
+namespace Mll\Config\Driver;
 
 use Mll\Common\Dir;
+use Mll\Config\IConfig;
 
-class Config
+class ArrayFormat implements IConfig
 {
 
     /**
@@ -84,11 +85,13 @@ class Config
      */
     public static function set($key, $value, $set = true)
     {
+        $key = '["' . implode('"]["', explode('.', $key)) . '"]';
+        $varStr = 'self::$config' . $key;
         if ($set) {
-            self::$config[$key] = $value;
+            eval("$varStr = \$value");
         } else {
-            if (empty(self::$config[$key])) {
-                self::$config[$key] = $value;
+            if (empty(eval("$varStr"))) {
+                eval("$varStr = \$value");
             }
         }
 
@@ -96,44 +99,18 @@ class Config
     }
 
     /**
-     * 获取配置字段
+     * 获取配置
      *
      * @param $key
-     * @param $field
      * @param null $default
      * @param bool $throw
-     * @return null
+     * @return mixed|null
      * @throws \Exception
      */
-    public static function getField($key, $field, $default = null, $throw = false)
+    public static function params($key, $default = null, $throw = false)
     {
-        $result = isset(self::$config[$key][$field]) ? self::$config[$key][$field] : $default;
-        if ($throw && is_null($result)) {
-            throw new \Exception("{key} config empty");
-        }
-        return $result;
-    }
-
-    /**
-     * 设置配置字段
-     *
-     * @param $key
-     * @param $field
-     * @param $value
-     * @param bool $set
-     * @return bool
-     */
-    public static function setField($key, $field, $value, $set = true)
-    {
-        if ($set) {
-            self::$config[$key][$field] = $value;
-        } else {
-            if (empty(self::$config[$key][$field])) {
-                self::$config[$key][$field] = $value;
-            }
-        }
-
-        return true;
+        $key = 'params.' . $key;
+        return self::get($key, $default, $throw);
     }
 
     /**
