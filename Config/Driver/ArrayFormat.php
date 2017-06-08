@@ -22,7 +22,7 @@ class ArrayFormat implements IConfig
      *
      * @return array
      */
-    public static function load(array $configPathArr)
+    public function load(array $configPathArr)
     {
         $config = array();
         if (is_array($configPathArr)) {
@@ -44,7 +44,7 @@ class ArrayFormat implements IConfig
      * @param $file
      * @return bool
      */
-    public static function mergeFile($file)
+    public function mergeFile($file)
     {
         $tmp = include "{$file}";
         if (empty($tmp)) {
@@ -64,7 +64,7 @@ class ArrayFormat implements IConfig
      * @return mixed|null
      * @throws \Exception
      */
-    public static function get($key, $default = null, $throw = false)
+    public function get($key, $default = null, $throw = false)
     {
         $key = '["' . implode('"]["', explode('.', $key)) . '"]';
         $varStr = 'self::$config' . $key;
@@ -83,7 +83,7 @@ class ArrayFormat implements IConfig
      * @param bool $set
      * @return bool
      */
-    public static function set($key, $value, $set = true)
+    public function set($key, $value, $set = true)
     {
         $key = '["' . implode('"]["', explode('.', $key)) . '"]';
         $varStr = 'self::$config' . $key;
@@ -107,7 +107,7 @@ class ArrayFormat implements IConfig
      * @return mixed|null
      * @throws \Exception
      */
-    public static function params($key, $default = null, $throw = false)
+    public function params($key, $default = null, $throw = false)
     {
         $key = 'params.' . $key;
         return self::get($key, $default, $throw);
@@ -118,7 +118,7 @@ class ArrayFormat implements IConfig
      *
      * @return array
      */
-    public static function all()
+    public function all()
     {
         return self::$config;
     }

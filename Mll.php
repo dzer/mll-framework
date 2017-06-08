@@ -4,11 +4,14 @@ namespace Mll;
 
 use Mll\Config;
 use Mll\Core\Container;
+
 /**
  * Class BaseApp
  *
  * @package Mll
- * @property \Mll\Config\IConfig $config
+ * @property \Mll\Config\Driver\ArrayFormat $config
+ * @property \Mll\Request\IRequest $request
+ * @property \Mll\Mll $app
  * @date        2016
  * @copyright   mll
  */
@@ -43,6 +46,11 @@ class Mll
         return Container::get($name);
     }
 
+    /**
+     * app
+     *
+     * @return self
+     */
     public static function app()
     {
         return Container::getInstance(__CLASS__);
@@ -64,16 +72,21 @@ class Mll
         //spl_autoload_register(__CLASS__.'::autoload', true, true);
         //服务容器
         Container::addDefinitions([
-            'config' =>  function () {
+            'config' => function () {
                 return Config\Factory::getInstance();
             },
+            'request' => function () {
+                return Request\Factory::getInstance();
+            },
         ]);
-        $start =  memory_get_usage();
+        $start = memory_get_usage();
         $mm = serialize(Container::getInstances());
-        $mid =  memory_get_usage();
-        echo 'argv:', ($mid - $start)/1000 ,'bytes' , '<br>';
-        self::app()->config->load(self::getConfigPath('goods'));
-        var_dump(Mll::app()->config->all());die;
+        $mid = memory_get_usage();
+        echo 'argv:', ($mid - $start) / 1000, 'bytes', '<br>';
+        Mll::app()->config->load(self::getConfigPath('goods'));
+        //Mll::app()->request::parse('dd');
+        var_dump(Mll::app()->config->all());
+        die;
         //纯静态框架
 
         //自定义容器 符合psr-11
@@ -89,7 +102,8 @@ class Mll
         //加载配置文件
         self::$config = self::$config->load(self::getConfigPath('goods'));
 
-        var_dump(self::$config);die;
+        var_dump(self::$config);
+        die;
         var_dump(Mll::$config->cache->mll->host);
 
         var_dump(Config::all());
@@ -117,12 +131,12 @@ class Mll
     {
         $path = [];
         if (!empty($module)) {
-            $moduleConfigPath = ROOT_PATH.DS.'app'.DS.$module.DS.'config';
+            $moduleConfigPath = ROOT_PATH . DS . 'app' . DS . $module . DS . 'config';
             if (is_dir($moduleConfigPath)) {
                 $path[] = $moduleConfigPath;
             }
         }
-        $path[] = ROOT_PATH.DS.'app'.DS.'config';
+        $path[] = ROOT_PATH . DS . 'app' . DS . 'config';
 
         return $path;
     }
@@ -139,7 +153,7 @@ class Mll
         if (isset(static::$classMap[$className])) {
             $classFile = static::$classMap[$className];
         } elseif (strpos($className, '\\') !== false) {
-            $classFile = str_replace('\\', DS, $className).'.php';
+            $classFile = str_replace('\\', DS, $className) . '.php';
             if ($classFile === false || !is_file($classFile)) {
                 return;
             }

@@ -11,7 +11,7 @@ interface IConfig
      *
      * @return mixed
      */
-    public static function load(array $configDir);
+    public function load(array $configDir);
 
     /**
      * 获取配置项
@@ -21,7 +21,7 @@ interface IConfig
      * @param bool $throw
      * @return mixed
      */
-    public static function get($key, $default = null, $throw = false);
+    public function get($key, $default = null, $throw = false);
 
     /**
      * 设置配置项
@@ -31,14 +31,14 @@ interface IConfig
      * @param bool $set 设置为false时配置项非空才设置
      * @return mixed
      */
-    public static function set($key, $value, $set = true);
+    public function set($key, $value, $set = true);
 
     /**
      * 获取所有配置项
      *
      * @return mixed
      */
-    public static function all();
+    public function all();
 
 
 }
