@@ -17,6 +17,8 @@ use Mll\Core\Container;
  */
 class Mll
 {
+    public static $debug;
+
     public static $serveModel;
 
     public static $app;
@@ -33,6 +35,7 @@ class Mll
      * @var array
      */
     private static $libMap = [];
+
 
     /**
      * 加载类.
@@ -58,9 +61,10 @@ class Mll
 
     public function run($serveModel = 'Http')
     {
+
         self::$serveModel = $serveModel;
         //错误注册
-        if (MLL_DEBUG) {
+        if (MLL_DEBUG && class_exists("\\Whoops\\Run")) {
             $whoops = new \Whoops\Run();
             $whoops->pushHandler(new \Whoops\Handler\PrettyPageHandler());
             $whoops->register();
@@ -79,11 +83,11 @@ class Mll
                 return Request\Factory::getInstance();
             },
         ]);
-        $start = memory_get_usage();
-        $mm = serialize(Container::getInstances());
-        $mid = memory_get_usage();
-        echo 'argv:', ($mid - $start) / 1000, 'bytes', '<br>';
+
+
         Mll::app()->config->load(self::getConfigPath('goods'));
+
+        self::$debug = Mll::app()->config->get('app_debug', 1);
         //Mll::app()->request::parse('dd');
         var_dump(Mll::app()->config->all());
         die;
