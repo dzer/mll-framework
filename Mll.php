@@ -87,13 +87,14 @@ class Mll
 
         //错误注册
         if (self::$debug && class_exists("\\Whoops\\Run")) {
-           /* $whoops = new \Whoops\Run();
+           /*$whoops = new \Whoops\Run();
             $whoops->pushHandler(new \Whoops\Handler\PrettyPageHandler());
             $whoops->register();*/
         } else {
             //Error::register();
         }
         Error::register();
+        $this->ss();
         $ss+=1;
         //路由分析
 

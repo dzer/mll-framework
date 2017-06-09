@@ -12,7 +12,7 @@ class Error
      */
     public static function register()
     {
-        error_reporting(E_ALL);
+        //error_reporting(E_ALL);
         set_error_handler([__CLASS__, 'appError']);
         set_exception_handler([__CLASS__, 'appException']);
         register_shutdown_function([__CLASS__, 'appShutdown']);
@@ -30,7 +30,30 @@ class Error
 
         self::getExceptionHandler()->report($e);
         //self::getExceptionHandler()->render($e)->send();
-        echo json_encode(self::getExceptionHandler()->render($e));
+        while (ob_get_level() > 1) {
+            ob_end_clean();
+        }
+
+        $data['echo'] = ob_get_clean();
+
+       /* ob_start();
+        extract($data);
+        include Config::get('exception_tmpl');
+        // 获取并清空缓存
+        $content  = ob_get_clean();*/
+        ob_start();
+        $outDate = self::getExceptionHandler()->render($e);
+
+        if (MLL_ENV_PROD) {
+            echo $outDate['message'];
+        } else {
+            if($_SERVER['CONTENT_TYPE'] == 'application/json')  {
+                echo json_encode($outDate);
+            } else {
+                echo json_encode($outDate);
+            }
+        }
+        ob_end_flush();
     }
 
     /**

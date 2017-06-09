@@ -32,22 +32,13 @@ class Handle
     {
         if (!$this->isIgnoreReport($exception)) {
             // 收集异常数据
-            if (Mll::$debug) {
-                $data = [
-                    'file'    => $exception->getFile(),
-                    'line'    => $exception->getLine(),
-                    'message' => $this->getMessage($exception),
-                    'code'    => $this->getCode($exception),
-                ];
-                $log = "[{$data['code']}]{$data['message']}[{$data['file']}:{$data['line']}]";
-            } else {
-                $data = [
-                    'code'    => $this->getCode($exception),
-                    'message' => $this->getMessage($exception),
-                ];
-                $log = "[{$data['code']}]{$data['message']}";
-            }
-
+            $data = [
+                'file' => $exception->getFile(),
+                'line' => $exception->getLine(),
+                'message' => $this->getMessage($exception),
+                'code' => $this->getCode($exception),
+            ];
+            $log = "[{$data['code']}]{$data['message']}[{$data['file']}:{$data['line']}]";
             Mll::app()->log->error($log);
         }
     }
@@ -70,9 +61,8 @@ class Handle
      */
     public function render(Exception $e)
     {
-       return $this->convertExceptionToResponse($e);
+        return $this->convertExceptionToResponse($e);
     }
-
 
 
     /**
@@ -85,35 +75,37 @@ class Handle
         if (Mll::$debug) {
             // 调试模式，获取详细的错误信息
             $data = [
-                'name'    => get_class($exception),
-                'file'    => $exception->getFile(),
-                'line'    => $exception->getLine(),
+                'name' => get_class($exception),
+                'file' => $exception->getFile(),
+                'line' => $exception->getLine(),
                 'message' => $this->getMessage($exception),
-                'trace'   => $exception->getTrace(),
-                'code'    => $this->getCode($exception),
-                'source'  => $this->getSourceCode($exception),
-                'datas'   => $this->getExtendData($exception),
-                'tables'  => [
-                    'GET Data'              => $_GET,
-                    'POST Data'             => $_POST,
-                    'Files'                 => $_FILES,
-                    'Cookies'               => $_COOKIE,
-                    'Session'               => isset($_SESSION) ? $_SESSION : [],
-                    'Server/Request Data'   => $_SERVER,
+                'trace' => $exception->getTrace(),
+                'code' => $this->getCode($exception),
+                'source' => $this->getSourceCode($exception),
+                'datas' => $this->getExtendData($exception),
+                'tables' => [
+                    'GET Data' => $_GET,
+                    'POST Data' => $_POST,
+                    'Files' => $_FILES,
+                    'Cookies' => $_COOKIE,
+                    'Session' => isset($_SESSION) ? $_SESSION : [],
+                    'Server/Request Data' => $_SERVER,
                     'Environment Variables' => $_ENV,
-                    'Mll Constants'    => $this->getConst(),
+                    'Mll Constants' => $this->getConst(),
                 ],
             ];
         } else {
             // 部署模式仅显示 Code 和 Message
             $data = [
-                'code'    => $this->getCode($exception),
+                'code' => $this->getCode($exception),
                 'message' => $this->getMessage($exception),
             ];
 
-            if (!Mll::app()->config->get('exception.show_error_msg', true)) {
+            if (!Mll::app()->config->get('exception.show_error_msg', true) || MLL_ENV_PROD) {
+                //在header头定义错误信息
+
                 // 不显示详细错误信息
-                $data['message'] = Mll::app()->config->get('exception.error_message', '系统繁忙');
+                $data['message'] = Mll::app()->config->get('exception.error_message', '系统繁忙,请稍后再试');
             }
         }
 
@@ -156,13 +148,13 @@ class Handle
     protected function getSourceCode(Exception $exception)
     {
         // 读取前9行和后9行
-        $line  = $exception->getLine();
+        $line = $exception->getLine();
         $first = ($line - 9 > 0) ? $line - 9 : 1;
 
         try {
             $contents = file($exception->getFile());
-            $source   = [
-                'first'  => $first,
+            $source = [
+                'first' => $first,
                 'source' => array_slice($contents, $first - 1, 19),
             ];
         } catch (Exception $e) {
