@@ -3,6 +3,8 @@
 namespace Mll;
 
 use Mll\Config;
+use Mll\Exception\Error;
+use Mll\Log;
 use Mll\Core\Container;
 
 /**
@@ -11,6 +13,7 @@ use Mll\Core\Container;
  * @package Mll
  * @property \Mll\Config\Driver\ArrayFormat $config
  * @property \Mll\Request\IRequest $request
+ * @property \Mll\Log\ILog $log
  * @property \Mll\Mll $app
  * @date        2016
  * @copyright   mll
@@ -63,17 +66,9 @@ class Mll
     {
 
         self::$serveModel = $serveModel;
-        //错误注册
-        if (MLL_DEBUG && class_exists("\\Whoops\\Run")) {
-            $whoops = new \Whoops\Run();
-            $whoops->pushHandler(new \Whoops\Handler\PrettyPageHandler());
-            $whoops->register();
-        } else {
-
-        }
-
         //自动加载
         //spl_autoload_register(__CLASS__.'::autoload', true, true);
+
         //服务容器
         Container::addDefinitions([
             'config' => function () {
@@ -82,14 +77,35 @@ class Mll
             'request' => function () {
                 return Request\Factory::getInstance();
             },
+            'log' => function () {
+                return Log\Factory::getInstance();
+            },
         ]);
 
+        //设置调试模式
+        self::$debug = Mll::app()->config->get('app_debug', true);
 
+        //错误注册
+        if (self::$debug && class_exists("\\Whoops\\Run")) {
+           /* $whoops = new \Whoops\Run();
+            $whoops->pushHandler(new \Whoops\Handler\PrettyPageHandler());
+            $whoops->register();*/
+        } else {
+            //Error::register();
+        }
+        Error::register();
+        $ss+=1;
+        //路由分析
+
+        //
         Mll::app()->config->load(self::getConfigPath('goods'));
 
-        self::$debug = Mll::app()->config->get('app_debug', 1);
+        Mll::app()->log->info('sfsaf', array('aa' => array('ss','gg'),'bb'=>'sdfdsafdfa'));
+        Mll::app()->log->info('sfsaf', array('aa' => array('ss','gg'),'bb'=>'sdfdsafdfa'));
+
+        Mll::app()->log->save();
         //Mll::app()->request::parse('dd');
-        var_dump(Mll::app()->config->all());
+        //var_dump(Mll::app()->config->all());
         die;
         //纯静态框架
 
@@ -167,7 +183,7 @@ class Mll
 
         include $classFile;
 
-        if (MLL_DEBUG && !class_exists($className, false) && !interface_exists($className, false)
+        if (self::$debug && !class_exists($className, false) && !interface_exists($className, false)
             && !trait_exists($className, false)
         ) {
             throw new \Exception("没有找到 '$className'：$classFile");

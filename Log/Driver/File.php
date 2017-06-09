@@ -1,30 +1,25 @@
 <?php
-// +----------------------------------------------------------------------
-// | ThinkPHP [ WE CAN DO IT JUST THINK IT ]
-// +----------------------------------------------------------------------
-// | Copyright (c) 2006-2016 http://thinkphp.cn All rights reserved.
-// +----------------------------------------------------------------------
-// | Licensed ( http://www.apache.org/licenses/LICENSE-2.0 )
-// +----------------------------------------------------------------------
-// | Author: liu21st <liu21st@gmail.com>
-// +----------------------------------------------------------------------
 
 namespace Mll\Log\Driver;
 
+use Mll\Log\Base;
 use Mll\Log\ILog;
-use think\App;
 
 /**
- * 本地化调试输出到文件
+ * 本地化调试输出到文件.
  */
-class File extends Log
+class File extends Base implements ILog
 {
-    protected $config = [
-        'time_format' => ' c ',
-        'file_size'   => 2097152,
-        'path'        => LOG_PATH,
-        'apart_level' => [],
-    ];
+    private $config = array(
+        'time_format' => 'c', //ISO 8601 格式的日期
+        'file_size' => 2097152,
+        'path' => '/runtime/log',
+        'level' => 'all', //默认所有，或者逗号隔开warning,error
+        'separator' => ' | ',
+        'suffix' => '.log',
+    );
+
+    private $logs;
 
     // 实例化并传入参数
     public function __construct($config = [])
@@ -35,16 +30,43 @@ class File extends Log
     }
 
     /**
-     * 日志写入接口
-     * @access public
-     * @param array $log 日志信息
-     * @param bool  $depr 是否写入分割线
+     * 任意等级的日志记录.
+     *
+     * @param mixed $level
+     * @param string $message
+     * @param array $context
+     *
      * @return bool
      */
-    public function save(array $log = [], $depr = true)
+    public function log($level, $message, array $context = array())
     {
-        $now         = date($this->config['time_format']);
-        $destination = $this->config['path'] . date('Ym') . DS . date('d') . '.log';
+        if (empty($level) || empty($message)) {
+            return false;
+        }
+        $now = date($this->config['time_format']);
+        $separator = $this->config['separator'];
+        $logStr = $now . $separator . $level . $separator . $message;
+        if (!empty($context)) {
+            $logStr .= $separator . implode($separator, array_map(function ($value) {
+                    return json_encode($value, JSON_UNESCAPED_UNICODE);
+            }, $context));
+        }
+        $this->logs[$level][] = $logStr;
+
+        return true;
+    }
+
+    /**
+     * 日志写入接口.
+     *
+     * @return bool
+     */
+    public function save()
+    {
+        if (empty($this->logs)) {
+            return true;
+        }
+        $destination = ROOT_PATH . $this->config['path'] . DS . date('Ym') . DS . date('d') . $this->config['suffix'];
 
         $path = dirname($destination);
         !is_dir($path) && mkdir($path, 0755, true);
@@ -53,50 +75,15 @@ class File extends Log
         if (is_file($destination) && floor($this->config['file_size']) <= filesize($destination)) {
             rename($destination, dirname($destination) . DS . $_SERVER['REQUEST_TIME'] . '-' . basename($destination));
         }
-
-        $depr = $depr ? "---------------------------------------------------------------\r\n" : '';
-        $info = '';
-        if (App::$debug) {
-            // 获取基本信息
-            if (isset($_SERVER['HTTP_HOST'])) {
-                $current_uri = $_SERVER['HTTP_HOST'] . $_SERVER['REQUEST_URI'];
-            } else {
-                $current_uri = "cmd:" . implode(' ', $_SERVER['argv']);
-            }
-
-            $runtime    = round(microtime(true) - THINK_START_TIME, 10);
-            $reqs       = $runtime > 0 ? number_format(1 / $runtime, 2) : '∞';
-            $time_str   = ' [运行时间：' . number_format($runtime, 6) . 's][吞吐率：' . $reqs . 'req/s]';
-            $memory_use = number_format((memory_get_usage() - THINK_START_MEM) / 1024, 2);
-            $memory_str = ' [内存消耗：' . $memory_use . 'kb]';
-            $file_load  = ' [文件加载：' . count(get_included_files()) . ']';
-
-            $info   = '[ log ] ' . $current_uri . $time_str . $memory_str . $file_load . "\r\n";
-            $server = isset($_SERVER['SERVER_ADDR']) ? $_SERVER['SERVER_ADDR'] : '0.0.0.0';
-            $remote = isset($_SERVER['REMOTE_ADDR']) ? $_SERVER['REMOTE_ADDR'] : '0.0.0.0';
-            $method = isset($_SERVER['REQUEST_METHOD']) ? $_SERVER['REQUEST_METHOD'] : 'CLI';
-            $uri    = isset($_SERVER['REQUEST_URI']) ? $_SERVER['REQUEST_URI'] : '';
-        }
-        foreach ($log as $type => $val) {
-            $level = '';
-            foreach ($val as $msg) {
-                if (!is_string($msg)) {
-                    $msg = var_export($msg, true);
-                }
-                $level .= '[ ' . $type . ' ] ' . $msg . "\r\n";
-            }
-            if (in_array($type, $this->config['apart_level'])) {
+        $allowLevel = explode(',', $this->config['level']);
+        foreach ($this->logs as $level => $val) {
+            if (in_array('all', $allowLevel) || in_array($val['level'], $allowLevel)) {
                 // 独立记录的日志级别
-                $filename = $path . DS . date('d') . '_' . $type . '.log';
-                error_log("[{$now}] {$level}\r\n{$depr}", 3, $filename);
-            } else {
-                $info .= $level;
+                $filename = $path . DS . date('d') . '_' . $level . '.log';
+                error_log(implode("\r\n", $val) . "\r\n", 3, $filename);
             }
         }
-        if (App::$debug) {
-            $info = "{$server} {$remote} {$method} {$uri}\r\n" . $info;
-        }
-        return error_log("[{$now}] {$info}\r\n{$depr}", 3, $destination);
+        $this->logs = null;
+        return true;
     }
-
 }

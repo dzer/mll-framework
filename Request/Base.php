@@ -4,7 +4,7 @@ namespace Mll\Request\Driver;
 
 use Mll\Request\IRequest;
 
-class Base implements IRequest
+abstract class Base implements IRequest
 {
     protected static $server;
 
@@ -77,9 +77,7 @@ class Base implements IRequest
      *
      * @param $requestParams
      */
-    public static function parse($requestParams)
-    {
-    }
+    abstract public static function parse($requestParams);
 
     /**
      * 获取请求参数.

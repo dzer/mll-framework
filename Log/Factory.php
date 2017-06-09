@@ -2,15 +2,15 @@
 
 namespace Mll\Log;
 
-use Mll\Core\Factory as DFactory;
+use Mll\Core\Container;
 
 class Factory
 {
-    public static function getInstance($driver = 'File')
+    public static function getInstance($driver = 'File', $config = array())
     {
         $driver = ucfirst(strtolower($driver));
         $className = __NAMESPACE__."\\Driver\\{$driver}";
 
-        return DFactory::getInstance($className);
+        return Container::getInstance($className, $config);
     }
 }

@@ -93,4 +93,11 @@ interface ILog
      * @return null
      */
     public function log($level, $message, array $context = array());
+
+    /**
+     * 保存日志
+     *
+     * @return bool
+     */
+    public function save();
 }
