@@ -1,19 +1,9 @@
 <?php
-// +----------------------------------------------------------------------
-// | ThinkPHP [ WE CAN DO IT JUST THINK IT ]
-// +----------------------------------------------------------------------
-// | Copyright (c) 2006-2016 http://thinkphp.cn All rights reserved.
-// +----------------------------------------------------------------------
-// | Licensed ( http://www.apache.org/licenses/LICENSE-2.0 )
-// +----------------------------------------------------------------------
-// | Author: yunwuxin <448901948@qq.com>
-// +----------------------------------------------------------------------
 
 namespace Mll\Exception;
 
 use Exception;
 use Mll\Mll;
-
 
 class Handle
 {
@@ -32,10 +22,11 @@ class Handle
     {
         if (!$this->isIgnoreReport($exception)) {
             // 收集异常数据
+            $isFatal = in_array($this->getCode($exception), [E_ERROR, E_CORE_ERROR, E_COMPILE_ERROR, E_PARSE]);
             $data = [
                 'file' => $exception->getFile(),
                 'line' => $exception->getLine(),
-                'message' => $this->getMessage($exception),
+                'message' => ($isFatal ? 'fatal error:' : '') . $this->getMessage($exception),
                 'code' => $this->getCode($exception),
             ];
             $log = "[{$data['code']}]{$data['message']}[{$data['file']}:{$data['line']}]";
@@ -57,7 +48,7 @@ class Handle
      * Render an exception into an HTTP response.
      *
      * @param  \Exception $e
-     * @return Response
+     * @return array
      */
     public function render(Exception $e)
     {

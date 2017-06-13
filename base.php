@@ -12,7 +12,12 @@ define('DS', DIRECTORY_SEPARATOR);
 /*
  * 程序开始时间戳
  */
-defined('MLL_BEGIN_TIME') or define('MLL_BEGIN_TIME', microtime(true));
+defined('MLL_BEGIN_TIME') or define('MLL_BEGIN_TIME', microtime());
+
+/*
+ * 程序开始内存分配量
+ */
+defined('MLL_BEGIN_MEMORY') or define('MLL_BEGIN_MEMORY', memory_get_usage());
 
 /*
  * 框架目录

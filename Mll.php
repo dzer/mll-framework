@@ -5,6 +5,7 @@ namespace Mll;
 use Mll\Config;
 use Mll\Exception\Error;
 use Mll\Log;
+use Mll\Server;
 use Mll\Core\Container;
 
 /**
@@ -15,6 +16,7 @@ use Mll\Core\Container;
  * @property \Mll\Request\IRequest $request
  * @property \Mll\Log\ILog $log
  * @property \Mll\Mll $app
+ * @property \Mll\Server\IServer $server
  * @date        2016
  * @copyright   mll
  */
@@ -64,7 +66,6 @@ class Mll
 
     public function run($serveModel = 'Http')
     {
-
         self::$serveModel = $serveModel;
         //自动加载
         //spl_autoload_register(__CLASS__.'::autoload', true, true);
@@ -80,65 +81,24 @@ class Mll
             'log' => function () {
                 return Log\Factory::getInstance();
             },
+            'server' => function () {
+                return Server\Factory::getInstance(self::$serveModel);
+            },
         ]);
+        //加载配置文件
+        Mll::app()->config->load(self::getConfigPath());
+
+        //时区设置
+        date_default_timezone_set(Mll::app()->config->get('time_zone', 'Asia/Shanghai'));
 
         //设置调试模式
         self::$debug = Mll::app()->config->get('app_debug', true);
 
         //错误注册
-        if (self::$debug && class_exists("\\Whoops\\Run")) {
-           /*$whoops = new \Whoops\Run();
-            $whoops->pushHandler(new \Whoops\Handler\PrettyPageHandler());
-            $whoops->register();*/
-        } else {
-            //Error::register();
-        }
         Error::register();
-        $this->ss();
-        $ss+=1;
-        //路由分析
 
-        //
-        Mll::app()->config->load(self::getConfigPath('goods'));
-
-        Mll::app()->log->info('sfsaf', array('aa' => array('ss','gg'),'bb'=>'sdfdsafdfa'));
-        Mll::app()->log->info('sfsaf', array('aa' => array('ss','gg'),'bb'=>'sdfdsafdfa'));
-
-        Mll::app()->log->save();
-        //Mll::app()->request::parse('dd');
-        //var_dump(Mll::app()->config->all());
-        die;
-        //纯静态框架
-
-        //自定义容器 符合psr-11
-        //获取配置 在build get时缓存(暂定)
-        //@property \yii\web\Request|\yii\console\Request $request The request component. This property is read-only.
-        self::$container = new Container();
-
-        self::$config = Config\Factory::getInstance();
-        self::$request = Request\Factory::getInstance(self::$serveModel);
-
-        //分析路由
-
-        //加载配置文件
-        self::$config = self::$config->load(self::getConfigPath('goods'));
-
-        var_dump(self::$config);
-        die;
-        var_dump(Mll::$config->cache->mll->host);
-
-        var_dump(Config::all());
-        $timeZone = Mll::$container->get('config')->get('time_zone', 'Asia/Shanghai');
-        date_default_timezone_set($timeZone);
-
-        /* $eh = Config::getField('project', 'exception_handler', __CLASS__ . '::exceptionHandler');
-         \set_exception_handler($eh);
-         \register_shutdown_function(Config::getField('project', 'fatal_handler', __CLASS__ . '::fatalHandler'));
-         if (Config::getField('project', 'error_handler')) {
-             \set_error_handler(Config::getField('project', 'error_handler'));
-         }
-         $timeZone = Config::get('time_zone', 'Asia/Shanghai');
-         \date_default_timezone_set($timeZone);*/
+        //run server
+        Mll::app()->server->run();
     }
 
     /**

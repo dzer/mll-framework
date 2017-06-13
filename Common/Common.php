@@ -45,4 +45,16 @@ class Common
             return $d;
         }
     }
+
+    /**
+     * 将字节转换成相应的单位
+     *
+     * @param $size
+     * @return string
+     */
+    public static function convert($size)
+    {
+        $unit = array('B', 'K', 'M', 'G', 'T', 'P');
+        return round($size / pow(1024, ($i = floor(log($size, 1024)))), 2) . ' ' . $unit[$i];
+    }
 }

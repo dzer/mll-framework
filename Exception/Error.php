@@ -7,68 +7,65 @@ use Mll\Mll;
 class Error
 {
     /**
-     * 注册异常处理
-     * @return void
+     * 注册异常处理.
      */
     public static function register()
     {
-        //error_reporting(E_ALL);
+        error_reporting(E_ALL);
         set_error_handler([__CLASS__, 'appError']);
         set_exception_handler([__CLASS__, 'appException']);
         register_shutdown_function([__CLASS__, 'appShutdown']);
     }
 
     /**
-     * Exception Handler
-     * @param  \Exception|\Throwable $e
+     * Exception Handler.
+     *
+     * @param \Exception|\Throwable $e
      */
     public static function appException($e)
     {
-        if (!$e instanceof \Exception) {
-            $e = new ThrowableError($e);
-        }
-
         self::getExceptionHandler()->report($e);
-        //self::getExceptionHandler()->render($e)->send();
         while (ob_get_level() > 1) {
             ob_end_clean();
         }
+        ob_get_clean();
 
-        $data['echo'] = ob_get_clean();
-
-       /* ob_start();
-        extract($data);
-        include Config::get('exception_tmpl');
+        $outData = self::getExceptionHandler()->render($e);
         // 获取并清空缓存
-        $content  = ob_get_clean();*/
+        //$outData['echo'] = ob_get_clean();
         ob_start();
-        $outDate = self::getExceptionHandler()->render($e);
-
-        if (MLL_ENV_PROD) {
-            echo $outDate['message'];
+        // 判断请求头的content_type=json或者是ajax请求就返回json
+        if (isset($_SERVER['CONTENT_TYPE']) && $_SERVER['CONTENT_TYPE'] == 'application/json') {
+            echo json_encode($outData);
         } else {
-            if($_SERVER['CONTENT_TYPE'] == 'application/json')  {
-                echo json_encode($outDate);
-            } else {
-                echo json_encode($outDate);
+            extract((array) $outData);
+            $tpl = Mll::app()->config->get('exception.template', __DIR__.'/Template/mllExceptionTpl.php');
+            if (file_exists($tpl)) {
+                include $tpl;
             }
+            $content = ob_get_clean();
+            http_response_code(500);
+            echo $content;
         }
-        ob_end_flush();
+        // 提高页面响应
+        fastcgi_finish_request();
     }
 
     /**
-     * Error Handler
-     * @param  integer $errno 错误编号
-     * @param  integer $errstr 详细错误信息
-     * @param  string $errfile 出错的文件
-     * @param  integer $errline 出错行号
-     * @param array $errcontext
+     * Error Handler.
+     *
+     * @param int    $errNo      错误编号
+     * @param int    $errStr     详细错误信息
+     * @param string $errFile    出错的文件
+     * @param int    $errLine    出错行号
+     * @param array  $errContext
+     *
      * @throws ErrorException
      */
-    public static function appError($errno, $errstr, $errfile = '', $errline = 0, $errcontext = [])
+    public static function appError($errNo, $errStr, $errFile = '', $errLine = 0, $errContext = [])
     {
-        $exception = new ErrorException($errno, $errstr, $errfile, $errline, $errcontext);
-        if (error_reporting() & $errno) {
+        $exception = new ErrorException($errNo, $errStr, $errFile, $errLine, $errContext);
+        if (error_reporting() & $errNo) {
             // 将错误信息托管至 think\exception\ErrorException
             throw $exception;
         } else {
@@ -77,7 +74,7 @@ class Error
     }
 
     /**
-     * Shutdown Handler
+     * Shutdown Handler.
      */
     public static function appShutdown()
     {
@@ -87,14 +84,45 @@ class Error
 
             self::appException($exception);
         }
+        if (Mll::$debug) {
+            $time = self::getMicroTime() - self::getMicroTime(MLL_BEGIN_TIME);
+            $mem_use = memory_get_usage() - MLL_BEGIN_MEMORY;
+            $run_id = 0;
+            /*if (self::$xhprof) {
+                $xhprof_data = \xhprof_disable();
+                $xhprof_runs = new \XHProfRuns_Default();
+                $run_id = $xhprof_runs->save_run($xhprof_data, 'random');
+            }*/
+            Mll::app()->log->info('debug', array(
+                    'exec_time: ' . $time,
+                    'use_memory: ' . self::convert($mem_use),
+                    'run_id: ' . $run_id,
+                    'url: ' . $_SERVER['HTTP_HOST'] . $_SERVER['PHP_SELF'] . $_SERVER['REQUEST_URI'],
+                    )
+            );
+        }
         // 写入日志
         Mll::app()->log->save();
     }
 
+    private static function convert($size)
+    {
+        $unit = array('B', 'K', 'M', 'G', 'T', 'P');
+        return round($size / pow(1024, ($i = floor(log($size, 1024)))), 2) . ' ' . $unit[$i];
+    }
+
+    public static function getMicroTime($mic = null)
+    {
+        $mic = $mic ?  $mic : microtime();
+        list($usec, $sec) = \explode(" ", $mic);
+        return ((float)$usec + (float)$sec);
+    }
+
     /**
-     * 确定错误类型是否致命
+     * 确定错误类型是否致命.
      *
-     * @param  int $type
+     * @param int $type
+     *
      * @return bool
      */
     protected static function isFatal($type)
@@ -113,12 +141,13 @@ class Error
         if (!$handle) {
             // 异常处理handle
             $class = Mll::app()->config->get('exception.exception_handle');
-            if ($class && class_exists($class) && is_subclass_of($class, "\\Mll\\Exception\\Handle")) {
-                $handle = new $class;
+            if ($class && class_exists($class) && is_subclass_of($class, '\\Mll\\Exception\\Handle')) {
+                $handle = new $class();
             } else {
-                $handle = new Handle;
+                $handle = new Handle();
             }
         }
+
         return $handle;
     }
 }
