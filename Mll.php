@@ -17,7 +17,7 @@ use Mll\Core\Container;
  * @property \Mll\Log\ILog $log
  * @property \Mll\Mll $app
  * @property \Mll\Server\IServer $server
- * @date        2016
+ * @date        2017
  * @copyright   mll
  */
 class Mll
@@ -75,16 +75,26 @@ class Mll
             'config' => function () {
                 return Config\Factory::getInstance();
             },
-            'request' => function () {
-                return Request\Factory::getInstance();
-            },
+        ]);
+        Container::addDefinitions([
             'log' => function () {
-                return Log\Factory::getInstance();
+                return Log\Factory::getInstance(
+                    Mll::app()->config->get('log.driver', 'file'),
+                    Mll::app()->config->get('log.file')
+                );
             },
             'server' => function () {
                 return Server\Factory::getInstance(self::$serveModel);
             },
+            'request' => function () {
+                return Request\Factory::getInstance(
+                    Mll::app()->config->get('request.driver', 'http'),
+                    Mll::app()->config->get('request.http')
+                );
+            },
         ]);
+
+
         //加载配置文件
         Mll::app()->config->load(self::getConfigPath());
 
@@ -97,6 +107,7 @@ class Mll
         //错误注册
         Error::register();
 
+        Mll::app()->request->parse();
         //run server
         Mll::app()->server->run();
     }

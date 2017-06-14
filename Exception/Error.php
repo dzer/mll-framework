@@ -48,7 +48,9 @@ class Error
             echo $content;
         }
         // 提高页面响应
-        fastcgi_finish_request();
+        if (function_exists('fastcgi_finish_request')) {
+            fastcgi_finish_request();
+        }
     }
 
     /**

@@ -1,20 +1,40 @@
 <?php
 
-namespace Mll\Request\Driver;
-
-use Mll\Request\IRequest;
+namespace Mll\Request;
 
 abstract class Base implements IRequest
 {
-    protected static $server;
+    protected $config = [
+        // 默认模块名
+        'default_module' => 'index',
+        // 禁止访问模块
+        'deny_module_list' => ['config'],
+        // 默认控制器名
+        'default_controller' => 'Index',
+        // 默认操作名
+        'default_action' => 'index',
+        //兼容pathInfo变量
+        'path_info_var' => 'r'
+    ];
 
-    protected static $params;
+    protected $server;
 
-    protected static $module;
+    protected $params;
 
-    protected static $controller;
+    protected $module;
 
-    protected static $method;
+    protected $controller;
+
+    protected $action;
+
+    protected $method;
+
+    public function __construct($config = [])
+    {
+        if (is_array($config)) {
+            $this->config = array_merge($this->config, $config);
+        }
+    }
 
     /**
      * 获取当前请求URL的pathinfo信息(不含URL后缀).
@@ -77,21 +97,21 @@ abstract class Base implements IRequest
      *
      * @param $requestParams
      */
-    abstract public static function parse($requestParams);
+    abstract public function parse($requestParams);
 
     /**
      * 获取请求参数.
      *
      * @return mixed
      */
-    public static function getParams()
+    public function getParams()
     {
     }
 
     /**
      * 设置请求参数.
      */
-    public static function setParams()
+    public function setParams()
     {
     }
 
@@ -100,7 +120,7 @@ abstract class Base implements IRequest
      *
      * @return mixed
      */
-    public static function getModule()
+    public function getModule()
     {
     }
 
@@ -109,7 +129,7 @@ abstract class Base implements IRequest
      *
      * @return mixed
      */
-    public static function getController()
+    public function getController()
     {
     }
 
@@ -118,7 +138,7 @@ abstract class Base implements IRequest
      *
      * @return mixed
      */
-    public static function getMethod()
+    public function getMethod()
     {
     }
 }

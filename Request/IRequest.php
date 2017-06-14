@@ -11,38 +11,38 @@ interface IRequest
      *
      * @return mixed
      */
-    public static function parse($request);
+    public function parse($request);
 
     /**
      * 获取请求参数.
      *
      * @return mixed
      */
-    public static function getParams();
+    public function getParams();
 
     /**
      * 设置请求参数.
      */
-    public static function setParams();
+    public function setParams();
 
     /**
      * 获取模块.
      *
      * @return mixed
      */
-    public static function getModule();
+    public function getModule();
 
     /**
      * 获取控制器.
      *
      * @return mixed
      */
-    public static function getController();
+    public function getController();
 
     /**
      * 获取方法.
      *
      * @return mixed
      */
-    public static function getMethod();
+    public function getMethod();
 }
