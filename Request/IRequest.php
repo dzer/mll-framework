@@ -44,5 +44,12 @@ interface IRequest
      *
      * @return mixed
      */
+    public function getAction();
+
+    /**
+     * 获取方法.
+     *
+     * @return mixed
+     */
     public function getMethod();
 }

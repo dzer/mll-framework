@@ -29,7 +29,7 @@ class ArrayFormat implements IConfig
             foreach ($configPathArr as $configPath) {
                 $files = Dir::tree($configPath, '/.php$/');
                 array_map(function ($file) use (&$config) {
-                    $config += include "{$file}";
+                    $config += include $file;
                 }, $files);
             }
         }
@@ -46,7 +46,7 @@ class ArrayFormat implements IConfig
      */
     public function mergeFile($file)
     {
-        $tmp = include "{$file}";
+        $tmp = include "ArrayFormat.php";
         if (empty($tmp)) {
             return false;
         }

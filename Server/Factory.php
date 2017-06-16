@@ -2,7 +2,7 @@
 
 namespace Mll\Server;
 
-use Mll\Core\Factory as DFactory;
+use Mll\Core\Container;
 
 class Factory
 {
@@ -10,6 +10,6 @@ class Factory
     {
         $driver = ucfirst(strtolower($driver));
         $className = __NAMESPACE__ . "\\Driver\\{$driver}";
-        return DFactory::getInstance($className);
+        return Container::getInstance($className);
     }
 }

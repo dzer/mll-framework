@@ -68,7 +68,7 @@ class Mll
     {
         self::$serveModel = $serveModel;
         //自动加载
-        //spl_autoload_register(__CLASS__.'::autoload', true, true);
+        spl_autoload_register(__CLASS__.'::autoload', true, true);
 
         //服务容器
         Container::addDefinitions([
@@ -145,7 +145,7 @@ class Mll
         if (isset(static::$classMap[$className])) {
             $classFile = static::$classMap[$className];
         } elseif (strpos($className, '\\') !== false) {
-            $classFile = str_replace('\\', DS, $className) . '.php';
+            $classFile = ROOT_PATH . DS . str_replace('\\', DS, $className) . '.php';
             if ($classFile === false || !is_file($classFile)) {
                 return;
             }

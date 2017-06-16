@@ -28,7 +28,7 @@ class Error
         while (ob_get_level() > 1) {
             ob_end_clean();
         }
-        ob_get_clean();
+        //ob_get_clean();
 
         $outData = self::getExceptionHandler()->render($e);
         // 获取并清空缓存
@@ -39,7 +39,7 @@ class Error
             echo json_encode($outData);
         } else {
             extract((array) $outData);
-            $tpl = Mll::app()->config->get('exception.template', __DIR__.'/Template/mllExceptionTpl.php');
+            $tpl = Mll::app()->config->get('exception.template', __DIR__ . '/Template/mllExceptionTpl.php');
             if (file_exists($tpl)) {
                 include $tpl;
             }

@@ -2,11 +2,51 @@
 
 namespace Mll\Core;
 
+use Mll\Controller\IController;
+use Mll\Mll;
+
 class Route
 {
     public static function route()
     {
+        $className = 'app\\' . Mll::app()->request->getModule() . '\\controller\\'
+            . Mll::app()->request->getController();
+        $class = Container::getInstance($className);
 
+        try {
+            if (!($class instanceof IController)) {
+                throw new \Exception("ctrl error");
+            } else {
+                $view = null;
+                $action = Mll::app()->request->getAction();
+                if (1 || $class->_before()) {
+                    if (!method_exists($class, $action)) {
+                        throw new \Exception("method error");
+                    }
+                    $view = $class->$action();
+                } else {
+                    throw new \Exception($className . ':' . $action . ' _before() no return true');
+                }
+                //$class->_after();
+                /*if (Request::isLongServer()) {
+                    SSESSION::save();
+                }*/
+                //return Response::display($view);
+
+            }
+        } catch (\Exception $e) {
+            /*if (Request::isLongServer()) {
+                $result = \call_user_func(Config::getField('project', 'exception_handler', 'ZPHP\ZPHP::exceptionHandler'), $e);
+                if ($class instanceof IController) {
+                    $class->_after();
+                }
+                return $result;
+            }*/
+            if ($class instanceof IController) {
+                $class->_after();
+            }
+            throw $e;
+        }
     }
 
     /**
@@ -46,10 +86,6 @@ class Route
             return false;
         }
 
-
-        /*if(isset($route['ext'])) {
-            $pathinfo = str_replace($route['ext'], '', $pathinfo);
-        }*/
         $pathinfo = explode('.', $pathinfo);
         $pathinfo = $pathinfo[0];
 
@@ -68,6 +104,7 @@ class Route
             }
         }*/
 
+
         foreach ($route['dynamic'] as $regex => $rule) {
             if (!preg_match($regex, $pathinfo, $matches)) {
                 continue;
@@ -75,14 +112,13 @@ class Route
             if (!empty($matches)) {
                 unset($matches[0]);
                 foreach ($matches as $index => $val) {
-                    $rule[0] = str_replace("{{$index}}", $val, $rule[0], $count1);
-                    $rule[1] = str_replace("{{$index}}", $val, $rule[1], $count2);
-                    if (($count1 + $count2) > 0) {
+                    $rule[0] = str_replace("{{$index}}", $val, $rule[0], $count);
+                    if (($count) > 0) {
                         unset($matches[$index]);
                     }
                 }
-                if (!empty($rule[2]) && !empty($matches)) {
-                    $rule[2] = array_combine($rule[2], $matches);
+                if (!empty($rule[1]) && !empty($matches)) {
+                    $rule[1] = array_combine($rule[1], $matches);
                 }
                 if (isset($cache)) {
                     $cache->set($pathinfo, json_encode($rule));
@@ -98,7 +134,7 @@ class Route
         // 分隔符替换 确保路由定义使用统一的分隔符
         $url = str_replace('|', '/', $url);
         $url = trim($url, '/');
-        $var = [];
+        $path = $var = [];
         if (false !== strpos($url, '?')) {
             // [模块/控制器/操作?]参数1=值1&参数2=值2...
             $info = parse_url($url);
@@ -113,6 +149,18 @@ class Route
         } else {
             $path = [$url];
         }
+        if (!empty($url) && '/' !== $url) {
+            //路由替换
+            $routeMap = self::match(Mll::app()->config->get('route'), $url);
+            if (is_array($routeMap)) {
+                $path = explode('\\', $routeMap[0]);
+                if (!empty($routeMap[1]) && is_array($routeMap[1])) {
+                    //参数优先
+                    $var += $routeMap[1];
+                }
+            }
+        }
+
         return [$path, $var];
     }
 
