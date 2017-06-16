@@ -11,7 +11,7 @@ interface IRequest
      *
      * @return mixed
      */
-    public function parse($request);
+    public function parse($request = null);
 
     /**
      * 获取请求参数.
@@ -52,4 +52,13 @@ interface IRequest
      * @return mixed
      */
     public function getMethod();
+
+    /**
+     * isAjax
+     *
+     * @return mixed
+     */
+    public function isAjax();
+
+    public function getRequestTime($clear = false);
 }

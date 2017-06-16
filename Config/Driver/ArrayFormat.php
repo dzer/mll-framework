@@ -12,7 +12,7 @@ class ArrayFormat implements IConfig
      * 配置文件
      * @var array
      */
-    private static $config;
+    private static $config = [];
 
 
     /**
@@ -33,7 +33,7 @@ class ArrayFormat implements IConfig
                 }, $files);
             }
         }
-        self::$config = $config;
+        self::$config = array_merge(self::$config, $config);
 
         return self::$config;
     }

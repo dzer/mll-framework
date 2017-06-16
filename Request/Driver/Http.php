@@ -296,4 +296,17 @@ class Http extends Base implements IRequest
 
         return $this->baseUrl;
     }
+
+    /**
+     * 当前是否Ajax请求
+     * @access public
+     * @param bool $ajax  true 获取原始ajax请求
+     * @return bool
+     */
+    public function isAjax($ajax = false)
+    {
+        $value  = $this->server('HTTP_X_REQUESTED_WITH', '', 'strtolower');
+        $result = ('xmlhttprequest' == $value) ? true : false;
+        return $result;
+    }
 }

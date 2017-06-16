@@ -48,6 +48,8 @@ abstract class Base implements IRequest
     //模板文件
     protected $tplFile;
 
+    protected $requestTime;
+
     /**
      * @var array 请求参数
      */
@@ -73,6 +75,8 @@ abstract class Base implements IRequest
         }
         // 保存 php://input
         $this->input = file_get_contents('php://input');
+        //设置请求时间
+        $this->setRequestTime();
     }
 
     /**
@@ -159,7 +163,8 @@ abstract class Base implements IRequest
      *
      * @param $requestParams
      */
-    abstract public function parse($requestParams);
+    /**
+    abstract public function parse($requestParams = null);
 
     /**
      * 获取请求参数.
@@ -572,6 +577,41 @@ abstract class Base implements IRequest
         }
         return true;
         // TODO 其他安全过滤
+    }
+
+    /**
+     * @param null $time
+     * @return bool
+     */
+    public function setRequestTime($time = null)
+    {
+        if (!empty($this->requestTime)) {
+            return false;
+        }
+        if (empty($time)) {
+            if (!empty($_REQUEST['REQUEST_TIME_FLOAT'])) {
+                $time = $_REQUEST['REQUEST_TIME_FLOAT'];
+            } else {
+                $time = microtime(true);
+            }
+        }
+        $this->requestTime = $time;
+        $this->header($this->config['request_time_key'], $time);
+        return true;
+    }
+
+    /**
+     * @param bool $clear
+     * @return null
+     * @desc 获取请求开始时间
+     */
+    public function getRequestTime($clear = false)
+    {
+        $time = $this->requestTime;
+        if ($clear) {
+            $this->requestTime = null;
+        }
+        return $time;
     }
 
 

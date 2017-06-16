@@ -4,13 +4,15 @@ namespace Mll\Core;
 
 use Mll\Controller\IController;
 use Mll\Mll;
+use Mll\Response\Response;
 
 class Route
 {
     public static function route()
     {
-        $className = 'app\\' . Mll::app()->request->getModule() . '\\controller\\'
-            . Mll::app()->request->getController();
+        $request = Mll::app()->request;
+        $className = 'app\\' . $request->getModule() . '\\controller\\'
+            . $request->getController();
         $class = Container::getInstance($className);
 
         try {
@@ -18,8 +20,8 @@ class Route
                 throw new \Exception("ctrl error");
             } else {
                 $view = null;
-                $action = Mll::app()->request->getAction();
-                if (1 || $class->_before()) {
+                $action = $request->getAction();
+                if (1 || $class->beforeAction()) {
                     if (!method_exists($class, $action)) {
                         throw new \Exception("method error");
                     }
@@ -27,12 +29,19 @@ class Route
                 } else {
                     throw new \Exception($className . ':' . $action . ' _before() no return true');
                 }
-                //$class->_after();
-                /*if (Request::isLongServer()) {
-                    SSESSION::save();
-                }*/
-                //return Response::display($view);
+                // 输出数据到客户端
+                if ($view instanceof Response) {
+                    $response = $view;
+                } elseif (!is_null($view)) {
+                    // 默认自动识别响应输出类型
+                    $isAjax   = $request->isAjax();
+                    $type     = $isAjax ? 'json' : 'html';
+                    $response = Response::create($view, $type);
+                } else {
+                    $response = Response::create();
+                }
 
+                return $response->send();
             }
         } catch (\Exception $e) {
             /*if (Request::isLongServer()) {
@@ -43,7 +52,7 @@ class Route
                 return $result;
             }*/
             if ($class instanceof IController) {
-                $class->_after();
+                //$class->_after();
             }
             throw $e;
         }

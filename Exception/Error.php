@@ -2,6 +2,7 @@
 
 namespace Mll\Exception;
 
+use Mll\Common\Common;
 use Mll\Mll;
 
 class Error
@@ -87,7 +88,7 @@ class Error
             self::appException($exception);
         }
         if (Mll::$debug) {
-            $time = self::getMicroTime() - self::getMicroTime(MLL_BEGIN_TIME);
+            $time = Common::getMicroTime() - Common::getMicroTime(MLL_BEGIN_TIME);
             $mem_use = memory_get_usage() - MLL_BEGIN_MEMORY;
             $run_id = 0;
             /*if (self::$xhprof) {
@@ -97,7 +98,7 @@ class Error
             }*/
             Mll::app()->log->info('debug', array(
                     'exec_time: ' . $time,
-                    'use_memory: ' . self::convert($mem_use),
+                    'use_memory: ' . Common::convert($mem_use),
                     'run_id: ' . $run_id,
                     'url: ' . $_SERVER['HTTP_HOST'] . $_SERVER['PHP_SELF'] . $_SERVER['REQUEST_URI'],
                     )
@@ -107,18 +108,7 @@ class Error
         Mll::app()->log->save();
     }
 
-    private static function convert($size)
-    {
-        $unit = array('B', 'K', 'M', 'G', 'T', 'P');
-        return round($size / pow(1024, ($i = floor(log($size, 1024)))), 2) . ' ' . $unit[$i];
-    }
 
-    public static function getMicroTime($mic = null)
-    {
-        $mic = $mic ?  $mic : microtime();
-        list($usec, $sec) = \explode(" ", $mic);
-        return ((float)$usec + (float)$sec);
-    }
 
     /**
      * 确定错误类型是否致命.

@@ -95,7 +95,7 @@ class Mll
         ]);
 
 
-        //加载配置文件
+        //加载公共配置文件
         Mll::app()->config->load(self::getConfigPath());
 
         //时区设置
@@ -107,7 +107,12 @@ class Mll
         //错误注册
         Error::register();
 
+        //解析url
         Mll::app()->request->parse();
+
+        //加载模块配置文件
+        Mll::app()->config->load(self::getConfigPath(Mll::app()->request->getModule()));
+
         //run server
         Mll::app()->server->run();
     }
@@ -127,8 +132,9 @@ class Mll
             if (is_dir($moduleConfigPath)) {
                 $path[] = $moduleConfigPath;
             }
+        } else {
+            $path[] = ROOT_PATH . DS . 'app' . DS . 'config';
         }
-        $path[] = ROOT_PATH . DS . 'app' . DS . 'config';
 
         return $path;
     }

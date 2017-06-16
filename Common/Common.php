@@ -57,4 +57,11 @@ class Common
         $unit = array('B', 'K', 'M', 'G', 'T', 'P');
         return round($size / pow(1024, ($i = floor(log($size, 1024)))), 2) . ' ' . $unit[$i];
     }
+
+    public static function getMicroTime($mic = null)
+    {
+        $mic = $mic ?  $mic : microtime();
+        list($usec, $sec) = \explode(" ", $mic);
+        return ((float)$usec + (float)$sec);
+    }
 }
