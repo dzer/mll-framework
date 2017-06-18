@@ -148,13 +148,13 @@ class Http extends Base implements IRequest
     {
         if ($this->pathInfo === null) {
             $this->pathInfo = $this->resolvePathInfo();
-            return $this->pathInfo;
         }
 
         if (isset($_GET[$this->config['path_info_var']])) {
             $this->pathInfo = $_GET[$this->config['path_info_var']];
             unset($_GET[$this->config['path_info_var']]);
         }
+
         return $this->pathInfo;
     }
 

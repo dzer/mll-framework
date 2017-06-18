@@ -13,6 +13,9 @@ class Route
         $request = Mll::app()->request;
         $className = 'app\\' . $request->getModule() . '\\controller\\'
             . $request->getController();
+        if (!class_exists($className)) {
+            throw new \Exception("class not found");
+        }
         $class = Container::getInstance($className);
 
         try {
@@ -21,11 +24,12 @@ class Route
             } else {
                 $view = null;
                 $action = $request->getAction();
-                if (1 || $class->beforeAction()) {
+                if ($class->beforeAction()) {
                     if (!method_exists($class, $action)) {
                         throw new \Exception("method error");
                     }
                     $view = $class->$action();
+                    $class->afterAction();
                 } else {
                     throw new \Exception($className . ':' . $action . ' _before() no return true');
                 }
@@ -52,7 +56,7 @@ class Route
                 return $result;
             }*/
             if ($class instanceof IController) {
-                //$class->_after();
+                $class->afterAction();
             }
             throw $e;
         }
@@ -158,6 +162,7 @@ class Route
         } else {
             $path = [$url];
         }
+
         if (!empty($url) && '/' !== $url) {
             //路由替换
             $routeMap = self::match(Mll::app()->config->get('route'), $url);

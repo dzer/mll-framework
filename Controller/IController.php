@@ -9,6 +9,10 @@ namespace Mll\Controller;
 
 interface IController
 {
+    public function json($data = [], $code = 200, $header = [], $options = []);
 
+    public function beforeAction();
+
+    public function afterAction();
 
 }
