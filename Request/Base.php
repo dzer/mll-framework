@@ -493,7 +493,7 @@ abstract class Base implements IRequest
             array_walk_recursive($data, [$this, 'filterValue'], $filter);
             reset($data);
         } else {
-            $this->filterValue($data, $filter);
+            $this->filterValue($data, $name, $filter);
         }
 
         if (isset($type) && $data !== $default) {
@@ -593,7 +593,7 @@ abstract class Base implements IRequest
      *
      * @return mixed
      */
-    private function filterValue(&$value, $filters)
+    private function filterValue(&$value, $key, $filters)
     {
         $default = array_pop($filters);
         foreach ($filters as $filter) {

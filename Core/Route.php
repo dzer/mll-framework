@@ -11,8 +11,8 @@ class Route
     public static function route()
     {
         $request = Mll::app()->request;
-        $className = 'app\\'.$request->getModule().'\\controller\\'
-            .$request->getController();
+        $className = 'app\\' . $request->getModule() . '\\controller\\'
+            . $request->getController();
         if (!class_exists($className)) {
             throw new \Exception('class not found');
         }
@@ -31,7 +31,7 @@ class Route
                     $view = $class->$action();
                     $class->afterAction();
                 } else {
-                    throw new \Exception($className.':'.$action.' _before() no return true');
+                    throw new \Exception($className . ':' . $action . ' _before() no return true');
                 }
                 // 输出数据到客户端
                 if ($view instanceof Response) {
@@ -58,10 +58,10 @@ class Route
     /**
      *  路由匹配.
      *
-     *  @param $route       //config里的route配置数组
-     *  @param $pathinfo    //默认取值$_SERVER['PATH_INFO'];
+     * @param $route //config里的route配置数组
+     * @param $pathinfo //默认取值$_SERVER['PATH_INFO'];
      *
-     *  @return mixed
+     * @return mixed
      */
     public static function match($route, $pathinfo)
     {

@@ -13,7 +13,7 @@ use Mll\Core\Container;
  *
  * @package Mll
  * @property \Mll\Config\Driver\ArrayFormat $config
- * @property \Mll\Request\IRequest $request
+ * @property \Mll\Request\Driver\Http $request
  * @property \Mll\Log\ILog $log
  * @property \Mll\Mll $app
  * @property \Mll\Server\IServer $server
