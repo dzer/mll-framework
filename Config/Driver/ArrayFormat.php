@@ -7,13 +7,12 @@ use Mll\Config\IConfig;
 
 class ArrayFormat implements IConfig
 {
-
     /**
-     * 配置文件
+     * 配置文件.
+     *
      * @var array
      */
     private static $config = [];
-
 
     /**
      * load.
@@ -39,29 +38,14 @@ class ArrayFormat implements IConfig
     }
 
     /**
-     * 合并配置文件
-     *
-     * @param $file
-     * @return bool
-     */
-    public function mergeFile($file)
-    {
-        $tmp = include "ArrayFormat.php";
-        if (empty($tmp)) {
-            return false;
-        }
-        self::$config = array_merge(self::$config, $tmp);
-        return true;
-    }
-
-
-    /**
-     * 获取配置
+     * 获取配置.
      *
      * @param $key
      * @param null $default
      * @param bool $throw
+     *
      * @return mixed|null
+     *
      * @throws \Exception
      */
     public function get($key, $default = null, $throw = false)
@@ -70,17 +54,19 @@ class ArrayFormat implements IConfig
         $varStr = 'self::$config' . $key;
         $result = eval("return isset($varStr) ? $varStr : \$default;");
         if ($throw && is_null($result)) {
-            throw new \Exception("{key} config empty");
+            throw new \Exception('{key} config empty');
         }
+
         return $result;
     }
 
     /**
-     * 设置配置
+     * 设置配置.
      *
      * @param $key
      * @param $value
      * @param bool $set
+     *
      * @return bool
      */
     public function set($key, $value, $set = true)
@@ -99,22 +85,25 @@ class ArrayFormat implements IConfig
     }
 
     /**
-     * 获取配置
+     * 获取配置.
      *
      * @param $key
      * @param null $default
      * @param bool $throw
+     *
      * @return mixed|null
+     *
      * @throws \Exception
      */
     public function params($key, $default = null, $throw = false)
     {
         $key = 'params.' . $key;
+
         return self::get($key, $default, $throw);
     }
 
     /**
-     * 获取所有配置
+     * 获取所有配置.
      *
      * @return array
      */

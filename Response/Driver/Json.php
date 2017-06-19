@@ -1,13 +1,4 @@
 <?php
-// +----------------------------------------------------------------------
-// | ThinkPHP [ WE CAN DO IT JUST THINK ]
-// +----------------------------------------------------------------------
-// | Copyright (c) 2006~2017 http://thinkphp.cn All rights reserved.
-// +----------------------------------------------------------------------
-// | Licensed ( http://www.apache.org/licenses/LICENSE-2.0 )
-// +----------------------------------------------------------------------
-// | Author: liu21st <liu21st@gmail.com>
-// +----------------------------------------------------------------------
 
 namespace Mll\Response\Driver;
 
@@ -23,10 +14,12 @@ class Json extends Response
     protected $contentType = 'application/json';
 
     /**
-     * 处理数据
-     * @access protected
+     * 处理数据.
+     *
      * @param mixed $data 要处理的数据
+     *
      * @return mixed
+     *
      * @throws \Exception
      */
     protected function output($data)
@@ -47,5 +40,4 @@ class Json extends Response
             throw $e;
         }
     }
-
 }

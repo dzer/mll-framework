@@ -57,7 +57,7 @@ class Response
      * @param int    $code
      * @param array  $header
      * @param array  $options 输出参数
-     * @return Response|JsonResponse|ViewResponse|XmlResponse|RedirectResponse|JsonpResponse
+     * @return Response
      */
     public static function create($data = '', $type = '', $code = 200, array $header = [], $options = [])
     {
@@ -76,23 +76,13 @@ class Response
     /**
      * 发送数据到客户端
      * @access public
-     * @return mixed
+     * @return void
      * @throws \InvalidArgumentException
      */
     public function send()
     {
         // 处理输出数据
         $data = $this->getContent();
-
-        if (200 == $this->code) {
-            /*$cache = Request::instance()->getCache();
-            if ($cache) {
-                $this->header['Cache-Control'] = 'max-age=' . $cache[1] . ',must-revalidate';
-                $this->header['Last-Modified'] = gmdate('D, d M Y H:i:s') . ' GMT';
-                $this->header['Expires']       = gmdate('D, d M Y H:i:s', $_SERVER['REQUEST_TIME'] + $cache[1]) . ' GMT';
-                Cache::set($cache[0], [$data, $this->header], $cache[1]);
-            }*/
-        }
 
         if (!headers_sent() && !empty($this->header)) {
             // 发送状态码
@@ -109,14 +99,6 @@ class Response
             // 提高页面响应
             fastcgi_finish_request();
         }
-
-        // 监听response_end
-        /*Hook::listen('response_end', $this);
-
-        // 清空当次请求有效的数据
-        if (!($this instanceof RedirectResponse)) {
-            Session::flush();
-        }*/
     }
 
     /**

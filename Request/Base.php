@@ -25,29 +25,70 @@ abstract class Base implements IRequest
         'var_method' => '_method',
     ];
 
-    protected $params;
-
+    /**
+     * 模块.
+     *
+     * @var
+     */
     protected $module;
 
+    /**
+     * 控制器.
+     *
+     * @var
+     */
     protected $controller;
 
+    /**
+     * 方法.
+     *
+     * @var
+     */
     protected $action;
 
+    /**
+     * 请求方式.
+     *
+     * @var
+     */
     protected $method;
 
+    /**
+     * url.
+     *
+     * @var
+     */
     protected $url;
 
     //php:://input
     protected $input;
 
-    //全局参数过滤
+    /**
+     * 全局参数过滤.
+     *
+     * @var
+     */
     protected $filter;
 
+    /**
+     * 模板方式.
+     *
+     * @var
+     */
     protected $viewMode;
 
-    //模板文件
+    /**
+     * 模板文件.
+     *
+     * @var
+     */
     protected $tplFile;
 
+    /**
+     * 请求时间.
+     *
+     * @var
+     */
     protected $requestTime;
 
     /**
@@ -80,13 +121,13 @@ abstract class Base implements IRequest
     }
 
     /**
-     * 初始化request
+     * 初始化request.
      *
      * @param $module
      * @param $controller
      * @param $action
      * @param array $params
-     * @param null $viewMode
+     * @param null  $viewMode
      */
     public function init($module, $controller, $action, array $params, $viewMode = null)
     {
@@ -111,13 +152,14 @@ abstract class Base implements IRequest
         $this->param = $params;
         $this->viewMode = $viewMode;
 
-        $this->tplFile = $this->module . DS . \str_replace('\\', DS, $this->controller) . DS . $this->action . '.php';
+        $this->tplFile = $this->module.DS.\str_replace('\\', DS, $this->controller).DS.$this->action.'.php';
 
         $this->setRequestId();
     }
 
     /**
      * @param null $requestId
+     *
      * @return mixed|null|string
      * @desc 设置请求唯一id
      */
@@ -128,12 +170,13 @@ abstract class Base implements IRequest
         }
         $this->header($this->config['request_id_key'], $requestId);
         //todo 添加响应头
-        //Response::addHeader($requestIdKey, $requestId);
+        header("{$this->config['request_id_key']}: $requestId");
+
         return $requestId;
     }
 
     /**
-     * 获取请求id
+     * 获取请求id.
      *
      * @param bool $autoMake
      *
@@ -145,42 +188,28 @@ abstract class Base implements IRequest
         if ($autoMake && empty($requestId)) {
             $requestId = self::makeRequestId();
         }
+
         return $requestId;
     }
 
     /**
-     * 生成请求id
+     * 生成请求id.
      *
      * @return string
      */
     public static function makeRequestId()
     {
-        return sha1(uniqid('_' . mt_rand(1, 1000000), true));
+        return sha1(uniqid('_'.mt_rand(1, 1000000), true));
     }
 
     /**
-     * 将不同server的传输数据统一格式.
+     * parse.
      *
-     * @param $requestParams
-     */
-    /**
-    abstract public function parse($requestParams = null);
-
-    /**
-     * 获取请求参数.
+     * @param null $requestParams
      *
      * @return mixed
      */
-    public function getParams()
-    {
-    }
-
-    /**
-     * 设置请求参数.
-     */
-    public function setParams()
-    {
-    }
+    abstract public function parse($requestParams = null);
 
     /**
      * 获取模块.
@@ -202,6 +231,11 @@ abstract class Base implements IRequest
         return $this->controller;
     }
 
+    /**
+     * 获取调用方法.
+     *
+     * @return mixed
+     */
     public function getAction()
     {
         return $this->action;
@@ -218,11 +252,12 @@ abstract class Base implements IRequest
     }
 
     /**
-     * 设置获取获取GET参数
-     * @access public
-     * @param string|array $name 变量名
-     * @param mixed $default 默认值
-     * @param string|array $filter 过滤方法
+     * 设置获取获取GET参数.
+     *
+     * @param string|array $name    变量名
+     * @param mixed        $default 默认值
+     * @param string|array $filter  过滤方法
+     *
      * @return mixed
      */
     public function get($name = '', $default = null, $filter = '')
@@ -232,17 +267,20 @@ abstract class Base implements IRequest
         }
         if (is_array($name)) {
             $this->param = [];
+
             return $this->get = array_merge($this->get, $name);
         }
+
         return $this->input($this->get, $name, $default, $filter);
     }
 
     /**
-     * 设置获取获取POST参数
-     * @access public
-     * @param string $name 变量名
-     * @param mixed $default 默认值
-     * @param string|array $filter 过滤方法
+     * 设置获取获取POST参数.
+     *
+     * @param string       $name    变量名
+     * @param mixed        $default 默认值
+     * @param string|array $filter  过滤方法
+     *
      * @return mixed
      */
     public function post($name = '', $default = null, $filter = '')
@@ -250,21 +288,23 @@ abstract class Base implements IRequest
         if (empty($this->post)) {
             $content = $this->input;
             if (empty($_POST) && 'application/json' == $this->contentType()) {
-                $this->post = (array)json_decode($content, true);
+                $this->post = (array) json_decode($content, true);
             } else {
                 $this->post = $_POST;
             }
         }
         if (is_array($name)) {
             $this->param = [];
+
             return $this->post = array_merge($this->post, $name);
         }
+
         return $this->input($this->post, $name, $default, $filter);
     }
 
     /**
-     * 当前请求 HTTP_CONTENT_TYPE
-     * @access public
+     * 当前请求 HTTP_CONTENT_TYPE.
+     *
      * @return string
      */
     public function contentType()
@@ -272,17 +312,20 @@ abstract class Base implements IRequest
         $contentType = $this->server('CONTENT_TYPE');
         if ($contentType) {
             list($type) = explode(';', $contentType);
+
             return trim($type);
         }
+
         return '';
     }
 
     /**
-     * 获取server参数
-     * @access public
-     * @param string|array $name 数据名称
-     * @param string $default 默认值
-     * @param string|array $filter 过滤方法
+     * 获取server参数.
+     *
+     * @param string|array $name    数据名称
+     * @param string       $default 默认值
+     * @param string|array $filter  过滤方法
+     *
      * @return mixed
      */
     public function server($name = '', $default = null, $filter = '')
@@ -293,14 +336,16 @@ abstract class Base implements IRequest
         if (is_array($name)) {
             return $this->server = array_merge($this->server, $name);
         }
+
         return $this->input($this->server, false === $name ? false : strtoupper($name), $default, $filter);
     }
 
     /**
-     * 设置或者获取当前的Header
-     * @access public
-     * @param string|array  $name header名称
-     * @param string        $default 默认值
+     * 设置或者获取当前的Header.
+     *
+     * @param string|array $name    header名称
+     * @param string       $default 默认值
+     *
      * @return string
      */
     public function header($name = '', $default = null)
@@ -313,7 +358,7 @@ abstract class Base implements IRequest
                 $server = $this->server ?: $_SERVER;
                 foreach ($server as $key => $val) {
                     if (0 === strpos($key, 'HTTP_')) {
-                        $key          = str_replace('_', '-', strtolower(substr($key, 5)));
+                        $key = str_replace('_', '-', strtolower(substr($key, 5)));
                         $header[$key] = $val;
                     }
                 }
@@ -333,15 +378,17 @@ abstract class Base implements IRequest
             return $this->header;
         }
         $name = str_replace('_', '-', strtolower($name));
+
         return isset($this->header[$name]) ? $this->header[$name] : $default;
     }
 
     /**
-     * 设置获取获取PUT参数
-     * @access public
-     * @param string|array $name 变量名
-     * @param mixed $default 默认值
-     * @param string|array $filter 过滤方法
+     * 设置获取获取PUT参数.
+     *
+     * @param string|array $name    变量名
+     * @param mixed        $default 默认值
+     * @param string|array $filter  过滤方法
+     *
      * @return mixed
      */
     public function put($name = '', $default = null, $filter = '')
@@ -349,13 +396,14 @@ abstract class Base implements IRequest
         if (is_null($this->put)) {
             $content = $this->input;
             if ('application/json' == $this->contentType()) {
-                $this->put = (array)json_decode($content, true);
+                $this->put = (array) json_decode($content, true);
             } else {
                 parse_str($content, $this->put);
             }
         }
         if (is_array($name)) {
             $this->param = [];
+
             return $this->put = is_null($this->put) ? $name : array_merge($this->put, $name);
         }
 
@@ -363,11 +411,12 @@ abstract class Base implements IRequest
     }
 
     /**
-     * 设置获取获取DELETE参数
-     * @access public
-     * @param string|array $name 变量名
-     * @param mixed $default 默认值
-     * @param string|array $filter 过滤方法
+     * 设置获取获取DELETE参数.
+     *
+     * @param string|array $name    变量名
+     * @param mixed        $default 默认值
+     * @param string|array $filter  过滤方法
+     *
      * @return mixed
      */
     public function delete($name = '', $default = null, $filter = '')
@@ -376,11 +425,12 @@ abstract class Base implements IRequest
     }
 
     /**
-     * 设置获取获取PATCH参数
-     * @access public
-     * @param string|array $name 变量名
-     * @param mixed $default 默认值
-     * @param string|array $filter 过滤方法
+     * 设置获取获取PATCH参数.
+     *
+     * @param string|array $name    变量名
+     * @param mixed        $default 默认值
+     * @param string|array $filter  过滤方法
+     *
      * @return mixed
      */
     public function patch($name = '', $default = null, $filter = '')
@@ -390,10 +440,12 @@ abstract class Base implements IRequest
 
     /**
      * 获取变量 支持过滤和默认值
-     * @param array $data 数据源
-     * @param string|false $name 字段名
-     * @param mixed $default 默认值
-     * @param string|array $filter 过滤函数
+     *
+     * @param array        $data    数据源
+     * @param string|false $name    字段名
+     * @param mixed        $default 默认值
+     * @param string|array $filter  过滤函数
+     *
      * @return mixed
      */
     public function input($data = [], $name = '', $default = null, $filter = '')
@@ -402,7 +454,7 @@ abstract class Base implements IRequest
             // 获取原始数据
             return $data;
         }
-        $name = (string)$name;
+        $name = (string) $name;
         if ('' != $name) {
             // 解析name
             if (strpos($name, '/')) {
@@ -432,7 +484,7 @@ abstract class Base implements IRequest
             if (is_string($filter)) {
                 $filter = explode(',', $filter);
             } else {
-                $filter = (array)$filter;
+                $filter = (array) $filter;
             }
         }
 
@@ -441,57 +493,62 @@ abstract class Base implements IRequest
             array_walk_recursive($data, [$this, 'filterValue'], $filter);
             reset($data);
         } else {
-            $this->filterValue($data, $name, $filter);
+            $this->filterValue($data, $filter);
         }
 
         if (isset($type) && $data !== $default) {
             // 强制类型转换
             $this->typeCast($data, $type);
         }
+
         return $data;
     }
 
     /**
-     * 强制类型转换
+     * 强制类型转换.
+     *
      * @param string $data
      * @param string $type
-     * @return mixed
+     *
+     * @return void
      */
     private function typeCast(&$data, $type)
     {
         switch (strtolower($type)) {
             // 数组
             case 'a':
-                $data = (array)$data;
+                $data = (array) $data;
                 break;
             // 数字
             case 'd':
-                $data = (int)$data;
+                $data = (int) $data;
                 break;
             // 浮点
             case 'f':
-                $data = (float)$data;
+                $data = (float) $data;
                 break;
             // 布尔
             case 'b':
-                $data = (boolean)$data;
+                $data = (bool) $data;
                 break;
             // 字符串
             case 's':
             default:
                 if (is_scalar($data)) {
-                    $data = (string)$data;
+                    $data = (string) $data;
                 } else {
-                    throw new \InvalidArgumentException('variable type error：' . gettype($data));
+                    throw new \InvalidArgumentException('variable type error：'.gettype($data));
                 }
         }
     }
 
     /**
-     * 获取request变量
-     * @param string $name 数据名称
-     * @param string $default 默认值
-     * @param string|array $filter 过滤方法
+     * 获取request变量.
+     *
+     * @param string       $name    数据名称
+     * @param string       $default 默认值
+     * @param string|array $filter  过滤方法
+     *
      * @return mixed
      */
     public function request($name = '', $default = null, $filter = '')
@@ -501,38 +558,42 @@ abstract class Base implements IRequest
         }
         if (is_array($name)) {
             $this->param = [];
+
             return $this->request = array_merge($this->request, $name);
         }
+
         return $this->input($this->request, $name, $default, $filter);
     }
 
     /**
-     * 获取session数据
-     * @access public
-     * @param string|array $name 数据名称
-     * @param string $default 默认值
-     * @param string|array $filter 过滤方法
+     * 获取session数据.
+     *
+     * @param string|array $name    数据名称
+     * @param string       $default 默认值
+     * @param string|array $filter  过滤方法
+     *
      * @return mixed
      */
-    public function session($name = '', $default = null, $filter = '')
+    /*public function session($name = '', $default = null, $filter = '')
     {
-        /*if (empty($this->session)) {
+        if (empty($this->session)) {
             $this->session = Session::get();
         }
         if (is_array($name)) {
             return $this->session = array_merge($this->session, $name);
         }
-        return $this->input($this->session, $name, $default, $filter);*/
-    }
+        return $this->input($this->session, $name, $default, $filter);
+    }*/
 
     /**
      * 递归过滤给定的值
-     * @param mixed $value 键值
-     * @param mixed $key 键名
+     *
+     * @param mixed $value   键值
      * @param array $filters 过滤方法+默认值
+     *
      * @return mixed
      */
-    private function filterValue(&$value, $key, $filters)
+    private function filterValue(&$value, $filters)
     {
         $default = array_pop($filters);
         foreach ($filters as $filter) {
@@ -558,29 +619,34 @@ abstract class Base implements IRequest
                 }
             }
         }
+
         return $this->filterExp($value);
     }
 
     /**
-     * 过滤表单中的表达式
+     * 过滤表单中的表达式.
+     *
      * @param string $value
+     *
      * @return bool
      */
     public function filterExp(&$value)
     {
         // 过滤查询特殊字符
         if (is_string($value) &&
-            preg_match('/^(EXP|NEQ|GT|EGT|LT|ELT|OR|XOR|LIKE|NOTLIKE|NOT BETWEEN|' .
+            preg_match('/^(EXP|NEQ|GT|EGT|LT|ELT|OR|XOR|LIKE|NOTLIKE|NOT BETWEEN|'.
                 'NOTBETWEEN|BETWEEN|NOTIN|NOT IN|IN)$/i', $value)
         ) {
             $value .= ' ';
         }
+
         return true;
         // TODO 其他安全过滤
     }
 
     /**
      * @param null $time
+     *
      * @return bool
      */
     public function setRequestTime($time = null)
@@ -597,13 +663,16 @@ abstract class Base implements IRequest
         }
         $this->requestTime = $time;
         $this->header($this->config['request_time_key'], $time);
+
         return true;
     }
 
     /**
+     * 获取请求开始时间.
+     *
      * @param bool $clear
-     * @return null
-     * @desc 获取请求开始时间
+     *
+     * @return float
      */
     public function getRequestTime($clear = false)
     {
@@ -611,8 +680,7 @@ abstract class Base implements IRequest
         if ($clear) {
             $this->requestTime = null;
         }
+
         return $time;
     }
-
-
 }

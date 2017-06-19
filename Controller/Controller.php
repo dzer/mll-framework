@@ -8,10 +8,6 @@ class Controller implements IController
 {
     protected static $response;
 
-    public function __construct()
-    {
-
-    }
 
     public function beforeAction()
     {

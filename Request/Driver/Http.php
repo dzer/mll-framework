@@ -14,9 +14,9 @@ class Http extends Base implements IRequest
     private $pathInfo;
 
     /**
-     * 将不同server的传输数据统一格式
+     * 将不同server的传输数据统一格式.
      *
-     * @param $requestParams
+     * @param null $requestParams
      * @return void
      */
     public function parse($requestParams = null)
@@ -48,7 +48,7 @@ class Http extends Base implements IRequest
     }
 
     /**
-     * 解析额外参数
+     * 解析额外参数.
      *
      * @param $url
      * @param array $var
@@ -65,11 +65,12 @@ class Http extends Base implements IRequest
     }
 
     /**
-     * 获取获取当前请求的参数
-     * @access public
-     * @param string|array $name 变量名
-     * @param mixed $default 默认值
-     * @param string|array $filter 过滤方法
+     * 获取获取当前请求的参数.
+     *
+     * @param string|array $name    变量名
+     * @param mixed        $default 默认值
+     * @param string|array $filter  过滤方法
+     *
      * @return mixed
      */
     public function param($name = '', $default = null, $filter = '')
@@ -97,9 +98,10 @@ class Http extends Base implements IRequest
     }
 
     /**
-     * 当前的请求类型
-     * @access public
-     * @param bool $method  true 获取原始请求类型
+     * 当前的请求类型.
+     *
+     * @param bool $method true 获取原始请求类型
+     *
      * @return string
      */
     public function method($method = false)
@@ -119,28 +121,32 @@ class Http extends Base implements IRequest
                     $this->server['REQUEST_METHOD'] : $_SERVER['REQUEST_METHOD'];
             }
         }
+
         return $this->method;
     }
 
     /**
-     * 设置获取获取路由参数
-     * @access public
-     * @param string|array $name 变量名
-     * @param mixed $default 默认值
-     * @param string|array $filter 过滤方法
+     * 设置获取获取路由参数.
+     *
+     * @param string|array $name    变量名
+     * @param mixed        $default 默认值
+     * @param string|array $filter  过滤方法
+     *
      * @return mixed
      */
     public function route($name = '', $default = null, $filter = '')
     {
         if (is_array($name)) {
             $this->param = [];
+
             return $this->route = array_merge($this->route, $name);
         }
+
         return $this->input($this->route, $name, $default, $filter);
     }
 
     /**
-     * getPathInfo
+     * getPathInfo.
      *
      * @return string
      */
@@ -171,6 +177,7 @@ class Http extends Base implements IRequest
      * 解析当前请求的URL的请求URI部分.
      *
      * @return mixed|string
+     *
      * @throws \Exception
      */
     protected function resolveRequestUri()
@@ -185,7 +192,7 @@ class Http extends Base implements IRequest
         } elseif (isset($_SERVER['ORIG_PATH_INFO'])) { // IIS 5.0 CGI
             $requestUri = $_SERVER['ORIG_PATH_INFO'];
             if (!empty($_SERVER['QUERY_STRING'])) {
-                $requestUri .= '?' . $_SERVER['QUERY_STRING'];
+                $requestUri .= '?'.$_SERVER['QUERY_STRING'];
             }
         } else {
             throw new \Exception('Unable to determine the request URI.');
@@ -236,7 +243,7 @@ class Http extends Base implements IRequest
             $pathInfo = substr($pathInfo, 1);
         }
 
-        return (string)$pathInfo;
+        return (string) $pathInfo;
     }
 
     public function getScriptUrl()
@@ -251,9 +258,9 @@ class Http extends Base implements IRequest
             } elseif (isset($_SERVER['ORIG_SCRIPT_NAME']) && basename($_SERVER['ORIG_SCRIPT_NAME']) === $scriptName) {
                 $this->scriptUrl = $_SERVER['ORIG_SCRIPT_NAME'];
             } elseif (isset($_SERVER['PHP_SELF'])
-                && ($pos = strpos($_SERVER['PHP_SELF'], '/' . $scriptName)) !== false
+                && ($pos = strpos($_SERVER['PHP_SELF'], '/'.$scriptName)) !== false
             ) {
-                $this->scriptUrl = substr($_SERVER['SCRIPT_NAME'], 0, $pos) . '/' . $scriptName;
+                $this->scriptUrl = substr($_SERVER['SCRIPT_NAME'], 0, $pos).'/'.$scriptName;
             } elseif (!empty($_SERVER['DOCUMENT_ROOT']) && strpos($scriptFile, $_SERVER['DOCUMENT_ROOT']) === 0) {
                 $this->scriptUrl = str_replace('\\', '/', str_replace($_SERVER['DOCUMENT_ROOT'], '', $scriptFile));
             } else {
@@ -267,7 +274,9 @@ class Http extends Base implements IRequest
     /**
      * Returns the entry script file path.
      * The default implementation will simply return `$_SERVER['SCRIPT_FILENAME']`.
+     *
      * @return string the entry script file path
+     *
      * @throws \Exception
      */
     public function getScriptFile()
@@ -285,13 +294,15 @@ class Http extends Base implements IRequest
      * Returns the relative URL for the application.
      * This is similar to [[scriptUrl]] except that it does not include the script file name,
      * and the ending slashes are removed.
+     *
      * @return string the relative URL for the application
+     *
      * @see setScriptUrl()
      */
     public function getBaseUrl()
     {
         if ($this->baseUrl === null) {
-            $this->_baseUrl = rtrim(dirname($this->getScriptUrl()), '\\/');
+            $this->baseUrl = rtrim(dirname($this->getScriptUrl()), '\\/');
         }
 
         return $this->baseUrl;
@@ -299,14 +310,16 @@ class Http extends Base implements IRequest
 
     /**
      * 当前是否Ajax请求
-     * @access public
-     * @param bool $ajax  true 获取原始ajax请求
+     *
+     * @param bool $ajax true 获取原始ajax请求
+     *
      * @return bool
      */
     public function isAjax($ajax = false)
     {
-        $value  = $this->server('HTTP_X_REQUESTED_WITH', '', 'strtolower');
+        $value = $this->server('HTTP_X_REQUESTED_WITH', '', 'strtolower');
         $result = ('xmlhttprequest' == $value) ? true : false;
+
         return $result;
     }
 }

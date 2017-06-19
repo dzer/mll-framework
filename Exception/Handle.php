@@ -2,21 +2,28 @@
 
 namespace Mll\Exception;
 
-use Exception;
 use Mll\Mll;
+use Exception;
 
+/**
+ * 异常处理.
+ *
+ * @package Mll\Exception
+ */
 class Handle
 {
-
+    /**
+     * 忽略的异常.
+     *
+     * @var array
+     */
     protected $ignoreReport = [
-
     ];
 
     /**
-     * Report or log an exception.
+     * 报告和记录异常.
      *
-     * @param  \Exception $exception
-     * @return void
+     * @param \Exception $exception
      */
     public function report(Exception $exception)
     {
@@ -26,7 +33,7 @@ class Handle
             $data = [
                 'file' => $exception->getFile(),
                 'line' => $exception->getLine(),
-                'message' => ($isFatal ? 'fatal error:' : '') . $this->getMessage($exception),
+                'message' => ($isFatal ? 'fatal error:' : '').$this->getMessage($exception),
                 'code' => $this->getCode($exception),
             ];
             $log = "[{$data['code']}]{$data['message']}[{$data['file']}:{$data['line']}]";
@@ -34,6 +41,13 @@ class Handle
         }
     }
 
+    /**
+     * 判断是否忽略异常.
+     *
+     * @param Exception $exception
+     *
+     * @return bool
+     */
     protected function isIgnoreReport(Exception $exception)
     {
         foreach ($this->ignoreReport as $class) {
@@ -41,13 +55,15 @@ class Handle
                 return true;
             }
         }
+
         return false;
     }
 
     /**
-     * Render an exception into an HTTP response.
+     * 将异常呈现为HTTP响应.
      *
-     * @param  \Exception $e
+     * @param \Exception $e
+     *
      * @return array
      */
     public function render(Exception $e)
@@ -55,9 +71,11 @@ class Handle
         return $this->convertExceptionToResponse($e);
     }
 
-
     /**
+     * 将异常格式化响应数据.
+     *
      * @param Exception $exception
+     *
      * @return mixed
      */
     protected function convertExceptionToResponse(Exception $exception)
@@ -73,7 +91,6 @@ class Handle
                 'trace' => $exception->getTrace(),
                 'code' => $this->getCode($exception),
                 'source' => $this->getSourceCode($exception),
-                'datas' => $this->getExtendData($exception),
                 'tables' => [
                     'GET Data' => $_GET,
                     'POST Data' => $_POST,
@@ -106,8 +123,10 @@ class Handle
     /**
      * 获取错误编码
      * ErrorException则使用错误级别作为错误编码
-     * @param  \Exception $exception
-     * @return integer                错误编码
+     *
+     * @param \Exception $exception
+     *
+     * @return int 错误编码
      */
     protected function getCode(Exception $exception)
     {
@@ -115,26 +134,32 @@ class Handle
         if (!$code && $exception instanceof ErrorException) {
             $code = $exception->getSeverity();
         }
+
         return $code;
     }
 
     /**
      * 获取错误信息
      * ErrorException则使用错误级别作为错误编码
-     * @param  \Exception $exception
-     * @return string                错误信息
+     *
+     * @param \Exception $exception
+     *
+     * @return string 错误信息
      */
     protected function getMessage(Exception $exception)
     {
         $message = $exception->getMessage();
+
         return $message;
     }
 
     /**
      * 获取出错文件内容
-     * 获取错误的前9行和后9行
-     * @param  \Exception $exception
-     * @return array                 错误文件内容
+     * 获取错误的前9行和后9行.
+     *
+     * @param \Exception $exception
+     *
+     * @return array 错误文件内容
      */
     protected function getSourceCode(Exception $exception)
     {
@@ -151,26 +176,13 @@ class Handle
         } catch (Exception $e) {
             $source = [];
         }
+
         return $source;
     }
 
     /**
-     * 获取异常扩展信息
-     * 用于非调试模式html返回类型显示
-     * @param  \Exception $exception
-     * @return array                 异常类定义的扩展数据
-     */
-    protected function getExtendData(Exception $exception)
-    {
-        $data = [];
-        if ($exception instanceof Exception) {
-            //$data = $exception->getData();
-        }
-        return $data;
-    }
-
-    /**
-     * 获取常量列表
+     * 获取常量列表.
+     *
      * @return array 常量列表
      */
     private static function getConst()

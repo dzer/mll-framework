@@ -27,12 +27,6 @@ class Mll
     public static $serveModel;
 
     public static $app;
-    /**
-     * 配置目录.
-     *
-     * @var string
-     */
-    private static $configPath = 'default';
 
     /**
      * 系统类库.
@@ -64,6 +58,11 @@ class Mll
         return Container::getInstance(__CLASS__);
     }
 
+    /**
+     * run
+     *
+     * @param string $serveModel
+     */
     public function run($serveModel = 'Http')
     {
         self::$serveModel = $serveModel;

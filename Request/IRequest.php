@@ -14,18 +14,6 @@ interface IRequest
     public function parse($request = null);
 
     /**
-     * 获取请求参数.
-     *
-     * @return mixed
-     */
-    public function getParams();
-
-    /**
-     * 设置请求参数.
-     */
-    public function setParams();
-
-    /**
      * 获取模块.
      *
      * @return mixed
@@ -54,26 +42,28 @@ interface IRequest
     public function getMethod();
 
     /**
-     * isAjax
+     * isAjax.
      *
      * @return mixed
      */
     public function isAjax();
 
     /**
-     * 获取请求时间
+     * 获取请求时间.
      *
      * @param bool $clear
+     *
      * @return mixed
      */
     public function getRequestTime($clear = false);
 
     /**
-     * 设置获取获取路由参数
-     * @access public
-     * @param string|array $name 变量名
-     * @param mixed $default 默认值
-     * @param string|array $filter 过滤方法
+     * 设置获取获取路由参数.
+     *
+     * @param string|array $name    变量名
+     * @param mixed        $default 默认值
+     * @param string|array $filter  过滤方法
+     *
      * @return mixed
      */
     public function route($name = '', $default = null, $filter = '');

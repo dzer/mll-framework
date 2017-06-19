@@ -2,8 +2,8 @@
 
 namespace Mll\Exception;
 
-use Mll\Common\Common;
 use Mll\Mll;
+use Mll\Common\Common;
 
 class Error
 {
@@ -36,10 +36,10 @@ class Error
         //$outData['echo'] = ob_get_clean();
         ob_start();
         // 判断请求头的content_type=json或者是ajax请求就返回json
-        if (isset($_SERVER['CONTENT_TYPE']) && $_SERVER['CONTENT_TYPE'] == 'application/json') {
+        if ((isset($_SERVER['CONTENT_TYPE']) && $_SERVER['CONTENT_TYPE'] == 'application/json') || self::isAjax()) {
             echo json_encode($outData);
         } else {
-            extract((array) $outData);
+            extract((array)$outData);
             $tpl = Mll::app()->config->get('exception.template', __DIR__ . '/Template/mllExceptionTpl.php');
             if (file_exists($tpl)) {
                 include $tpl;
@@ -57,11 +57,11 @@ class Error
     /**
      * Error Handler.
      *
-     * @param int    $errNo      错误编号
-     * @param int    $errStr     详细错误信息
-     * @param string $errFile    出错的文件
-     * @param int    $errLine    出错行号
-     * @param array  $errContext
+     * @param int $errNo 错误编号
+     * @param int $errStr 详细错误信息
+     * @param string $errFile 出错的文件
+     * @param int $errLine 出错行号
+     * @param array $errContext
      *
      * @throws ErrorException
      */
@@ -69,7 +69,7 @@ class Error
     {
         $exception = new ErrorException($errNo, $errStr, $errFile, $errLine, $errContext);
         if (error_reporting() & $errNo) {
-            // 将错误信息托管至 think\exception\ErrorException
+            // 将错误信息托管至 Mll\Exception\ErrorException
             throw $exception;
         } else {
             self::getExceptionHandler()->report($exception);
@@ -82,7 +82,7 @@ class Error
     public static function appShutdown()
     {
         if (!is_null($error = error_get_last()) && self::isFatal($error['type'])) {
-            // 将错误信息托管至think\ErrorException
+            // 将错误信息托管至 Mll\Exception\ErrorException
             $exception = new ErrorException($error['type'], $error['message'], $error['file'], $error['line']);
 
             self::appException($exception);
@@ -91,24 +91,17 @@ class Error
             $time = Common::getMicroTime() - Common::getMicroTime(MLL_BEGIN_TIME);
             $mem_use = memory_get_usage() - MLL_BEGIN_MEMORY;
             $run_id = 0;
-            /*if (self::$xhprof) {
-                $xhprof_data = \xhprof_disable();
-                $xhprof_runs = new \XHProfRuns_Default();
-                $run_id = $xhprof_runs->save_run($xhprof_data, 'random');
-            }*/
             Mll::app()->log->info('debug', array(
                     'exec_time: ' . $time,
                     'use_memory: ' . Common::convert($mem_use),
                     'run_id: ' . $run_id,
                     'url: ' . $_SERVER['HTTP_HOST'] . $_SERVER['PHP_SELF'] . $_SERVER['REQUEST_URI'],
-                    )
+                )
             );
         }
         // 写入日志
         Mll::app()->log->save();
     }
-
-
 
     /**
      * 确定错误类型是否致命.
@@ -141,5 +134,17 @@ class Error
         }
 
         return $handle;
+    }
+
+    /**
+     * 当前是否Ajax请求
+     *
+     * @return bool
+     */
+    public static function isAjax()
+    {
+        $value = isset($_SERVER['HTTP_X_REQUESTED_WITH']) ? strtolower($_SERVER['HTTP_X_REQUESTED_WITH']) : '';
+
+        return 'xmlhttprequest' == $value ? true : false;
     }
 }
