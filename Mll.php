@@ -132,7 +132,7 @@ class Mll
                 $path[] = $moduleConfigPath;
             }
         } else {
-            $path[] = ROOT_PATH . DS . 'app' . DS . 'config';
+            $path[] = ROOT_PATH . DS . 'app' . DS . 'common' . DS . 'config';
         }
 
         return $path;
