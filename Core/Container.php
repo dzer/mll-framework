@@ -75,7 +75,6 @@ class Container
      */
     public static function addDefinitions(array $definitions)
     {
-
         return self::$definitions += $definitions;
     }
 
@@ -88,6 +87,9 @@ class Container
      */
     public static function get($name)
     {
+        if (isset(self::$instances[$name])) {
+            return self::$instances[$name];
+        }
         if (isset(self::$classAlias[$name]) && isset(self::$instances[self::$classAlias[$name]])
             && is_object(self::$instances[self::$classAlias[$name]])
         ) {
