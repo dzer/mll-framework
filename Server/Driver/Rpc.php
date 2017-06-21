@@ -24,9 +24,9 @@ class Rpc implements IServer
         if ($method == 'post') {
             $_POST = array_merge($_POST, $params['param']);
         }
-        //è§£æžurl
+        //½âÎöurl
         Mll::app()->request->parse($pathInfo, $params['param']);
-        //åŠ è½½æ¨¡å—é…ç½®æ–‡ä»¶
+        //¼ÓÔØÄ£¿éÅäÖÃÎÄ¼þ
         Mll::app()->config->load(Mll::getConfigPath(Mll::app()->request->getModule()));
 
         return Core\Route::route();
