@@ -18,6 +18,7 @@ class Handle
      * @var array
      */
     protected $ignoreReport = [
+        '\Yar_Client_Protocol_Exception'
     ];
 
     /**

@@ -92,6 +92,23 @@ abstract class Base implements IRequest
     protected $requestTime;
 
     /**
+     * @var
+     */
+    private $scriptUrl;
+
+    /**
+     * 基础Url
+     * @var
+     */
+    private $baseUrl;
+
+    /**
+     * pathInfo
+     * @var
+     */
+    private $pathInfo;
+
+    /**
      * @var array 请求参数
      */
     protected $param = [];
@@ -127,7 +144,7 @@ abstract class Base implements IRequest
      * @param $controller
      * @param $action
      * @param array $params
-     * @param null  $viewMode
+     * @param null $viewMode
      */
     public function init($module, $controller, $action, array $params, $viewMode = null)
     {
@@ -144,7 +161,7 @@ abstract class Base implements IRequest
         }
 
         if (isset($action)) {
-            $this->action = $controller;
+            $this->action = $action;
         } else {
             $this->action = $this->config['default_action'];
         }
@@ -152,7 +169,7 @@ abstract class Base implements IRequest
         $this->param = $params;
         $this->viewMode = $viewMode;
 
-        $this->tplFile = $this->module.DS.\str_replace('\\', DS, $this->controller).DS.$this->action.'.php';
+        $this->tplFile = $this->module . DS . \str_replace('\\', DS, $this->controller) . DS . $this->action . '.php';
 
         $this->setRequestId();
     }
@@ -199,17 +216,17 @@ abstract class Base implements IRequest
      */
     public static function makeRequestId()
     {
-        return sha1(uniqid('_'.mt_rand(1, 1000000), true));
+        return sha1(uniqid('_' . mt_rand(1, 1000000), true));
     }
 
     /**
-     * parse.
+     * 将不同server的传输数据统一格式.
      *
-     * @param null $requestParams
-     *
-     * @return mixed
+     * @param string $pathInfo
+     * @param mixed $params
+     * @return void
      */
-    abstract public function parse($requestParams = null);
+    abstract public function parse($pathInfo = null, $params = null);
 
     /**
      * 获取模块.
@@ -254,9 +271,9 @@ abstract class Base implements IRequest
     /**
      * 设置获取获取GET参数.
      *
-     * @param string|array $name    变量名
-     * @param mixed        $default 默认值
-     * @param string|array $filter  过滤方法
+     * @param string|array $name 变量名
+     * @param mixed $default 默认值
+     * @param string|array $filter 过滤方法
      *
      * @return mixed
      */
@@ -277,9 +294,9 @@ abstract class Base implements IRequest
     /**
      * 设置获取获取POST参数.
      *
-     * @param string       $name    变量名
-     * @param mixed        $default 默认值
-     * @param string|array $filter  过滤方法
+     * @param string $name 变量名
+     * @param mixed $default 默认值
+     * @param string|array $filter 过滤方法
      *
      * @return mixed
      */
@@ -288,7 +305,7 @@ abstract class Base implements IRequest
         if (empty($this->post)) {
             $content = $this->input;
             if (empty($_POST) && 'application/json' == $this->contentType()) {
-                $this->post = (array) json_decode($content, true);
+                $this->post = (array)json_decode($content, true);
             } else {
                 $this->post = $_POST;
             }
@@ -322,9 +339,9 @@ abstract class Base implements IRequest
     /**
      * 获取server参数.
      *
-     * @param string|array $name    数据名称
-     * @param string       $default 默认值
-     * @param string|array $filter  过滤方法
+     * @param string|array $name 数据名称
+     * @param string $default 默认值
+     * @param string|array $filter 过滤方法
      *
      * @return mixed
      */
@@ -343,8 +360,8 @@ abstract class Base implements IRequest
     /**
      * 设置或者获取当前的Header.
      *
-     * @param string|array $name    header名称
-     * @param string       $default 默认值
+     * @param string|array $name header名称
+     * @param string $default 默认值
      *
      * @return string
      */
@@ -385,9 +402,9 @@ abstract class Base implements IRequest
     /**
      * 设置获取获取PUT参数.
      *
-     * @param string|array $name    变量名
-     * @param mixed        $default 默认值
-     * @param string|array $filter  过滤方法
+     * @param string|array $name 变量名
+     * @param mixed $default 默认值
+     * @param string|array $filter 过滤方法
      *
      * @return mixed
      */
@@ -396,7 +413,7 @@ abstract class Base implements IRequest
         if (is_null($this->put)) {
             $content = $this->input;
             if ('application/json' == $this->contentType()) {
-                $this->put = (array) json_decode($content, true);
+                $this->put = (array)json_decode($content, true);
             } else {
                 parse_str($content, $this->put);
             }
@@ -413,9 +430,9 @@ abstract class Base implements IRequest
     /**
      * 设置获取获取DELETE参数.
      *
-     * @param string|array $name    变量名
-     * @param mixed        $default 默认值
-     * @param string|array $filter  过滤方法
+     * @param string|array $name 变量名
+     * @param mixed $default 默认值
+     * @param string|array $filter 过滤方法
      *
      * @return mixed
      */
@@ -427,9 +444,9 @@ abstract class Base implements IRequest
     /**
      * 设置获取获取PATCH参数.
      *
-     * @param string|array $name    变量名
-     * @param mixed        $default 默认值
-     * @param string|array $filter  过滤方法
+     * @param string|array $name 变量名
+     * @param mixed $default 默认值
+     * @param string|array $filter 过滤方法
      *
      * @return mixed
      */
@@ -441,10 +458,10 @@ abstract class Base implements IRequest
     /**
      * 获取变量 支持过滤和默认值
      *
-     * @param array        $data    数据源
-     * @param string|false $name    字段名
-     * @param mixed        $default 默认值
-     * @param string|array $filter  过滤函数
+     * @param array $data 数据源
+     * @param string|false $name 字段名
+     * @param mixed $default 默认值
+     * @param string|array $filter 过滤函数
      *
      * @return mixed
      */
@@ -454,7 +471,7 @@ abstract class Base implements IRequest
             // 获取原始数据
             return $data;
         }
-        $name = (string) $name;
+        $name = (string)$name;
         if ('' != $name) {
             // 解析name
             if (strpos($name, '/')) {
@@ -484,7 +501,7 @@ abstract class Base implements IRequest
             if (is_string($filter)) {
                 $filter = explode(',', $filter);
             } else {
-                $filter = (array) $filter;
+                $filter = (array)$filter;
             }
         }
 
@@ -517,27 +534,27 @@ abstract class Base implements IRequest
         switch (strtolower($type)) {
             // 数组
             case 'a':
-                $data = (array) $data;
+                $data = (array)$data;
                 break;
             // 数字
             case 'd':
-                $data = (int) $data;
+                $data = (int)$data;
                 break;
             // 浮点
             case 'f':
-                $data = (float) $data;
+                $data = (float)$data;
                 break;
             // 布尔
             case 'b':
-                $data = (bool) $data;
+                $data = (bool)$data;
                 break;
             // 字符串
             case 's':
             default:
                 if (is_scalar($data)) {
-                    $data = (string) $data;
+                    $data = (string)$data;
                 } else {
-                    throw new \InvalidArgumentException('variable type error：'.gettype($data));
+                    throw new \InvalidArgumentException('variable type error：' . gettype($data));
                 }
         }
     }
@@ -545,9 +562,9 @@ abstract class Base implements IRequest
     /**
      * 获取request变量.
      *
-     * @param string       $name    数据名称
-     * @param string       $default 默认值
-     * @param string|array $filter  过滤方法
+     * @param string $name 数据名称
+     * @param string $default 默认值
+     * @param string|array $filter 过滤方法
      *
      * @return mixed
      */
@@ -568,9 +585,9 @@ abstract class Base implements IRequest
     /**
      * 获取session数据.
      *
-     * @param string|array $name    数据名称
-     * @param string       $default 默认值
-     * @param string|array $filter  过滤方法
+     * @param string|array $name 数据名称
+     * @param string $default 默认值
+     * @param string|array $filter 过滤方法
      *
      * @return mixed
      */
@@ -588,7 +605,7 @@ abstract class Base implements IRequest
     /**
      * 递归过滤给定的值
      *
-     * @param mixed $value   键值
+     * @param mixed $value 键值
      * @param array $filters 过滤方法+默认值
      *
      * @return mixed
@@ -634,7 +651,7 @@ abstract class Base implements IRequest
     {
         // 过滤查询特殊字符
         if (is_string($value) &&
-            preg_match('/^(EXP|NEQ|GT|EGT|LT|ELT|OR|XOR|LIKE|NOTLIKE|NOT BETWEEN|'.
+            preg_match('/^(EXP|NEQ|GT|EGT|LT|ELT|OR|XOR|LIKE|NOTLIKE|NOT BETWEEN|' .
                 'NOTBETWEEN|BETWEEN|NOTIN|NOT IN|IN)$/i', $value)
         ) {
             $value .= ' ';
@@ -682,5 +699,281 @@ abstract class Base implements IRequest
         }
 
         return $time;
+    }
+
+    /**
+     * 解析额外参数.
+     *
+     * @param $url
+     * @param array $var
+     */
+    protected function parseUrlParams($url, &$var = [])
+    {
+        if ($url) {
+            preg_replace_callback('/(\w+)\|([^\|]+)/', function ($match) use (&$var) {
+                $var[$match[1]] = strip_tags($match[2]);
+            }, $url);
+        }
+        // 设置当前请求的参数
+        $this->route($var);
+    }
+
+    /**
+     * 获取获取当前请求的参数.
+     *
+     * @param string|array $name 变量名
+     * @param mixed $default 默认值
+     * @param string|array $filter 过滤方法
+     *
+     * @return mixed
+     */
+    public function param($name = '', $default = null, $filter = '')
+    {
+        if (empty($this->param)) {
+            $method = $this->method(true);
+            // 自动获取请求变量
+            switch ($method) {
+                case 'POST':
+                    $vars = $this->post(false);
+                    break;
+                case 'PUT':
+                case 'DELETE':
+                case 'PATCH':
+                    $vars = $this->put(false);
+                    break;
+                default:
+                    $vars = [];
+            }
+            // 当前请求参数和URL地址中的参数合并
+            $this->param = array_merge($this->get(false), $vars, $this->route(false));
+        }
+
+        return $this->input($this->param, $name, $default, $filter);
+    }
+
+    /**
+     * 当前的请求类型.
+     *
+     * @param bool $method true 获取原始请求类型
+     *
+     * @return string
+     */
+    public function method($method = false)
+    {
+        if (true === $method) {
+            // 获取原始请求类型
+            return isset($this->server['REQUEST_METHOD']) ?
+                $this->server['REQUEST_METHOD'] : $_SERVER['REQUEST_METHOD'];
+        } elseif (!$this->method) {
+            if (isset($_POST[$this->config['var_method']])) {
+                $this->method = strtoupper($_POST[$this->config['var_method']]);
+                $this->{$this->method}($_POST);
+            } elseif (isset($_SERVER['HTTP_X_HTTP_METHOD_OVERRIDE'])) {
+                $this->method = strtoupper($_SERVER['HTTP_X_HTTP_METHOD_OVERRIDE']);
+            } else {
+                $this->method = isset($this->server['REQUEST_METHOD']) ?
+                    $this->server['REQUEST_METHOD'] : $_SERVER['REQUEST_METHOD'];
+            }
+        }
+
+        return $this->method;
+    }
+
+    /**
+     * 设置获取获取路由参数.
+     *
+     * @param string|array $name 变量名
+     * @param mixed $default 默认值
+     * @param string|array $filter 过滤方法
+     *
+     * @return mixed
+     */
+    public function route($name = '', $default = null, $filter = '')
+    {
+        if (is_array($name)) {
+            $this->param = [];
+
+            return $this->route = array_merge($this->route, $name);
+        }
+
+        return $this->input($this->route, $name, $default, $filter);
+    }
+
+    /**
+     * getPathInfo.
+     *
+     * @return string
+     */
+    public function getPathInfo()
+    {
+        if ($this->pathInfo === null) {
+            $this->pathInfo = $this->resolvePathInfo();
+        }
+
+        if (isset($_GET[$this->config['path_info_var']])) {
+            $this->pathInfo = $_GET[$this->config['path_info_var']];
+            unset($_GET[$this->config['path_info_var']]);
+        }
+
+        return $this->pathInfo;
+    }
+
+    public function getUrl()
+    {
+        if ($this->url === null) {
+            $this->url = $this->resolveRequestUri();
+        }
+
+        return $this->url;
+    }
+
+    /**
+     * 解析当前请求的URL的请求URI部分.
+     *
+     * @return mixed|string
+     *
+     * @throws \Exception
+     */
+    protected function resolveRequestUri()
+    {
+        if (isset($_SERVER['HTTP_X_REWRITE_URL'])) { // IIS
+            $requestUri = $_SERVER['HTTP_X_REWRITE_URL'];
+        } elseif (isset($_SERVER['REQUEST_URI'])) {
+            $requestUri = $_SERVER['REQUEST_URI'];
+            if ($requestUri !== '' && $requestUri[0] !== '/') {
+                $requestUri = preg_replace('/^(http|https):\/\/[^\/]+/i', '', $requestUri);
+            }
+        } elseif (isset($_SERVER['ORIG_PATH_INFO'])) { // IIS 5.0 CGI
+            $requestUri = $_SERVER['ORIG_PATH_INFO'];
+            if (!empty($_SERVER['QUERY_STRING'])) {
+                $requestUri .= '?' . $_SERVER['QUERY_STRING'];
+            }
+        } else {
+            throw new \Exception('Unable to determine the request URI.');
+        }
+
+        return $requestUri;
+    }
+
+    protected function resolvePathInfo()
+    {
+        $pathInfo = $this->getUrl();
+
+        if (($pos = strpos($pathInfo, '?')) !== false) {
+            $pathInfo = substr($pathInfo, 0, $pos);
+        }
+
+        $pathInfo = urldecode($pathInfo);
+
+        // try to encode in UTF8 if not so
+        // http://w3.org/International/questions/qa-forms-utf-8.html
+        if (!preg_match('%^(?:
+            [\x09\x0A\x0D\x20-\x7E]              # ASCII
+            | [\xC2-\xDF][\x80-\xBF]             # non-overlong 2-byte
+            | \xE0[\xA0-\xBF][\x80-\xBF]         # excluding overlongs
+            | [\xE1-\xEC\xEE\xEF][\x80-\xBF]{2}  # straight 3-byte
+            | \xED[\x80-\x9F][\x80-\xBF]         # excluding surrogates
+            | \xF0[\x90-\xBF][\x80-\xBF]{2}      # planes 1-3
+            | [\xF1-\xF3][\x80-\xBF]{3}          # planes 4-15
+            | \xF4[\x80-\x8F][\x80-\xBF]{2}      # plane 16
+            )*$%xs', $pathInfo)
+        ) {
+            $pathInfo = utf8_encode($pathInfo);
+        }
+
+        $scriptUrl = $this->getScriptUrl();
+        $baseUrl = $this->getBaseUrl();
+        if (strpos($pathInfo, $scriptUrl) === 0) {
+            $pathInfo = substr($pathInfo, strlen($scriptUrl));
+        } elseif ($baseUrl === '' || strpos($pathInfo, $baseUrl) === 0) {
+            $pathInfo = substr($pathInfo, strlen($baseUrl));
+        } elseif (isset($_SERVER['PHP_SELF']) && strpos($_SERVER['PHP_SELF'], $scriptUrl) === 0) {
+            $pathInfo = substr($_SERVER['PHP_SELF'], strlen($scriptUrl));
+        } else {
+            throw new \Exception('Unable to determine the path info of the current request.');
+        }
+
+        if (substr($pathInfo, 0, 1) === '/') {
+            $pathInfo = substr($pathInfo, 1);
+        }
+
+        return (string)$pathInfo;
+    }
+
+    public function getScriptUrl()
+    {
+        if ($this->scriptUrl === null) {
+            $scriptFile = $this->getScriptFile();
+            $scriptName = basename($scriptFile);
+            if (isset($_SERVER['SCRIPT_NAME']) && basename($_SERVER['SCRIPT_NAME']) === $scriptName) {
+                $this->scriptUrl = $_SERVER['SCRIPT_NAME'];
+            } elseif (isset($_SERVER['PHP_SELF']) && basename($_SERVER['PHP_SELF']) === $scriptName) {
+                $this->scriptUrl = $_SERVER['PHP_SELF'];
+            } elseif (isset($_SERVER['ORIG_SCRIPT_NAME']) && basename($_SERVER['ORIG_SCRIPT_NAME']) === $scriptName) {
+                $this->scriptUrl = $_SERVER['ORIG_SCRIPT_NAME'];
+            } elseif (isset($_SERVER['PHP_SELF'])
+                && ($pos = strpos($_SERVER['PHP_SELF'], '/' . $scriptName)) !== false
+            ) {
+                $this->scriptUrl = substr($_SERVER['SCRIPT_NAME'], 0, $pos) . '/' . $scriptName;
+            } elseif (!empty($_SERVER['DOCUMENT_ROOT']) && strpos($scriptFile, $_SERVER['DOCUMENT_ROOT']) === 0) {
+                $this->scriptUrl = str_replace('\\', '/', str_replace($_SERVER['DOCUMENT_ROOT'], '', $scriptFile));
+            } else {
+                throw new \Exception('Unable to determine the entry script URL.');
+            }
+        }
+
+        return $this->scriptUrl;
+    }
+
+    /**
+     * Returns the entry script file path.
+     * The default implementation will simply return `$_SERVER['SCRIPT_FILENAME']`.
+     *
+     * @return string the entry script file path
+     *
+     * @throws \Exception
+     */
+    public function getScriptFile()
+    {
+        if (isset($this->_scriptFile)) {
+            return $this->_scriptFile;
+        } elseif (isset($_SERVER['SCRIPT_FILENAME'])) {
+            return $_SERVER['SCRIPT_FILENAME'];
+        } else {
+            throw new \Exception('Unable to determine the entry script file path.');
+        }
+    }
+
+    /**
+     * Returns the relative URL for the application.
+     * This is similar to [[scriptUrl]] except that it does not include the script file name,
+     * and the ending slashes are removed.
+     *
+     * @return string the relative URL for the application
+     *
+     * @see setScriptUrl()
+     */
+    public function getBaseUrl()
+    {
+        if ($this->baseUrl === null) {
+            $this->baseUrl = rtrim(dirname($this->getScriptUrl()), '\\/');
+        }
+
+        return $this->baseUrl;
+    }
+
+    /**
+     * 当前是否Ajax请求
+     *
+     * @param bool $ajax true 获取原始ajax请求
+     *
+     * @return bool
+     */
+    public function isAjax($ajax = false)
+    {
+        $value = $this->server('HTTP_X_REQUESTED_WITH', '', 'strtolower');
+        $result = ('xmlhttprequest' == $value) ? true : false;
+
+        return $result;
     }
 }

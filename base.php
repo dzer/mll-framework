@@ -12,6 +12,11 @@ define('DS', DIRECTORY_SEPARATOR);
 /*
  * 程序开始时间戳
  */
+defined('SERVER_MODEL') or define('SERVER_MODEL', 'Http');
+
+/*
+ * 程序开始时间戳
+ */
 defined('MLL_BEGIN_TIME') or define('MLL_BEGIN_TIME', microtime());
 
 /*

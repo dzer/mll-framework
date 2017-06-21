@@ -76,7 +76,7 @@ class Response
     /**
      * 发送数据到客户端
      * @access public
-     * @return void
+     * @return mixed
      * @throws \InvalidArgumentException
      */
     public function send()
@@ -93,9 +93,13 @@ class Response
             }
         }
 
-        echo $data;
+        if (strtolower(SERVER_MODEL) == 'rpc') {
+            return $data;
+        } else {
+            echo $data;
+        }
 
-        if (function_exists('fastcgi_finish_request')) {
+        if (strtolower(SERVER_MODEL) == 'http' && function_exists('fastcgi_finish_request')) {
             // 提高页面响应
             fastcgi_finish_request();
         }

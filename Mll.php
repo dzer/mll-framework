@@ -13,10 +13,11 @@ use Mll\Core\Container;
  *
  * @package Mll
  * @property \Mll\Config\Driver\ArrayFormat $config
- * @property \Mll\Request\Driver\Http $request
+ * @property \Mll\Request\IRequest $request
  * @property \Mll\Log\ILog $log
  * @property \Mll\Mll $app
  * @property \Mll\Server\IServer $server
+ * @property \Mll\Rpc\IRpc $rpc
  * @date        2017
  * @copyright   mll
  */
@@ -83,12 +84,18 @@ class Mll
                 );
             },
             'server' => function () {
-                return Server\Factory::getInstance(self::$serveModel);
+                return Server\Factory::getInstance(SERVER_MODEL);
             },
             'request' => function () {
                 return Request\Factory::getInstance(
-                    Mll::app()->config->get('request.driver', 'http'),
+                    SERVER_MODEL,
                     Mll::app()->config->get('request.http')
+                );
+            },
+            'rpc' => function () {
+                return Rpc\Factory::getInstance(
+                    Mll::app()->config->get('rpc.driver', 'yar'),
+                    Mll::app()->config->get('rpc.yar')
                 );
             },
         ]);
@@ -105,12 +112,6 @@ class Mll
 
         //错误注册
         Error::register();
-
-        //解析url
-        Mll::app()->request->parse();
-
-        //加载模块配置文件
-        Mll::app()->config->load(self::getConfigPath(Mll::app()->request->getModule()));
 
         //run server
         Mll::app()->server->run();

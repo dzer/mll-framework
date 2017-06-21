@@ -7,11 +7,11 @@ interface IRequest
     /**
      * 将不同server的传输数据统一格式.
      *
-     * @param $request
-     *
-     * @return mixed
+     * @param string $pathInfo
+     * @param mixed $params
+     * @return void
      */
-    public function parse($request = null);
+    public function parse($pathInfo = null, $params = null);
 
     /**
      * 获取模块.
