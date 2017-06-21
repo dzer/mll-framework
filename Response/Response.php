@@ -93,10 +93,10 @@ class Response
             }
         }
 
+        echo $data;
+
         if (strtolower(SERVER_MODEL) == 'rpc') {
-            return $data;
-        } else {
-            echo $data;
+            return ob_get_clean();
         }
 
         if (strtolower(SERVER_MODEL) == 'http' && function_exists('fastcgi_finish_request')) {

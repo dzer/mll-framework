@@ -68,7 +68,7 @@ class Mll
     {
         self::$serveModel = $serveModel;
         //自动加载
-        spl_autoload_register(__CLASS__.'::autoload', true, true);
+        spl_autoload_register(__CLASS__ . '::autoload', true, true);
 
         //服务容器
         Container::addDefinitions([
@@ -95,13 +95,19 @@ class Mll
                     Mll::app()->config->get('request.http')
                 );
             },
-            'cache' => function(){
+            'rpc' => function () {
+                return Rpc\Factory::getInstance(
+                    Mll::app()->config->get('rpc.driver', 'yar'),
+                    Mll::app()->config->get('rpc.yar')
+                );
+            },
+            'cache' => function () {
                 return Cache\Factory::getInstance(
                     'cache',
                     Mll::app()->config->get('cache')
                 );
             },
-            'session' => function(){
+            'session' => function () {
                 return Cache\Factory::getInstance(
                     'session',
                     Mll::app()->config->get('session')
