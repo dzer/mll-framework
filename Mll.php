@@ -74,7 +74,10 @@ class Mll
             'config' => function () {
                 return Config\Factory::getInstance();
             },
+
         ]);
+        //加载公共配置文件
+        Mll::app()->config->load(self::getConfigPath());
         Container::addDefinitions([
             'log' => function () {
                 return Log\Factory::getInstance(
@@ -91,11 +94,19 @@ class Mll
                     Mll::app()->config->get('request.http')
                 );
             },
+            'cache' => function(){
+                return Cache\Factory::getInstance(
+                    'cache',
+                    Mll::app()->config->get('cache')
+                );
+            },
+            'session' => function(){
+                return Cache\Factory::getInstance(
+                    'session',
+                    Mll::app()->config->get('session')
+                );
+            }
         ]);
-
-
-        //加载公共配置文件
-        Mll::app()->config->load(self::getConfigPath());
 
         //时区设置
         date_default_timezone_set(Mll::app()->config->get('time_zone', 'Asia/Shanghai'));
