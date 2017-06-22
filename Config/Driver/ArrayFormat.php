@@ -5,6 +5,13 @@ namespace Mll\Config\Driver;
 use Mll\Common\Dir;
 use Mll\Config\IConfig;
 
+/**
+ * PHP数组格式配置文件类
+ *
+ * @package Mll\Config\Driver
+ * @author Xu Dong <d20053140@gmail.com>
+ * @since 1.0
+ */
 class ArrayFormat implements IConfig
 {
     /**
@@ -15,11 +22,11 @@ class ArrayFormat implements IConfig
     private static $config = [];
 
     /**
-     * load.
+     * 加载配置文件
      *
-     * @param $configPathArr
+     * @param array $configPathArr 配置文件路径
      *
-     * @return array
+     * @return array 返回配置文件
      */
     public function load(array $configPathArr)
     {
@@ -40,11 +47,11 @@ class ArrayFormat implements IConfig
     /**
      * 获取配置.
      *
-     * @param $key
-     * @param null $default
-     * @param bool $throw
+     * @param string $key 键名，支持点号获取多维数组，例如 cache.memcache.code
+     * @param null $default 默认值，当配置不存在时返回默认值
+     * @param bool $throw 不存在时是否抛出错误
      *
-     * @return mixed|null
+     * @return mixed|null 返回相应配置
      *
      * @throws \Exception
      */
@@ -63,9 +70,9 @@ class ArrayFormat implements IConfig
     /**
      * 设置配置.
      *
-     * @param $key
-     * @param $value
-     * @param bool $set
+     * @param string $key 键名，支持点号设置多维数组，例如 cache.memcache.code
+     * @param mixed $value 值
+     * @param bool $set 当配置已存在，设置是否覆盖
      *
      * @return bool
      */
@@ -85,11 +92,11 @@ class ArrayFormat implements IConfig
     }
 
     /**
-     * 获取配置.
+     * 获取参数配置.
      *
-     * @param $key
-     * @param null $default
-     * @param bool $throw
+     * @param string $key 键名，支持点号获取多维数组，例如 cache.memcache.code
+     * @param null $default 默认值，当配置不存在时返回默认值
+     * @param bool $throw 不存在时是否抛出错误
      *
      * @return mixed|null
      *

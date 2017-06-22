@@ -8,13 +8,13 @@ use Mll\Request\IRequest;
 use Mll\Request\Base;
 
 /**
- * Http请求类
+ * Rpc请求类
  *
  * @package Mll\Request\Driver
  * @author Xu Dong <d20053140@gmail.com>
  * @since 1.0
  */
-class Http extends Base implements IRequest
+class Rpc extends Base implements IRequest
 {
     /**
      * 将不同server的传输数据统一格式.
@@ -28,9 +28,7 @@ class Http extends Base implements IRequest
         $module = $this->config['default_module'];
         $controller = $this->config['default_controller'];
         $action = $this->config['default_action'];
-
-        $pathInfo = $this->getPathInfo();
-
+        $var = array();
         if (!empty($pathInfo)) {
             list($path, $var) = Route::parseUrlPath($pathInfo);
         }
@@ -43,8 +41,10 @@ class Http extends Base implements IRequest
             // 解析操作
             $action = !empty($path) ? array_shift($path) : null;
         }
+
         // 解析额外参数
         $this->parseUrlParams(empty($path) ? '' : implode('|', $path), $var);
+
         $data = $this->param();
         $viewMode = Mll::app()->config->get('view_mode', 'Php');
 

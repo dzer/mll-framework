@@ -4,9 +4,14 @@ namespace Mll\Log\Driver;
 
 use Mll\Log\Base;
 use Mll\Log\ILog;
+use Mll\Mll;
 
 /**
  * 本地化调试输出到文件.
+ *
+ * @package Mll\Log\Driver
+ * @author Xu Dong <d20053140@gmail.com>
+ * @since 1.0
  */
 class File extends Base implements ILog
 {
@@ -19,9 +24,16 @@ class File extends Base implements ILog
         'suffix' => '.log',
     );
 
+    /**
+     * 日志
+     * @var array
+     */
     private $logs;
 
-    // 实例化并传入参数
+    /**
+     * 实例化并传入参数.
+     * @param array $config 配置文件
+     */
     public function __construct($config = [])
     {
         if (is_array($config)) {
@@ -32,17 +44,19 @@ class File extends Base implements ILog
     /**
      * 任意等级的日志记录.
      *
-     * @param mixed $level
-     * @param string $message
-     * @param array $context
+     * @param mixed $level 日志级别
+     * @param string $message 消息
+     * @param array $context 内容
+     * @param string $type 类型
      *
      * @return bool
      */
-    public function log($level, $message, array $context = array())
+    public function log($level, $message, array $context = array(), $type = Mll::LOG_TYPE_GENERAL)
     {
         if (empty($level) || empty($message)) {
             return false;
         }
+
         $now = date($this->config['time_format']);
         $separator = $this->config['separator'];
         $logStr = $now . $separator . $level . $separator . $message;

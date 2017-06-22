@@ -2,12 +2,25 @@
 
 namespace Mll\Core;
 
-use Mll\Controller\IController;
 use Mll\Mll;
 use Mll\Response\Response;
+use Mll\Controller\IController;
 
+/**
+ * 路由类
+ *
+ * @package Mll\Core
+ * @author Xu Dong <d20053140@gmail.com>
+ * @since 1.0
+ */
 class Route
 {
+    /**
+     * 路由执行，包括pathInfo分析，参数过滤，调用方法，响应结果
+     *
+     * @return mixed
+     * @throws \Exception
+     */
     public static function route()
     {
         $request = Mll::app()->request;
@@ -58,26 +71,26 @@ class Route
     /**
      *  路由匹配.
      *
-     * @param $route //config里的route配置数组
-     * @param $pathinfo //默认取值$_SERVER['PATH_INFO'];
+     * @param array $route route配置数组
+     * @param string $pathInfo pathInfo
      *
      * @return mixed
      */
-    public static function match($route, $pathinfo)
+    public static function match($route, $pathInfo)
     {
-        if (empty($route) || empty($pathinfo)) {
+        if (empty($route) || empty($pathInfo)) {
             return false;
         }
 
-        $pathinfo = explode('.', $pathinfo);
-        $pathinfo = $pathinfo[0];
+        $pathInfo = explode('.', $pathInfo);
+        $pathInfo = $pathInfo[0];
 
-        if (isset($route['static'][$pathinfo])) {
-            return $route['static'][$pathinfo];
+        if (isset($route['static'][$pathInfo])) {
+            return $route['static'][$pathInfo];
         }
 
         foreach ($route['dynamic'] as $regex => $rule) {
-            if (!preg_match($regex, $pathinfo, $matches)) {
+            if (!preg_match($regex, $pathInfo, $matches)) {
                 continue;
             }
             if (!empty($matches)) {
@@ -92,7 +105,7 @@ class Route
                     $rule[1] = array_combine($rule[1], $matches);
                 }
                 if (isset($cache)) {
-                    $cache->set($pathinfo, json_encode($rule));
+                    $cache->set($pathInfo, json_encode($rule));
                 }
 
                 return $rule;
@@ -102,6 +115,12 @@ class Route
         return false;
     }
 
+    /**
+     * 分析路由和参数.
+     *
+     * @param string $url pathInfo
+     * @return array 返回 [路由地址, 参数]
+     */
     public static function parseUrlPath($url)
     {
         // 分隔符替换 确保路由定义使用统一的分隔符

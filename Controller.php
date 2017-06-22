@@ -1,7 +1,8 @@
 <?php
 
-namespace Mll\Controller;
+namespace Mll;
 
+use Mll\Controller\IController;
 use Mll\Response\Response;
 
 class Controller implements IController

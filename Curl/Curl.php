@@ -3,7 +3,7 @@
 namespace Mll\Curl;
 
 use Mll\Curl\ArrayUtil;
-use Mll\Curl\Decoder;
+use Mll\Mll\Curl\Decoder;
 
 class Curl
 {
@@ -45,10 +45,10 @@ class Curl
     private $headers = array();
     private $options = array();
 
-    private $jsonDecoder = '\Curl\Decoder::decodeJson';
+    private $jsonDecoder = '\Mll\Curl\Decoder::decodeJson';
     private $jsonDecoderArgs = array();
     private $jsonPattern = '/^(?:application|text)\/(?:[a-z]+(?:[\.-][0-9a-z]+){0,}[\+\.]|x-)?json(?:-[a-z]+)?/i';
-    private $xmlDecoder = '\Curl\Decoder::decodeXml';
+    private $xmlDecoder = '\Mll\Curl\Decoder::decodeXml';
     private $xmlPattern = '~^(?:text/|application/(?:atom\+|rss\+)?)xml~i';
     private $defaultDecoder = null;
 
@@ -806,7 +806,7 @@ class Curl
      */
     public function setDefaultJsonDecoder()
     {
-        $this->jsonDecoder = '\Curl\Decoder::decodeJson';
+        $this->jsonDecoder = '\Mll\Mll\Curl\Decoder::decodeJson';
         $this->jsonDecoderArgs = func_get_args();
     }
 
@@ -817,7 +817,7 @@ class Curl
      */
     public function setDefaultXmlDecoder()
     {
-        $this->xmlDecoder = '\Curl\Decoder::decodeXml';
+        $this->xmlDecoder = '\Mll\Curl\Decoder::decodeXml';
     }
 
     /**
@@ -1317,6 +1317,7 @@ class Curl
         if (isset($response_headers['Content-Type'])) {
             if (preg_match($this->jsonPattern, $response_headers['Content-Type'])) {
                 if ($this->jsonDecoder) {
+                    $this->setDefaultJsonDecoder(true);
                     $args = $this->jsonDecoderArgs;
                     array_unshift($args, $response);
                     $response = call_user_func_array($this->jsonDecoder, $args);
@@ -1326,6 +1327,7 @@ class Curl
                     $response = call_user_func($this->xmlDecoder, $response);
                 }
             } else {
+                print_r($this->defaultDecoder);
                 if ($this->defaultDecoder) {
                     $response = call_user_func($this->defaultDecoder, $response);
                 }

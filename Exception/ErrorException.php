@@ -4,7 +4,10 @@ namespace Mll\Exception;
 
 /**
  * 错误异常
- * 主要用于封装 set_error_handler 和 register_shutdown_function 得到的错误.
+ *
+ * @package Mll\Exception
+ * @author Xu Dong <d20053140@gmail.com>
+ * @since 1.0
  */
 class ErrorException extends \Exception
 {

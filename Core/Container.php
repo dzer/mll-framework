@@ -5,7 +5,9 @@ namespace Mll\Core;
 /**
  * 服务容器（简化版的 service Locator服务定位器 和 DI依赖注入）
  *
- * @author Dzer <dz@mnapoli.fr>
+ * @package Mll\Core
+ * @author Xu Dong <d20053140@gmail.com>
+ * @since 1.0
  */
 class Container
 {
@@ -42,8 +44,8 @@ class Container
     /**
      * 实例化（单例）
      *
-     * @param $className
-     * @param null $params
+     * @param string $className 类名
+     * @param null $params 参数
      * @return mixed
      * @throws \Exception
      */
@@ -56,6 +58,7 @@ class Container
         if (isset(self::$instances[$keyName])) {
             return self::$instances[$keyName];
         }
+
         if (!class_exists($className)) {
             throw new \Exception("no class {$className}");
         }
@@ -70,24 +73,26 @@ class Container
     /**
      * 添加服务配置文件
      *
-     * @param array $definitions
+     * @param array $definitions 配置服务
      * @return array
      */
     public static function addDefinitions(array $definitions)
     {
-
         return self::$definitions += $definitions;
     }
 
     /**
      * 获取实例
      *
-     * @param $name
+     * @param string $name 实例别名
      * @return mixed
      * @throws \Exception
      */
     public static function get($name)
     {
+        if (isset(self::$instances[$name])) {
+            return self::$instances[$name];
+        }
         if (isset(self::$classAlias[$name]) && isset(self::$instances[self::$classAlias[$name]])
             && is_object(self::$instances[self::$classAlias[$name]])
         ) {
@@ -102,13 +107,32 @@ class Container
         throw new \Exception("No entry or class found for '$name'");
     }
 
+    /**
+     * 返回所有实例
+     *
+     * @return array
+     */
     public static function getInstances()
     {
         return self::$instances;
     }
 
     /**
-     * 设置容器变量
+     * 测试名称是否存在容器中
+     *
+     * @param string $name 实例别名
+     * @return bool
+     */
+    public function has($name)
+    {
+        if (isset(self::$instances[self::$classAlias[$name]])) {
+            return true;
+        }
+        return false;
+    }
+
+    /**
+     * 设置容器变量，待完成
      *
      * @param string $name 别名
      * @param string|array|object|callable $value 值可以是类名、实例、可调用结构、数组
@@ -123,7 +147,7 @@ class Container
     }*/
 
     /**
-     * 设置容器变量
+     * 设置容器变量，待完成
      *
      * @param string $name 别名
      * @param string|array|object|callable $definition 值可以是类名、实例、可调用结构、数组
@@ -135,22 +159,9 @@ class Container
 
      }*/
 
-    /**
-     * 测试名称是否存在容器中
-     *
-     * @param string $name
-     * @return bool
-     */
-    public function has($name)
-    {
-        if (isset(self::$instances[self::$classAlias[$name]])) {
-            return true;
-        }
-        return false;
-    }
 
     /**
-     * 创建一个实例
+     * 创建一个实例，待完成
      * 暂时只做一层
      *
      * @param $name
@@ -169,7 +180,7 @@ class Container
     }*/
 
     /**
-     * 分析依赖关系
+     * 分析依赖关系，待完成
      *
      * @param $class
      * @return array

@@ -12,6 +12,11 @@ define('DS', DIRECTORY_SEPARATOR);
 /*
  * 程序开始时间戳
  */
+defined('SERVER_MODEL') or define('SERVER_MODEL', 'Http');
+
+/*
+ * 程序开始时间戳
+ */
 defined('MLL_BEGIN_TIME') or define('MLL_BEGIN_TIME', microtime());
 
 /*
@@ -58,3 +63,23 @@ defined('MLL_ENV_DEV') or define('MLL_ENV_DEV', MLL_ENV === 'dev');
  * 是否为测试环境
  */
 defined('MLL_ENV_TEST') or define('MLL_ENV_TEST', MLL_ENV === 'test');
+
+/*
+ * 规则日志类型
+ */
+defined('LOG_TYPE_RULE') or define('LOG_TYPE_RULE', 'RULE');
+
+/*
+ * CURL日志类型
+ */
+defined('LOG_TYPE_CURL') or define('LOG_TYPE_CURL', 'CURL');
+
+/*
+ * RPC日志类型
+ */
+defined('LOG_TYPE_RPC') or define('LOG_TYPE_RPC', 'RPC');
+
+/*
+ * 普通日志类型
+ */
+defined('LOG_TYPE_GENERAL') or define('LOG_TYPE_GENERAL', 'GENERAL');
