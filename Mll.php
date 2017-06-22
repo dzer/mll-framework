@@ -49,7 +49,32 @@ class Mll
      *
      * @var array
      */
-    private static $classMap = [];
+    private static $classMap = [
+        //'Mll\Mll' => MLL_PATH . '\Mll.php',
+        'Mll\Core\Container' => MLL_PATH . '\Core\Container.php',
+        'Mll\Config\Factory' => MLL_PATH . '\Config\Factory.php',
+        'Mll\Config\Driver\ArrayFormat' => MLL_PATH . '\Config\Driver\ArrayFormat.php',
+        'Mll\Config\IConfig' => MLL_PATH . '\Config\IConfig.php',
+        'Mll\Common\Dir' => MLL_PATH . '\Common\Dir.php',
+        'Mll\Exception\Error' => MLL_PATH . '\Exception\Error.php',
+        'Mll\Server\Factory' => MLL_PATH . '\Server\Factory.php',
+        'Mll\Server\Driver\Http' => MLL_PATH . '\Server\Driver\Http.php',
+        'Mll\Server\IServer' => MLL_PATH . '\Server\IServer.php',
+        'Mll\Request\Factory' => MLL_PATH . '\Request\Factory.php',
+        'Mll\Request\Driver\Http' => MLL_PATH . '\Request\Driver\Http.php',
+        'Mll\Request\Base' => MLL_PATH . '\Request\Base.php',
+        'Mll\Request\IRequest' => MLL_PATH . '\Request\IRequest.php',
+        'Mll\Core\Route' => MLL_PATH . '\Core\Route.php',
+        'Mll\Controller' => MLL_PATH . '\Controller.php',
+        'Mll\Controller\IController' => MLL_PATH . '\Controller\IController.php',
+        'Mll\Response\Response' => MLL_PATH . '\Response\Response.php',
+        'Mll\Response\Driver\Json' => MLL_PATH . '\Response\Driver\Json.php',
+        'Mll\Common\Common' => MLL_PATH . '\Common\Common.php',
+        'Mll\Log\Driver\File' => MLL_PATH . '\Log\Driver\File.php',
+        'Mll\Log\Base' => MLL_PATH . '\Log\Base.php',
+        'Mll\Log\ILog' => MLL_PATH . '\Log\ILog.php',
+        'Mll\Log\Factory' => MLL_PATH . '\Log\Factory.php',
+    ];
 
     public function __get($name)
     {
@@ -74,6 +99,7 @@ class Mll
     public function run($serveModel = 'Http')
     {
         self::$serveModel = $serveModel;
+
         //自动加载
         spl_autoload_register(__CLASS__ . '::autoload', true, true);
 

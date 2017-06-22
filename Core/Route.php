@@ -27,7 +27,7 @@ class Route
         $className = 'app\\' . $request->getModule() . '\\controller\\'
             . $request->getController();
         if (!class_exists($className)) {
-            throw new \Exception('class not found');
+            throw new \Exception("class {$className} not found");
         }
         $class = Container::getInstance($className);
 

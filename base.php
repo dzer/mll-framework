@@ -63,3 +63,9 @@ defined('MLL_ENV_DEV') or define('MLL_ENV_DEV', MLL_ENV === 'dev');
  * 是否为测试环境
  */
 defined('MLL_ENV_TEST') or define('MLL_ENV_TEST', MLL_ENV === 'test');
+
+/*
+ * 是否为测试环境
+ */
+defined('LOG_TYPE_GENERAL') or define('LOG_TYPE_GENERAL', 'general');
+
