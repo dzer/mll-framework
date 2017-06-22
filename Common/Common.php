@@ -2,12 +2,19 @@
 
 namespace Mll\Common;
 
+/**
+ * 常用工具类
+ *
+ * @package Mll\Common
+ * @author Xu Dong <d20053140@gmail.com>
+ * @since 1.0
+ */
 class Common
 {
     /**
      * 将对象转换为多维数组.
      *
-     * @param object $value
+     * @param object $value 传入对象
      *
      * @return array
      */
@@ -35,7 +42,7 @@ class Common
     /**
      *  将多维数组转换为对象
      *
-     * @param array $value
+     * @param array $value 传入数组
      *
      * @return object
      */
@@ -57,7 +64,7 @@ class Common
     /**
      * 将字节转换成相应的单位.
      *
-     * @param $size
+     * @param int $size 字节
      *
      * @return string
      */
@@ -69,9 +76,9 @@ class Common
     }
 
     /**
-     * getMicroTime.
+     * 格式化微妙时间
      *
-     * @param null $mic
+     * @param null $mic 微妙
      *
      * @return float
      */

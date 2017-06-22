@@ -9,25 +9,32 @@ use Mll\Server;
 use Mll\Core\Container;
 
 /**
- * Class BaseApp
+ * Class Mll
  *
  * @package Mll
  * @property \Mll\Config\Driver\ArrayFormat $config
  * @property \Mll\Request\IRequest $request
  * @property \Mll\Log\ILog $log
- * @property \Mll\Mll $app
  * @property \Mll\Server\IServer $server
  * @property \Mll\Rpc\IRpc $rpc
- * @date        2017
- * @copyright   mll
+ * @property \Mll\Session $session
+ * @property \Mll\Cache $cache
+ * @author Xu Dong <d20053140@gmail.com>
+ * @since 1.0
  */
 class Mll
 {
+    /**
+     * debug模式
+     * @var
+     */
     public static $debug;
 
+    /**
+     * serverModel
+     * @var
+     */
     public static $serveModel;
-
-    public static $app;
 
     /**
      * 系统类库.

@@ -6,14 +6,31 @@ use Mll\Mll;
 use Mll\Server\IServer;
 use Mll\Core;
 
+/**
+ * Rpc鏈嶅姟
+ *
+ * @package Mll\Server\Driver
+ * @author Xu Dong <d20053140@gmail.com>
+ * @since 1.0
+ */
 class Rpc implements IServer
 {
+    /**
+     * 杩愯鏈嶅姟
+     */
     public function run()
     {
         $rpc = new \Yar_Server(new self());
         $rpc->handle();
     }
 
+    /**
+     * api
+     *
+     * @param string $pathInfo PathInfo
+     * @param array $params 鍙傛暟
+     * @return mixed
+     */
     public function api($pathInfo, $params)
     {
         $method = strtolower(isset($params['method']) ? $params['method'] : 'GET');
@@ -24,9 +41,7 @@ class Rpc implements IServer
         if ($method == 'post') {
             $_POST = array_merge($_POST, $params['param']);
         }
-        //解析url
         Mll::app()->request->parse($pathInfo, $params['param']);
-        //加载模块配置文件
         Mll::app()->config->load(Mll::getConfigPath(Mll::app()->request->getModule()));
 
         return Core\Route::route();

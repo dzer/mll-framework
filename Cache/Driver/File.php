@@ -3,7 +3,6 @@
 namespace Mll\Cache\Driver;
 
 use Mll\Cache\Base;
-use Mll\Exception;
 use Mll\Cache\ICache;
 
 /**
@@ -233,5 +232,4 @@ class File extends Base implements ICache
     {
         return is_file($path) && unlink($path);
     }
-
 }

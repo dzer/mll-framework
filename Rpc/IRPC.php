@@ -5,7 +5,7 @@ namespace Mll\Rpc;
 interface IRpc
 {
     /**
-     * get方法
+     * Rpc模拟get方法
      *
      * @param string $url 请求链接
      * @param array $data 数据

@@ -1,7 +1,15 @@
 <?php
 
 namespace Mll\Request;
+use Mll\Mll;
 
+/**
+ * 请求基础类
+ *
+ * @package Mll\Request
+ * @author Xu Dong <d20053140@gmail.com>
+ * @since 1.0
+ */
 abstract class Base implements IRequest
 {
     protected $config = [
@@ -140,11 +148,11 @@ abstract class Base implements IRequest
     /**
      * 初始化request.
      *
-     * @param $module
-     * @param $controller
-     * @param $action
-     * @param array $params
-     * @param null $viewMode
+     * @param string $module 模块
+     * @param string $controller 控制器
+     * @param string $action 方法
+     * @param array $params 请求参数
+     * @param null $viewMode 视图模型
      */
     public function init($module, $controller, $action, array $params, $viewMode = null)
     {
@@ -175,10 +183,11 @@ abstract class Base implements IRequest
     }
 
     /**
-     * @param null $requestId
+     * 设置请求唯一id
      *
-     * @return mixed|null|string
-     * @desc 设置请求唯一id
+     * @param string $requestId 请求唯一id
+     *
+     * @return string
      */
     public function setRequestId($requestId = null)
     {
@@ -195,7 +204,7 @@ abstract class Base implements IRequest
     /**
      * 获取请求id.
      *
-     * @param bool $autoMake
+     * @param bool $autoMake 当请求id为空时是否设置请求id
      *
      * @return mixed|null|string
      */
@@ -222,8 +231,8 @@ abstract class Base implements IRequest
     /**
      * 将不同server的传输数据统一格式.
      *
-     * @param string $pathInfo
-     * @param mixed $params
+     * @param string $pathInfo pathInfo
+     * @param mixed $params 参数
      * @return void
      */
     abstract public function parse($pathInfo = null, $params = null);
@@ -591,21 +600,22 @@ abstract class Base implements IRequest
      *
      * @return mixed
      */
-    /*public function session($name = '', $default = null, $filter = '')
+    public function session($name = '', $default = null, $filter = '')
     {
         if (empty($this->session)) {
-            $this->session = Session::get();
+            $this->session = Mll::app()->session->get();
         }
         if (is_array($name)) {
             return $this->session = array_merge($this->session, $name);
         }
         return $this->input($this->session, $name, $default, $filter);
-    }*/
+    }
 
     /**
      * 递归过滤给定的值
      *
      * @param mixed $value 键值
+     * @param mixed $key 键名
      * @param array $filters 过滤方法+默认值
      *
      * @return mixed
@@ -800,7 +810,7 @@ abstract class Base implements IRequest
     }
 
     /**
-     * getPathInfo.
+     * 获取pathInfo.
      *
      * @return string
      */
@@ -818,6 +828,11 @@ abstract class Base implements IRequest
         return $this->pathInfo;
     }
 
+    /**
+     * 获取当前Url.
+     *
+     * @return mixed|string
+     */
     public function getUrl()
     {
         if ($this->url === null) {
@@ -855,6 +870,12 @@ abstract class Base implements IRequest
         return $requestUri;
     }
 
+    /**
+     * 解析PathInfo
+     *
+     * @return string
+     * @throws \Exception
+     */
     protected function resolvePathInfo()
     {
         $pathInfo = $this->getUrl();
@@ -900,6 +921,12 @@ abstract class Base implements IRequest
         return (string)$pathInfo;
     }
 
+    /**
+     * 返回脚本url
+     *
+     * @return mixed|string
+     * @throws \Exception
+     */
     public function getScriptUrl()
     {
         if ($this->scriptUrl === null) {
@@ -926,30 +953,22 @@ abstract class Base implements IRequest
     }
 
     /**
-     * Returns the entry script file path.
-     * The default implementation will simply return `$_SERVER['SCRIPT_FILENAME']`.
+     * 返回脚本文件路径.
+     * 默认将简单地返回 `$_SERVER['SCRIPT_FILENAME']`.
      *
-     * @return string the entry script file path
+     * @return string 脚本文件路径
      *
      * @throws \Exception
      */
     public function getScriptFile()
     {
-        if (isset($this->_scriptFile)) {
-            return $this->_scriptFile;
-        } elseif (isset($_SERVER['SCRIPT_FILENAME'])) {
-            return $_SERVER['SCRIPT_FILENAME'];
-        } else {
-            throw new \Exception('Unable to determine the entry script file path.');
-        }
+        return $_SERVER['SCRIPT_FILENAME'];
     }
 
     /**
-     * Returns the relative URL for the application.
-     * This is similar to [[scriptUrl]] except that it does not include the script file name,
-     * and the ending slashes are removed.
+     * 返回应用程序的相对URL。
      *
-     * @return string the relative URL for the application
+     * @return string 应用程序的相对URL
      *
      * @see setScriptUrl()
      */

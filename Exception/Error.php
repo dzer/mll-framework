@@ -5,6 +5,13 @@ namespace Mll\Exception;
 use Mll\Mll;
 use Mll\Common\Common;
 
+/**
+ * 错误注册类
+ *
+ * @package Mll\Exception
+ * @author Xu Dong <d20053140@gmail.com>
+ * @since 1.0
+ */
 class Error
 {
     /**
@@ -19,7 +26,7 @@ class Error
     }
 
     /**
-     * Exception Handler.
+     * 异常处理.
      *
      * @param \Exception|\Throwable $e
      */
@@ -116,7 +123,7 @@ class Error
     }
 
     /**
-     * Get an instance of the exception handler.
+     * 获取异常处理程序的实例.
      *
      * @return Handle
      */

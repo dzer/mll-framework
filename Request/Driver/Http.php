@@ -7,13 +7,20 @@ use Mll\Mll;
 use Mll\Request\IRequest;
 use Mll\Request\Base;
 
+/**
+ * Http请求类
+ *
+ * @package Mll\Request\Driver
+ * @author Xu Dong <d20053140@gmail.com>
+ * @since 1.0
+ */
 class Http extends Base implements IRequest
 {
     /**
      * 将不同server的传输数据统一格式.
      *
-     * @param string $pathInfo
-     * @param mixed $params
+     * @param string $pathInfo pathInfo
+     * @param mixed $params 参数
      * @return void
      */
     public function parse($pathInfo = null, $params = null)

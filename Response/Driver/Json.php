@@ -4,6 +4,13 @@ namespace Mll\Response\Driver;
 
 use Mll\Response\Response;
 
+/**
+ * json响应类
+ *
+ * @package Mll\Response\Driver
+ * @author Xu Dong <d20053140@gmail.com>
+ * @since 1.0
+ */
 class Json extends Response
 {
     // 输出参数
@@ -11,6 +18,9 @@ class Json extends Response
         'json_encode_param' => JSON_UNESCAPED_UNICODE,
     ];
 
+    /**
+     * @var string
+     */
     protected $contentType = 'application/json';
 
     /**

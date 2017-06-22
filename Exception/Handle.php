@@ -9,6 +9,8 @@ use Exception;
  * 异常处理.
  *
  * @package Mll\Exception
+ * @author Xu Dong <d20053140@gmail.com>
+ * @since 1.0
  */
 class Handle
 {
@@ -18,7 +20,7 @@ class Handle
      * @var array
      */
     protected $ignoreReport = [
-        '\Yar_Client_Protocol_Exception'
+
     ];
 
     /**
@@ -34,7 +36,7 @@ class Handle
             $data = [
                 'file' => $exception->getFile(),
                 'line' => $exception->getLine(),
-                'message' => ($isFatal ? 'fatal error:' : '').$this->getMessage($exception),
+                'message' => ($isFatal ? 'fatal error:' : '') . $this->getMessage($exception),
                 'code' => $this->getCode($exception),
             ];
             $log = "[{$data['code']}]{$data['message']}[{$data['file']}:{$data['line']}]";

@@ -7,7 +7,7 @@ interface IConfig
     /**
      * 加载配置文件
      *
-     * @param array $configDir 配置文件目录,z
+     * @param array $configDir 配置文件目录
      *
      * @return mixed
      */
@@ -28,7 +28,7 @@ interface IConfig
      *
      * @param string $key 键名，支持点号，例如cache.mll.host
      * @param mixed $value 设置值
-     * @param bool $set 设置为false时配置项非空才设置
+     * @param bool $set 如果配置文件存在，是指是否覆盖
      * @return mixed
      */
     public function set($key, $value, $set = true);

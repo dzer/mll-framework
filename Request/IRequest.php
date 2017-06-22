@@ -35,7 +35,7 @@ interface IRequest
     public function getAction();
 
     /**
-     * 获取方法.
+     * 获取请求方式.
      *
      * @return mixed
      */
@@ -60,13 +60,18 @@ interface IRequest
     /**
      * 设置获取获取路由参数.
      *
-     * @param string|array $name    变量名
-     * @param mixed        $default 默认值
-     * @param string|array $filter  过滤方法
+     * @param string|array $name 变量名
+     * @param mixed $default 默认值
+     * @param string|array $filter 过滤方法
      *
      * @return mixed
      */
     public function route($name = '', $default = null, $filter = '');
 
-
+    /**
+     * 返回应用程序的相对URL。
+     *
+     * @return string 应用程序的相对URL
+     */
+    public function getBaseUrl();
 }

@@ -3,7 +3,6 @@
 namespace Mll\Cache\Driver;
 
 use Mll\Cache\Base;
-use Mll\Exception;
 use Mll\Cache\ICache;
 
 class Memcache extends Base implements ICache
