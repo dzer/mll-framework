@@ -2,6 +2,7 @@
 
 namespace Mll\Common;
 
+use Mll\Cache;
 use Mll\Mll;
 use Mll\Exception;
 use Mll\Curl\Curl;
@@ -132,7 +133,7 @@ class Rule
         if (empty($rule_name)) {
             return false;
         }
-        $adminCache = MLL::app()->cache->cut('memcache.admin');
+        $adminCache = Cache::cut(MLL::app()->config->get('rule_cache'));
         //别名缓存一小时
         $memkey = self::$RuleAliasMemkey . $rule_name;
         $rule_name_mem = $adminCache->get($memkey);
