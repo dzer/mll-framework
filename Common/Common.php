@@ -89,4 +89,37 @@ class Common
 
         return (float)$usec + (float)$sec;
     }
+
+    /**
+     * 返回一条BUG跟踪信息
+     *
+     * @param string $args 参数
+     *
+     * @return string
+     */
+    static function BugTrace($args = '') {
+        $ret = debug_backtrace();
+        krsort($ret, SORT_NUMERIC);
+        $info = array();
+        foreach($ret as $v) {
+            $temp = explode('\\', $v['file']);
+            $info[] = end($temp) . '::' . $v['class'] . $v['type'] . $v['function'] . "[{$v['line']}]";;
+        }
+
+        return implode(', ', $info);
+    }
+
+    /**
+     * 严重数据库错误
+     *
+     * @param string $msg 描述
+     * @param string $arg 参数
+     *
+     * @return array
+     */
+    static function dbErr($msg, $arg = array()) {
+        $log = self::BugTrace() . print_r($arg, true);
+
+        return ReturnMsg::err($msg.$log);
+    }
 }

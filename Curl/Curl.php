@@ -367,7 +367,7 @@ class Curl
             $this->requestHeaders = $this->parseRequestHeaders($this->getInfo(CURLINFO_HEADER_OUT));
         }
         $this->responseHeaders = $this->parseResponseHeaders($this->rawResponseHeaders);
-        $this->response = $this->parseResponse($this->responseHeaders, $this->rawResponse);
+        //$this->response = $this->parseResponse($this->responseHeaders, $this->rawResponse);
 
         $this->httpErrorMessage = '';
         if ($this->error) {
@@ -806,7 +806,7 @@ class Curl
      */
     public function setDefaultJsonDecoder()
     {
-        $this->jsonDecoder = '\Mll\Mll\Curl\Decoder::decodeJson';
+        $this->jsonDecoder = '\Mll\Curl\Decoder::decodeJson';
         $this->jsonDecoderArgs = func_get_args();
     }
 
@@ -1327,7 +1327,6 @@ class Curl
                     $response = call_user_func($this->xmlDecoder, $response);
                 }
             } else {
-                print_r($this->defaultDecoder);
                 if ($this->defaultDecoder) {
                     $response = call_user_func($this->defaultDecoder, $response);
                 }

@@ -132,7 +132,10 @@ class Mll
                     Mll::app()->config->get('rpc.driver', 'yar'),
                     Mll::app()->config->get('rpc.yar')
                 );
-            }
+            },
+            'write' => function () {
+                return Write\Factory::getInstance();
+            },
         ]);
 
         //时区设置
