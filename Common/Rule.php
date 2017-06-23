@@ -5,6 +5,14 @@ namespace Mll\Common;
 use Mll\Mll;
 use Mll\Exception;
 use Mll\Curl\Curl;
+
+/**
+ * 规则调用类
+ *
+ * @package Mll\Cache
+ * @author wang zhou <zhouwang@mll.com>
+ * @since 1.0
+ */
 class Rule
 {
     private static $RuleAliasMemkey = 'RuleAliasMemk_';
@@ -49,15 +57,34 @@ class Rule
         }
         return \Mll\Common\ReturnMsg::ret($result['rows']);
     }
+    /**
+     * 抛出异常
+     *
+     * @param string $msg 异常信息
+     *
+     * @throws \ErrorException
+     */
     public static function throwMst($msg){
         throw new \ErrorException($msg);
     }
+    /**
+     * 查询需要记录日志的规则
+     *
+     * @return void
+     */
     private static function _getSaveLogRuleMethod() {
         if(!empty(self::$ruleMethodSave)) { return self::$ruleMethodSave; }
         $var = 'rule_method_save';
         $info = self::getDBVariableFromRule($var);
         return self::$ruleMethodSave = empty($info) ? 'NO_HAVE_RULE_SAVE_LOG' : $info;
     }
+    /**
+     * 取系统变量
+     *
+     * @param array $info 规则名称
+     *
+     * @return mixed
+     */
     static function getDBVariableFromRule($info = array())
     {
         if(empty($info)) {
@@ -86,7 +113,10 @@ class Rule
         $ret = array();
         if(isset($config_info['rows']) && $config_info['rows']){
             foreach($config_info['rows'] as $v) {
-                $ret[$v['var_name']] = $v['var_value'];
+                if(!isset($v['var_name'])){
+                    continue;
+                }
+                $ret[$v['var_name']] = isset($v['var_value']) ? $v['var_value'] : '';
             }
         }
         return $ret;
@@ -102,7 +132,7 @@ class Rule
         if (empty($rule_name)) {
             return false;
         }
-         $adminCache = MLL::app()->cache->cut('memcache.admin');
+        $adminCache = MLL::app()->cache->cut('memcache.admin');
         //别名缓存一小时
         $memkey = self::$RuleAliasMemkey . $rule_name;
         $rule_name_mem = $adminCache->get($memkey);
@@ -157,13 +187,6 @@ class Rule
             'Connection' => 'Keep-Alive',
             'Keep-Alive' => '60'
         );
-        if (!$curl) {
-            $curl = curl_init();
-            register_shutdown_function(array (
-                __CLASS__,
-                'closeCurl'
-            ), $curl);
-        }
         $options = array(
             CURLOPT_URL => $url,
             CURLOPT_HEADER => 0,
@@ -196,7 +219,6 @@ class Rule
         $curl->setOpts($options);
         list ( $s_usec, $s_sec ) = explode(" ", microtime());
         $result = $curl->exec();
-        //$result = json_encode($result);
         list ( $e_usec, $e_sec ) = explode(" ", microtime());
         $total_time = ( float ) (($e_sec - $s_sec) + ($e_usec - $s_usec));
         $http_code = $curl->getInfo(CURLINFO_HTTP_CODE);
@@ -211,15 +233,18 @@ class Rule
             'time_cost' => $total_time
         );
     }
+    /**
+     * 拼接header
+     *
+     * @param array $headers header数组
+     *
+     * @return string
+     */
     private static function buildHeaderArray($headers) {
         $output = array ();
         foreach ($headers as $key => $header) {
             $output [] = "{$key}:{$header};";
         }
         return $output;
-    }
-    private static function closeCurl($curl)
-    {
-        curl_close($curl);
     }
 }

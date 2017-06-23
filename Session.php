@@ -1,30 +1,32 @@
 <?php
-// +----------------------------------------------------------------------
-// | ThinkPHP [ WE CAN DO IT JUST THINK ]
-// +----------------------------------------------------------------------
-// | Copyright (c) 2006~2016 http://thinkphp.cn All rights reserved.
-// +----------------------------------------------------------------------
-// | Licensed ( http://www.apache.org/licenses/LICENSE-2.0 )
-// +----------------------------------------------------------------------
-// | Author: liu21st <liu21st@gmail.com>
-// +----------------------------------------------------------------------
 
 namespace Mll;
 
 use Mll\Exception;
 
+/**
+ * session类
+ *
+ * @package Mll
+ * @author wang zhou <zhouwang@mll.com>
+ * @since 1.0
+ */
 class Session
 {
     protected static $prefix = '';
-    protected static $init   = null;
+    protected static $init = null;
     static $config = [];
 
-    public function __construct($config = []){
+    public function __construct($config = [])
+    {
         self::$config = $config;
     }
+
     /**
      * 设置或者获取session作用域（前缀）
+     *
      * @param string $prefix
+     *
      * @return string|void
      */
     public function prefix($prefix = '')
@@ -38,8 +40,10 @@ class Session
 
     /**
      * session初始化
+     *
      * @param array $config
      * @return void
+     *
      * @throws \Mll\Exception
      */
     public function init(array $config = [])
@@ -108,6 +112,7 @@ class Session
 
     /**
      * session自动启动或者初始化
+     *
      * @return void
      */
     public function boot()
@@ -122,9 +127,11 @@ class Session
 
     /**
      * session设置
-     * @param string        $name session名称
-     * @param mixed         $value session值
-     * @param string|null   $prefix 作用域（前缀）
+     *
+     * @param string $name session名称
+     * @param mixed $value session值
+     * @param string|null $prefix 作用域（前缀）
+     *
      * @return void
      */
     public function set($name, $value = '', $prefix = null)
@@ -149,8 +156,10 @@ class Session
 
     /**
      * session获取
-     * @param string        $name session名称
-     * @param string|null   $prefix 作用域（前缀）
+     *
+     * @param string $name session名称
+     * @param string|null $prefix 作用域（前缀）
+     *
      * @return mixed
      */
     public function get($name = '', $prefix = null)
@@ -171,7 +180,7 @@ class Session
         } else {
             if (strpos($name, '.')) {
                 list($name1, $name2) = explode('.', $name);
-                $value               = isset($_SESSION[$name1][$name2]) ? $_SESSION[$name1][$name2] : null;
+                $value = isset($_SESSION[$name1][$name2]) ? $_SESSION[$name1][$name2] : null;
             } else {
                 $value = isset($_SESSION[$name]) ? $_SESSION[$name] : null;
             }
@@ -181,8 +190,10 @@ class Session
 
     /**
      * session获取并删除
-     * @param string        $name session名称
-     * @param string|null   $prefix 作用域（前缀）
+     *
+     * @param string $name session名称
+     * @param string|null $prefix 作用域（前缀）
+     *
      * @return mixed
      */
     public function pull($name, $prefix = null)
@@ -198,8 +209,10 @@ class Session
 
     /**
      * 删除session数据
-     * @param string        $name session名称
-     * @param string|null   $prefix 作用域（前缀）
+     *
+     * @param string $name session名称
+     * @param string|null $prefix 作用域（前缀）
+     *
      * @return void
      */
     public function delete($name, $prefix = null)
@@ -224,7 +237,9 @@ class Session
 
     /**
      * 清空session数据
-     * @param string|null   $prefix 作用域（前缀）
+     *
+     * @param string|null $prefix 作用域（前缀）
+     *
      * @return void
      */
     public function clear($prefix = null)
@@ -240,8 +255,10 @@ class Session
 
     /**
      * 判断session数据
-     * @param string        $name session名称
-     * @param string|null   $prefix
+     *
+     * @param string $name session名称
+     * @param string|null $prefix
+     *
      * @return bool
      */
     public function has($name, $prefix = null)
@@ -259,6 +276,7 @@ class Session
 
     /**
      * 启动session
+     *
      * @return void
      */
     public function start()
@@ -269,6 +287,7 @@ class Session
 
     /**
      * 销毁session
+     *
      * @return void
      */
     public function destroy()
@@ -283,7 +302,9 @@ class Session
 
     /**
      * 重新生成session_id
+     *
      * @param bool $delete 是否删除关联会话文件
+     *
      * @return void
      */
     private static function regenerate($delete = false)
@@ -293,6 +314,7 @@ class Session
 
     /**
      * 暂停session
+     *
      * @return void
      */
     public function pause()

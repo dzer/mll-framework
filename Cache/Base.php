@@ -3,7 +3,11 @@
 namespace Mll\Cache;
 
 /**
- * 缓存基础类.
+ * 缓存基础类
+ *
+ * @package Mll\Cache
+ * @author wang zhou <zhouwang@mll.com>
+ * @since 1.0
  */
 abstract class Base
 {
