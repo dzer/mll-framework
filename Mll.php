@@ -50,30 +50,29 @@ class Mll
      * @var array
      */
     private static $classMap = [
-        //'Mll\Mll' => MLL_PATH . '\Mll.php',
-        'Mll\Core\Container' => MLL_PATH . '\Core\Container.php',
-        'Mll\Config\Factory' => MLL_PATH . '\Config\Factory.php',
-        'Mll\Config\Driver\ArrayFormat' => MLL_PATH . '\Config\Driver\ArrayFormat.php',
-        'Mll\Config\IConfig' => MLL_PATH . '\Config\IConfig.php',
-        'Mll\Common\Dir' => MLL_PATH . '\Common\Dir.php',
-        'Mll\Exception\Error' => MLL_PATH . '\Exception\Error.php',
-        'Mll\Server\Factory' => MLL_PATH . '\Server\Factory.php',
-        'Mll\Server\Driver\Http' => MLL_PATH . '\Server\Driver\Http.php',
-        'Mll\Server\IServer' => MLL_PATH . '\Server\IServer.php',
-        'Mll\Request\Factory' => MLL_PATH . '\Request\Factory.php',
-        'Mll\Request\Driver\Http' => MLL_PATH . '\Request\Driver\Http.php',
-        'Mll\Request\Base' => MLL_PATH . '\Request\Base.php',
-        'Mll\Request\IRequest' => MLL_PATH . '\Request\IRequest.php',
-        'Mll\Core\Route' => MLL_PATH . '\Core\Route.php',
-        'Mll\Controller' => MLL_PATH . '\Controller.php',
-        'Mll\Controller\IController' => MLL_PATH . '\Controller\IController.php',
-        'Mll\Response\Response' => MLL_PATH . '\Response\Response.php',
-        'Mll\Response\Driver\Json' => MLL_PATH . '\Response\Driver\Json.php',
-        'Mll\Common\Common' => MLL_PATH . '\Common\Common.php',
-        'Mll\Log\Driver\File' => MLL_PATH . '\Log\Driver\File.php',
-        'Mll\Log\Base' => MLL_PATH . '\Log\Base.php',
-        'Mll\Log\ILog' => MLL_PATH . '\Log\ILog.php',
-        'Mll\Log\Factory' => MLL_PATH . '\Log\Factory.php',
+        'Mll\\Core\\Container' => '/Core/Container.php',
+        'Mll\\Config\\Factory' => '/Config/Factory.php',
+        'Mll\\Config\\Driver\\ArrayFormat' => '/Config/Driver/ArrayFormat.php',
+        'Mll\\Config\\IConfig' => '/Config/IConfig.php',
+        'Mll\\Common\\Dir' => '/Common/Dir.php',
+        'Mll\\Exception\\Error' => '/Exception/Error.php',
+        'Mll\\Server\\Factory' => '/Server/Factory.php',
+        'Mll\\Server\\Driver\\Http' => '/Server/Driver/Http.php',
+        'Mll\\Server\\IServer' => '/Server/IServer.php',
+        'Mll\\Request\\Factory' => '/Request/Factory.php',
+        'Mll\\Request\\Driver\\Http' => '/Request/Driver/Http.php',
+        'Mll\\Request\\Base' => '/Request/Base.php',
+        'Mll\\Request\\IRequest' => '/Request/IRequest.php',
+        'Mll\\Core\\Route' => '/Core/Route.php',
+        'Mll\\Controller' => '/Controller.php',
+        'Mll\\Controller\\IController' => '/Controller/IController.php',
+        'Mll\\Response\\Response' => '/Response/Response.php',
+        'Mll\\Response\\Driver\\Json' => '/Response/Driver/Json.php',
+        'Mll\\Common\\Common' => '/Common/Common.php',
+        'Mll\\Log\\Driver\\File' => '/Log/Driver/File.php',
+        'Mll\\Log\\Base' => '/Log/Base.php',
+        'Mll\\Log\\ILog' => '/Log/ILog.php',
+        'Mll\\Log\\Factory' => '/Log/Factory.php',
     ];
 
     public function __get($name)
@@ -193,7 +192,7 @@ class Mll
     public static function autoload($className)
     {
         if (isset(static::$classMap[$className])) {
-            $classFile = static::$classMap[$className];
+            $classFile = MLL_PATH . static::$classMap[$className];
         } elseif (strpos($className, '\\') !== false) {
             $classFile = ROOT_PATH . DS . str_replace('\\', DS, $className) . '.php';
             if ($classFile === false || !is_file($classFile)) {

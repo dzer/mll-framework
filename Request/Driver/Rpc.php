@@ -8,10 +8,10 @@ use Mll\Request\IRequest;
 use Mll\Request\Base;
 
 /**
- * Rpc请求类
+ * Rpc请求类.
  *
- * @package Mll\Request\Driver
  * @author Xu Dong <d20053140@gmail.com>
+ *
  * @since 1.0
  */
 class Rpc extends Base implements IRequest
@@ -20,8 +20,7 @@ class Rpc extends Base implements IRequest
      * 将不同server的传输数据统一格式.
      *
      * @param string $pathInfo pathInfo
-     * @param mixed $params 参数
-     * @return void
+     * @param mixed  $params   参数
      */
     public function parse($pathInfo = null, $params = null)
     {
