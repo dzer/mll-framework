@@ -51,7 +51,7 @@ class File extends Base implements ILog
      *
      * @return bool
      */
-    public function log($level, $message, array $context = array(), $type = Mll::LOG_TYPE_GENERAL)
+    public function log($level, $message, array $context = array(), $type = LOG_TYPE_GENERAL)
     {
         if (empty($level) || empty($message)) {
             return false;

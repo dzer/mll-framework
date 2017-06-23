@@ -49,7 +49,31 @@ class Mll
      *
      * @var array
      */
-    private static $classMap = [];
+    private static $classMap = [
+        'Mll\\Core\\Container' => '/Core/Container.php',
+        'Mll\\Config\\Factory' => '/Config/Factory.php',
+        'Mll\\Config\\Driver\\ArrayFormat' => '/Config/Driver/ArrayFormat.php',
+        'Mll\\Config\\IConfig' => '/Config/IConfig.php',
+        'Mll\\Common\\Dir' => '/Common/Dir.php',
+        'Mll\\Exception\\Error' => '/Exception/Error.php',
+        'Mll\\Server\\Factory' => '/Server/Factory.php',
+        'Mll\\Server\\Driver\\Http' => '/Server/Driver/Http.php',
+        'Mll\\Server\\IServer' => '/Server/IServer.php',
+        'Mll\\Request\\Factory' => '/Request/Factory.php',
+        'Mll\\Request\\Driver\\Http' => '/Request/Driver/Http.php',
+        'Mll\\Request\\Base' => '/Request/Base.php',
+        'Mll\\Request\\IRequest' => '/Request/IRequest.php',
+        'Mll\\Core\\Route' => '/Core/Route.php',
+        'Mll\\Controller' => '/Controller.php',
+        'Mll\\Controller\\IController' => '/Controller/IController.php',
+        'Mll\\Response\\Response' => '/Response/Response.php',
+        'Mll\\Response\\Driver\\Json' => '/Response/Driver/Json.php',
+        'Mll\\Common\\Common' => '/Common/Common.php',
+        'Mll\\Log\\Driver\\File' => '/Log/Driver/File.php',
+        'Mll\\Log\\Base' => '/Log/Base.php',
+        'Mll\\Log\\ILog' => '/Log/ILog.php',
+        'Mll\\Log\\Factory' => '/Log/Factory.php',
+    ];
 
     public function __get($name)
     {
@@ -74,6 +98,7 @@ class Mll
     public function run($serveModel = 'Http')
     {
         self::$serveModel = $serveModel;
+
         //自动加载
         spl_autoload_register(__CLASS__ . '::autoload', true, true);
 
@@ -155,7 +180,7 @@ class Mll
     public static function autoload($className)
     {
         if (isset(static::$classMap[$className])) {
-            $classFile = static::$classMap[$className];
+            $classFile = MLL_PATH . static::$classMap[$className];
         } elseif (strpos($className, '\\') !== false) {
             $classFile = ROOT_PATH . DS . str_replace('\\', DS, $className) . '.php';
             if ($classFile === false || !is_file($classFile)) {
