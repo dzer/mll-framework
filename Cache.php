@@ -15,18 +15,12 @@ class Cache
     public static $readTimes = 0;
     public static $writeTimes = 0;
     public static $options = [];
-    private static $cutParamsCount = 2;
     /**
      * 操作句柄.
      *
      * @var object
      */
     protected static $handler;
-
-    public function __construct($options = [])
-    {
-        self::$options = $options;
-    }
 
     /**
      * 连接缓存.
@@ -37,7 +31,7 @@ class Cache
      *
      * @return \Mll\Cache
      */
-    public function connect(array $options = [], $name = false, $driver = '')
+    public static function connect(array $options = [], $name = false, $driver = '')
     {
         if (false === $name) {
             $name = md5(serialize($options));
@@ -63,14 +57,14 @@ class Cache
      *
      * @param array $options 配置数组
      */
-    public function init(array $options = [])
+    public static function init(array $options = [])
     {
         if (is_null(self::$handler)) {
             // 自动初始化缓存
             if (!empty($options)) {
-                $this->connect($options);
+                self::connect($options);
             } else {
-                $this->cut('default.default');
+                self::cut('default');
             }
         }
     }
@@ -81,35 +75,41 @@ class Cache
      * @param string $name 缓存标识 memcache.code
      *
      * @return \Mll\Cache\Base
+     *
+     * @throws \ErrorException
      */
-    public function cut($name)
+    public static function cut($name)
     {
-        $split = explode('.', $name);
-        $split = array_filter($split);
-        if (self::$cutParamsCount != count($split)) {
-            throw new \ErrorException('cache : switch identification error!');
+        if (empty($name)) {
+            throw new \ErrorException('cache : cut params error!');
         }
-        $cacheType = $split[0];
-        $cacheItem = $split[1];
-        $alias = strtolower($cacheType . '_' . $cacheItem);
-        if (isset(self::$instance[$alias]) && is_object($alias)) {
-            self::$handler = self::$instance[$alias];
-
+        if (isset(self::$instance[$name]) && is_object($name)) {
+            self::$handler = self::$instance[$name];
             return self::$handler;
         }
-        if (!isset(self::$options[$cacheType]['driver']) || empty(self::$options[$cacheType]['driver'])) {
+        self::loadOptions();
+        if (!isset(self::$options[$name]['driver']) || empty(self::$options[$name]['driver'])) {
             throw new \ErrorException('cache : driver configuration error!');
         }
-        if (!isset(self::$options[$cacheType][$cacheItem]) || empty(self::$options[$cacheType][$cacheItem])) {
+        self::connect(
+            self::$options[$name],
+            $name,
+            self::$options[$name]['driver']
+        );
+        return self::$handler;
+    }
+    /**
+     * 加载缓存配置.
+     *
+     * @return array
+     *
+     * @throws \ErrorException
+     */
+    private static function loadOptions(){
+        self::$options = Mll::app()->config->get('cache');
+        if(empty(self::$options)){
             throw new \ErrorException('cache : no configuration found!');
         }
-        $this->connect(
-            self::$options[$cacheType][$cacheItem],
-            $alias,
-            self::$options[$cacheType]['driver']
-        );
-
-        return self::$handler;
     }
 
     /**
@@ -119,9 +119,9 @@ class Cache
      *
      * @return bool
      */
-    public function has($name)
+    public static function has($name)
     {
-        $this->init();
+        self::init();
         ++self::$readTimes;
 
         return self::$handler->has($name);
@@ -135,9 +135,9 @@ class Cache
      *
      * @return mixed
      */
-    public function get($name, $default = false)
+    public static function get($name, $default = false)
     {
-        $this->init();
+        self::init();
         ++self::$readTimes;
 
         return self::$handler->get($name, $default);
@@ -152,9 +152,9 @@ class Cache
      *
      * @return bool
      */
-    public function set($name, $value, $expire = null)
+    public static function set($name, $value, $expire = null)
     {
-        $this->init();
+        self::init();
         ++self::$writeTimes;
 
         return self::$handler->set($name, $value, $expire);
@@ -168,9 +168,9 @@ class Cache
      *
      * @return false|int
      */
-    public function inc($name, $step = 1)
+    public static function inc($name, $step = 1)
     {
-        $this->init();
+        self::init();
         ++self::$writeTimes;
 
         return self::$handler->inc($name, $step);
@@ -184,9 +184,9 @@ class Cache
      *
      * @return false|int
      */
-    public function dec($name, $step = 1)
+    public static function dec($name, $step = 1)
     {
-        $this->init();
+        self::init();
         ++self::$writeTimes;
 
         return self::$handler->dec($name, $step);
@@ -199,9 +199,9 @@ class Cache
      *
      * @return bool
      */
-    public function rm($name)
+    public static function rm($name)
     {
-        $this->init();
+        self::init();
         ++self::$writeTimes;
 
         return self::$handler->rm($name);
@@ -214,9 +214,9 @@ class Cache
      *
      * @return bool
      */
-    public function clear($tag = null)
+    public static function clear($tag = null)
     {
-        $this->init();
+        self::init();
         ++self::$writeTimes;
 
         return self::$handler->clear($tag);
@@ -231,9 +231,9 @@ class Cache
      *
      * @return \Mll\Cache\Base
      */
-    public function tag($name, $keys = null, $overlay = false)
+    public static function tag($name, $keys = null, $overlay = false)
     {
-        $this->init();
+        self::init();
 
         return self::$handler->tag($name, $keys, $overlay);
     }

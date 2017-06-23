@@ -107,18 +107,6 @@ class Mll
                     Mll::app()->config->get('rpc.driver', 'yar'),
                     Mll::app()->config->get('rpc.yar')
                 );
-            },
-            'cache' => function () {
-                return Cache\Factory::getInstance(
-                    'cache',
-                    Mll::app()->config->get('cache')
-                );
-            },
-            'session' => function () {
-                return Cache\Factory::getInstance(
-                    'session',
-                    Mll::app()->config->get('session')
-                );
             }
         ]);
 

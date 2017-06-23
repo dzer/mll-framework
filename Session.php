@@ -17,11 +17,6 @@ class Session
     protected static $init = null;
     static $config = [];
 
-    public function __construct($config = [])
-    {
-        self::$config = $config;
-    }
-
     /**
      * 设置或者获取session作用域（前缀）
      *
@@ -29,7 +24,7 @@ class Session
      *
      * @return string|void
      */
-    public function prefix($prefix = '')
+    public static function prefix($prefix = '')
     {
         if (empty($prefix) && null !== $prefix) {
             return self::$prefix;
@@ -46,9 +41,10 @@ class Session
      *
      * @throws \Mll\Exception
      */
-    public function init(array $config = [])
+    public static function init(array $config = [])
     {
         if (empty($config)) {
+            self::loadConfig();
             $config = self::$config;
         }
         // 记录初始化信息 todo
@@ -111,14 +107,28 @@ class Session
     }
 
     /**
+     * 加载session配置.
+     *
+     * @return array
+     *
+     * @throws \ErrorException
+     */
+    private static function loadConfig(){
+        self::$config = Mll::app()->config->get('session');
+        if(empty(self::$config)){
+            throw new \ErrorException('session : no configuration found!');
+        }
+    }
+
+    /**
      * session自动启动或者初始化
      *
      * @return void
      */
-    public function boot()
+    public static function boot()
     {
         if (is_null(self::$init)) {
-            $this->init();
+            self::init();
         } elseif (false === self::$init) {
             session_start();
             self::$init = true;
@@ -134,9 +144,9 @@ class Session
      *
      * @return void
      */
-    public function set($name, $value = '', $prefix = null)
+    public static function set($name, $value = '', $prefix = null)
     {
-        empty(self::$init) && $this->boot();
+        empty(self::$init) && self::boot();
 
         $prefix = !is_null($prefix) ? $prefix : self::$prefix;
         if (strpos($name, '.')) {
@@ -162,9 +172,9 @@ class Session
      *
      * @return mixed
      */
-    public function get($name = '', $prefix = null)
+    public static function get($name = '', $prefix = null)
     {
-        empty(self::$init) && $this->boot();
+        empty(self::$init) && self::boot();
         $prefix = !is_null($prefix) ? $prefix : self::$prefix;
         if ('' == $name) {
             // 获取全部的session
@@ -196,7 +206,7 @@ class Session
      *
      * @return mixed
      */
-    public function pull($name, $prefix = null)
+    public static function pull($name, $prefix = null)
     {
         $result = self::get($name, $prefix);
         if ($result) {
@@ -215,9 +225,9 @@ class Session
      *
      * @return void
      */
-    public function delete($name, $prefix = null)
+    public static function delete($name, $prefix = null)
     {
-        empty(self::$init) && $this->boot();
+        empty(self::$init) && self::boot();
         $prefix = !is_null($prefix) ? $prefix : self::$prefix;
         if (strpos($name, '.')) {
             list($name1, $name2) = explode('.', $name);
@@ -242,9 +252,9 @@ class Session
      *
      * @return void
      */
-    public function clear($prefix = null)
+    public static function clear($prefix = null)
     {
-        empty(self::$init) && $this->boot();
+        empty(self::$init) && self::boot();
         $prefix = !is_null($prefix) ? $prefix : self::$prefix;
         if ($prefix) {
             unset($_SESSION[$prefix]);
@@ -261,9 +271,9 @@ class Session
      *
      * @return bool
      */
-    public function has($name, $prefix = null)
+    public static function has($name, $prefix = null)
     {
-        empty(self::$init) && $this->boot();
+        empty(self::$init) && self::boot();
         $prefix = !is_null($prefix) ? $prefix : self::$prefix;
         if (strpos($name, '.')) {
             // 支持数组
@@ -279,7 +289,7 @@ class Session
      *
      * @return void
      */
-    public function start()
+    public static function start()
     {
         session_start();
         self::$init = true;
@@ -290,7 +300,7 @@ class Session
      *
      * @return void
      */
-    public function destroy()
+    public static function destroy()
     {
         if (!empty($_SESSION)) {
             $_SESSION = [];
@@ -317,7 +327,7 @@ class Session
      *
      * @return void
      */
-    public function pause()
+    public static function pause()
     {
         // 暂停session
         session_write_close();
