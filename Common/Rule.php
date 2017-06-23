@@ -179,7 +179,7 @@ class Rule
      * @param bool $json 是否json格式
      * @param bool $for_result 是否只取curl结果
      *
-     * @return void
+     * @return array
      */
     public static function callUrl($url, $time = 30, $data = array(), $json = false, $for_result = false)
     {
