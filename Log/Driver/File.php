@@ -59,7 +59,7 @@ class File extends Base implements ILog
 
         $now = date($this->config['time_format']);
         $separator = $this->config['separator'];
-        $logStr = $now . $separator . $level . $separator . $message;
+        $logStr = $now . $separator . $level . $separator . $type . $separator . $message;
         if (!empty($context)) {
             $logStr .= $separator . implode($separator, array_map(function ($value) {
                     return json_encode($value, JSON_UNESCAPED_UNICODE);
