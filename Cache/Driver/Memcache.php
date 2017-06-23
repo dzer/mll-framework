@@ -5,6 +5,14 @@ namespace Mll\Cache\Driver;
 use Mll\Cache\Base;
 use Mll\Cache\ICache;
 
+
+/**
+ * memcache缓存
+ *
+ * @package Mll\Cache\Driver
+ * @author wang zhou <zhouwang@mll.com>
+ * @since 1.0
+ */
 class Memcache extends Base implements ICache
 {
     protected $handler = null;
@@ -51,8 +59,10 @@ class Memcache extends Base implements ICache
 
     /**
      * 判断缓存
+     *
      * @access public
      * @param string $name 缓存变量名
+     *
      * @return bool
      */
     public function has($name)
@@ -63,9 +73,11 @@ class Memcache extends Base implements ICache
 
     /**
      * 读取缓存
+     *
      * @access public
      * @param string $name 缓存变量名
      * @param mixed  $default 默认值
+     *
      * @return mixed
      */
     public function get($name, $default = false)
@@ -76,10 +88,12 @@ class Memcache extends Base implements ICache
 
     /**
      * 写入缓存
+     *
      * @access public
      * @param string    $name 缓存变量名
      * @param mixed     $value  存储数据
      * @param integer   $expire  有效时间（秒）
+     *
      * @return bool
      */
     public function set($name, $value, $expire = null)
@@ -100,9 +114,11 @@ class Memcache extends Base implements ICache
 
     /**
      * 自增缓存（针对数值缓存）
+     *
      * @access public
      * @param string    $name 缓存变量名
      * @param int       $step 步长
+     *
      * @return false|int
      */
     public function inc($name, $step = 1)
@@ -113,9 +129,11 @@ class Memcache extends Base implements ICache
 
     /**
      * 自减缓存（针对数值缓存）
+     *
      * @access public
      * @param string    $name 缓存变量名
      * @param int       $step 步长
+     *
      * @return false|int
      */
     public function dec($name, $step = 1)
@@ -132,8 +150,10 @@ class Memcache extends Base implements ICache
 
     /**
      * 删除缓存
+     *
      * @param    string  $name 缓存变量名
      * @param bool|false $ttl
+     *
      * @return bool
      */
     public function rm($name, $ttl = false)
@@ -146,8 +166,10 @@ class Memcache extends Base implements ICache
 
     /**
      * 清除缓存
+     *
      * @access public
      * @param string $tag 标签名
+     *
      * @return bool
      */
     public function clear($tag = null)

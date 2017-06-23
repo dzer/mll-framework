@@ -2,6 +2,13 @@
 
 namespace Mll\Common;
 
+/**
+ * 通用返回
+ *
+ * @package Mll\Common
+ * @author wang zhou <zhouwang@mll.com>
+ * @since 1.0
+ */
 class ReturnMsg
 {
     const RIGHT_CODE = 0;
@@ -13,10 +20,11 @@ class ReturnMsg
      *
      * @return array
      */
-    public static function ret($msg){
+    public static function ret($msg = '',$data = []){
         return [
             'error' => self::RIGHT_CODE,
-            'msg' => $msg
+            'msg' => $msg,
+            'data' => $data,
         ];
     }
     /**
@@ -27,10 +35,11 @@ class ReturnMsg
      *
      * @return array
      */
-    public static function err($msg,$errorCode = self::ERROR_CODE){
+    public static function err($msg = '',$data = [],$errorCode = self::ERROR_CODE){
         return [
             'error' => $errorCode,
             'msg' => $msg,
+            'data' => $data,
         ];
     }
 }

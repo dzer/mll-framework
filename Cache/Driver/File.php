@@ -6,7 +6,11 @@ use Mll\Cache\Base;
 use Mll\Cache\ICache;
 
 /**
- * 文件类型缓存类
+ * 文件缓存
+ *
+ * @package Mll\Cache\Driver
+ * @author wang zhou <zhouwang@mll.com>
+ * @since 1.0
  */
 class File extends Base implements ICache
 {
@@ -36,7 +40,9 @@ class File extends Base implements ICache
 
     /**
      * 初始化检查
+     *
      * @access private
+     *
      * @return boolean
      */
     private function init()
@@ -52,8 +58,10 @@ class File extends Base implements ICache
 
     /**
      * 取得变量的存储文件名
+     *
      * @access protected
      * @param string $name 缓存变量名
+     *
      * @return string
      */
     protected function getCacheKey($name)
@@ -76,8 +84,10 @@ class File extends Base implements ICache
 
     /**
      * 判断缓存是否存在
+     *
      * @access public
      * @param string $name 缓存变量名
+     *
      * @return bool
      */
     public function has($name)
@@ -87,9 +97,11 @@ class File extends Base implements ICache
 
     /**
      * 读取缓存
+     *
      * @access public
      * @param string $name 缓存变量名
      * @param mixed  $default 默认值
+     *
      * @return mixed
      */
     public function get($name, $default = false)
@@ -120,10 +132,12 @@ class File extends Base implements ICache
 
     /**
      * 写入缓存
+     *
      * @access public
      * @param string    $name 缓存变量名
      * @param mixed     $value  存储数据
      * @param int       $expire  有效时间 0为永久
+     *
      * @return boolean
      */
     public function set($name, $value, $expire = null)
@@ -154,9 +168,11 @@ class File extends Base implements ICache
 
     /**
      * 自增缓存（针对数值缓存）
+     *
      * @access public
      * @param string    $name 缓存变量名
      * @param int       $step 步长
+     *
      * @return false|int
      */
     public function inc($name, $step = 1)
@@ -171,9 +187,11 @@ class File extends Base implements ICache
 
     /**
      * 自减缓存（针对数值缓存）
+     *
      * @access public
      * @param string    $name 缓存变量名
      * @param int       $step 步长
+     *
      * @return false|int
      */
     public function dec($name, $step = 1)
@@ -188,8 +206,10 @@ class File extends Base implements ICache
 
     /**
      * 删除缓存
+     *
      * @access public
      * @param string $name 缓存变量名
+     *
      * @return boolean
      */
     public function rm($name)
@@ -199,8 +219,10 @@ class File extends Base implements ICache
 
     /**
      * 清除缓存
+     *
      * @access public
      * @param string $tag 标签名
+     *
      * @return boolean
      */
     public function clear($tag = null)
@@ -223,9 +245,11 @@ class File extends Base implements ICache
 
     /**
      * 判断文件是否存在后，删除
+     *
      * @param $path
      * @return bool
      * @author byron sampson <xiaobo.sun@qq.com>
+     *
      * @return boolean
      */
     private function unlink($path)

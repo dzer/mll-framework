@@ -2,6 +2,13 @@
 
 namespace Mll;
 
+/**
+ * cache类
+ *
+ * @package Mll
+ * @author wang zhou <zhouwang@mll.com>
+ * @since 1.0
+ */
 class Cache
 {
     protected static $instance = [];
