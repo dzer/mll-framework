@@ -33,14 +33,18 @@ class Rpc implements IServer
      */
     public function api($pathInfo, $params)
     {
-        $method = strtolower(isset($params['method']) ? $params['method'] : 'GET');
+        //去掉yar post自定义的协议
+        array_pop($_POST);
 
+        $method = strtolower(isset($params['method']) ? $params['method'] : 'GET');
         if ($method == 'get') {
             $_GET = array_merge($_GET, $params['param']);
         }
         if ($method == 'post') {
             $_POST = array_merge($_POST, $params['param']);
         }
+        $_REQUEST = array_merge($_GET, $_POST);
+
         Mll::app()->request->parse($pathInfo, $params['param']);
         Mll::app()->config->load(Mll::getConfigPath(Mll::app()->request->getModule()));
 

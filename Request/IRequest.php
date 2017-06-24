@@ -74,4 +74,49 @@ interface IRequest
      * @return string 应用程序的相对URL
      */
     public function getBaseUrl();
+
+    /**
+     * 获取request变量.
+     *
+     * @param string $name 数据名称
+     * @param string $default 默认值
+     * @param string|array $filter 过滤方法
+     *
+     * @return mixed
+     */
+    public function request($name = '', $default = null, $filter = '');
+
+    /**
+     * 设置获取获取GET参数.
+     *
+     * @param string|array $name 变量名
+     * @param mixed $default 默认值
+     * @param string|array $filter 过滤方法
+     *
+     * @return mixed
+     */
+    public function get($name = '', $default = null, $filter = '');
+
+    /**
+     * 设置获取获取POST参数.
+     *
+     * @param string $name 变量名
+     * @param mixed $default 默认值
+     * @param string|array $filter 过滤方法
+     *
+     * @return mixed
+     */
+    public function post($name = '', $default = null, $filter = '');
+
+    /**
+     * 设置获取当前请求的参数.
+     *
+     * @param string|array $name 变量名
+     * @param mixed $default 默认值
+     * @param string|array $filter 过滤方法
+     *
+     * @return mixed
+     */
+    public function param($name = '', $default = null, $filter = '');
+
 }

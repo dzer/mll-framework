@@ -26,9 +26,9 @@ abstract class Base implements IRequest
         //默认全局过滤函数
         'default_filter' => '',
         //请求唯一key
-        'request_id_key' => 'X-Request-Id',
+        'request_id_key' => 'x-request-id',
         //请求时间key
-        'request_time_key' => 'X-Request-Time',
+        'request_time_key' => 'x-request-time',
         // 表单请求类型伪装变量
         'var_method' => '_method',
     ];
@@ -194,7 +194,7 @@ abstract class Base implements IRequest
         if (empty($requestId)) {
             $requestId = self::getRequestId(true);
         }
-        $this->header($this->config['request_id_key'], $requestId);
+        $this->header([$this->config['request_id_key'] => $requestId]);
         //todo 添加响应头
         header("{$this->config['request_id_key']}: $requestId");
 
@@ -404,7 +404,6 @@ abstract class Base implements IRequest
             return $this->header;
         }
         $name = str_replace('_', '-', strtolower($name));
-
         return isset($this->header[$name]) ? $this->header[$name] : $default;
     }
 
@@ -689,7 +688,7 @@ abstract class Base implements IRequest
             }
         }
         $this->requestTime = $time;
-        $this->header($this->config['request_time_key'], $time);
+        $this->header([$this->config['request_time_key'] => $time]);
 
         return true;
     }
