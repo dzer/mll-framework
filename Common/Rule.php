@@ -42,16 +42,6 @@ class Rule
             'needAll' => (int)$needAll,
         );
         $result = self::callUrl(RULE_URL, $time, $data, true, true);
-        $logRuleArr = explode(',', self::_getSaveLogRuleMethod());
-        if (in_array($serviceName, $logRuleArr)) {
-            $message = 'CURL规则参数!';
-            $logContent = array(
-                'method' => $serviceName,
-                'param' => addslashes(json_encode($data)),
-                'result' => addslashes(json_encode($result)),
-            );
-            Mll::app()->log->info($message,$logContent,LOG_TYPE_RULE);
-        }
         if (empty($result) || (isset($result['code']) && $result['code'] !== '0')) {
             $msg = '规则[' . $serviceName . ']返回异常:[' . $result['description'] . ']';
             return ReturnMsg::err($msg);
@@ -127,7 +117,7 @@ class Rule
      *
      * @param string $rule_name 规则名称
      *
-     * @return void
+     * @return string
      */
     public static function getRuleName($rule_name) {
         if (empty($rule_name)) {

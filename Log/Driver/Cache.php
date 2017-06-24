@@ -2,26 +2,26 @@
 
 namespace Mll\Log\Driver;
 
+use Mll\Common\MemcacheQueue;
 use Mll\Log\Base;
 use Mll\Log\ILog;
 use Mll\Mll;
 
 /**
- * 本地化调试输出到文件.
+ * 保存到缓存.
  *
  * @package Mll\Log\Driver
  * @author Xu Dong <d20053140@gmail.com>
  * @since 1.0
  */
-class File extends Base implements ILog
+class Cache extends Base implements ILog
 {
     private $config = array(
         'time_format' => 'c', //ISO 8601 格式的日期
-        'file_size' => 2097152,
-        'path' => '/runtime/log',
+        'cache_server' => 'code',
+        'expire' => 600,
         'level' => 'all', //默认所有，或者逗号隔开warning,error
-        'separator' => ' | ',
-        'suffix' => '.log',
+        'queue_name' => 'mll_log_queue'
     );
 
     /**
@@ -58,16 +58,13 @@ class File extends Base implements ILog
         }
 
         $now = date($this->config['time_format']);
-        $separator = $this->config['separator'];
-        $logStr = $now . $separator . $level . $separator . $type . $separator . $message;
-        if (!empty($context)) {
-            /*$logStr .= $separator . implode($separator, array_map(function ($value) {
-                    return json_encode($value, JSON_UNESCAPED_UNICODE);
-            }, $context));*/
-            $logStr .= $separator .  json_encode($context, JSON_UNESCAPED_UNICODE);
-        }
-        $this->logs[$level][] = $logStr;
-
+        $this->logs[$level][] = array(
+            'time' => $now,
+            'level' => $level,
+            'type' => $type,
+            'message' => $message,
+            'content' => $context
+        );
         return true;
     }
 
@@ -81,23 +78,17 @@ class File extends Base implements ILog
         if (empty($this->logs)) {
             return true;
         }
-        $destination = ROOT_PATH . $this->config['path'] . DS . date('Ym') . DS . date('d') . $this->config['suffix'];
-
-        $path = dirname($destination);
-        !is_dir($path) && mkdir($path, 0755, true);
-
-        //检测日志文件大小，超过配置大小则备份日志文件重新生成
-        if (is_file($destination) && floor($this->config['file_size']) <= filesize($destination)) {
-            rename($destination, dirname($destination) . DS . $_SERVER['REQUEST_TIME'] . '-' . basename($destination));
-        }
+        $log = [];
         $allowLevel = explode(',', $this->config['level']);
         foreach ($this->logs as $level => $val) {
             if (in_array('all', $allowLevel) || in_array($val['level'], $allowLevel)) {
                 // 独立记录的日志级别
-                $filename = $path . DS . date('d') . '_' . $level . '.log';
-                error_log(implode("\r\n", $val) . "\r\n", 3, $filename);
+                $log[] = $val;
             }
         }
+        $queue = new MemcacheQueue(Mll::app()->config->get('cache.' . $this->config['cache_server']),
+            $this->config['queue_name'], $this->config['expire']);
+        $queue->add(json_encode($log));
         $this->logs = null;
         return true;
     }

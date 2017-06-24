@@ -103,7 +103,7 @@ class Error
                     'use_memory: ' . Common::convert($mem_use),
                     'run_id: ' . $run_id,
                     'url: ' . $_SERVER['HTTP_HOST'] . $_SERVER['PHP_SELF'] . $_SERVER['REQUEST_URI'],
-                )
+                ), LOG_TYPE_SYSTEM
             );
         }
         // 写入日志

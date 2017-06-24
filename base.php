@@ -83,3 +83,8 @@ defined('LOG_TYPE_RPC') or define('LOG_TYPE_RPC', 'RPC');
  * 普通日志类型
  */
 defined('LOG_TYPE_GENERAL') or define('LOG_TYPE_GENERAL', 'GENERAL');
+
+/*
+ * 系统日志类型
+ */
+defined('LOG_TYPE_SYSTEM') or define('LOG_TYPE_SYSTEM', 'SYSTEM');

@@ -40,7 +40,7 @@ class Handle
                 'code' => $this->getCode($exception),
             ];
             $log = "[{$data['code']}]{$data['message']}[{$data['file']}:{$data['line']}]";
-            Mll::app()->log->error($log);
+            Mll::app()->log->error($log, [], LOG_TYPE_SYSTEM);
         }
     }
 

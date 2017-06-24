@@ -3,6 +3,7 @@
 namespace Mll\Curl;
 
 use Mll\Curl\ArrayUtil;
+use Mll\Mll;
 use Mll\Mll\Curl\Decoder;
 
 class Curl
@@ -43,7 +44,7 @@ class Curl
 
     private $cookies = array();
     private $headers = array();
-    private $options = array();
+    public $options = array();
 
     private $jsonDecoder = '\Mll\Curl\Decoder::decodeJson';
     private $jsonDecoderArgs = array();
@@ -148,7 +149,8 @@ class Curl
         if (is_array($data)) {
             // Return JSON-encoded string when the request's content-type is JSON.
             if (isset($this->headers['Content-Type']) &&
-                preg_match($this->jsonPattern, $this->headers['Content-Type'])) {
+                preg_match($this->jsonPattern, $this->headers['Content-Type'])
+            ) {
                 $json_str = json_encode($data);
                 if (!($json_str === false)) {
                     $data = $json_str;
@@ -306,7 +308,7 @@ class Curl
         $this->setOpt(CURLOPT_FILE, $this->fileHandle);
         $this->get($url);
 
-        return ! $this->error;
+        return !$this->error;
     }
 
     /**
@@ -330,6 +332,12 @@ class Curl
      */
     public function exec($ch = null)
     {
+        self::setHeader(
+            Mll::app()->config->get('request.request_id_key', 'X-Request-Id'),
+            Mll::app()->request->getRequestId(true)
+        );
+        $startTime = self::getMicroTime();
+
         if ($ch === null) {
             $this->responseCookies = array();
             $this->call($this->beforeSendFunction);
@@ -352,7 +360,7 @@ class Curl
         if ($this->curlError && function_exists('curl_strerror')) {
             $this->curlErrorMessage =
                 curl_strerror($this->curlErrorCode) . (
-                    empty($this->curlErrorMessage) ? '' : ': ' . $this->curlErrorMessage
+                empty($this->curlErrorMessage) ? '' : ': ' . $this->curlErrorMessage
                 );
         }
 
@@ -368,6 +376,25 @@ class Curl
         }
         $this->responseHeaders = $this->parseResponseHeaders($this->rawResponseHeaders);
         //$this->response = $this->parseResponse($this->responseHeaders, $this->rawResponse);
+        $this->response = $this->rawResponse;
+
+
+        if ($this->url == Mll::app()->config->params('rule_url')) {
+            $message = '规则调用';
+            $log_type = LOG_TYPE_RULE;
+        } else {
+            $message = 'curl';
+            $log_type = LOG_TYPE_GENERAL;
+        }
+        Mll::app()->log->info($message, array(
+            'url' => $this->url,
+            'exec_time' => self::getMicroTime() - $startTime,
+            'requestHeaders' => isset($this->requestHeaders->data) ? $this->requestHeaders->data : '',
+            'requestParams' => $this->options[CURLOPT_POSTFIELDS],
+            'responseHeaders' => isset($this->responseHeaders->data) ? $this->responseHeaders->data : '',
+            'response' => $this->response
+        ), $log_type);
+
 
         $this->httpErrorMessage = '';
         if ($this->error) {
@@ -391,6 +418,21 @@ class Curl
         }
 
         return $this->response;
+    }
+
+    /**
+     * 格式化微妙时间
+     *
+     * @param null $mic 微妙
+     *
+     * @return float
+     */
+    public static function getMicroTime($mic = null)
+    {
+        $mic = $mic ? $mic : microtime();
+        list($usec, $sec) = \explode(' ', $mic);
+
+        return (float)$usec + (float)$sec;
     }
 
     /**
@@ -1188,10 +1230,15 @@ class Curl
     {
         $query_string = '';
         if (!empty($mixed_data)) {
+            if (strpos($url, '?') === false) {
+                $query_string .= '?';
+            } else {
+                $query_string .= '&';
+            }
             if (is_string($mixed_data)) {
-                $query_string .= '?' . $mixed_data;
+                $query_string .= $mixed_data;
             } elseif (is_array($mixed_data)) {
-                $query_string .= '?' . http_build_query($mixed_data, '', '&');
+                $query_string .= http_build_query($mixed_data, '', '&');
             }
         }
         return $url . $query_string;
@@ -1347,7 +1394,7 @@ class Curl
     private function parseResponseHeaders($raw_response_headers)
     {
         $response_header_array = explode("\r\n\r\n", $raw_response_headers);
-        $response_header  = '';
+        $response_header = '';
         for ($i = count($response_header_array) - 1; $i >= 0; $i--) {
             if (stripos($response_header_array[$i], 'HTTP/') === 0) {
                 $response_header = $response_header_array[$i];

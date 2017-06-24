@@ -16,7 +16,7 @@ class CaseInsensitiveArray implements \ArrayAccess, \Countable, \Iterator
      * @see next()
      * @see key()
      */
-    private $data = array();
+    public $data = array();
 
     /**
      * @var string[] Case-Sensitive keys.

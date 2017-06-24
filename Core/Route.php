@@ -2,6 +2,7 @@
 
 namespace Mll\Core;
 
+use Mll\Cache;
 use Mll\Mll;
 use Mll\Response\Response;
 use Mll\Controller\IController;
@@ -34,32 +35,53 @@ class Route
         try {
             if (!($class instanceof IController)) {
                 throw new \Exception('ctrl error');
-            } else {
-                $view = null;
-                $action = $request->getAction();
-                if ($class->beforeAction()) {
-                    if (!method_exists($class, $action)) {
-                        throw new \Exception('method error');
-                    }
-                    $view = $class->$action();
-                    $class->afterAction();
-                } else {
-                    throw new \Exception($className . ':' . $action . ' _before() no return true');
-                }
-                // 输出数据到客户端
-                if ($view instanceof Response) {
-                    $response = $view;
-                } elseif (!is_null($view)) {
-                    // 默认自动识别响应输出类型
+            }
+            $cacheKey = '';
+            //判断是否走缓存
+            if ($request->request('SOURCE_CACHE_TIME') > 0) {
+                Cache::cut(Mll::app()->config->get('request.cache_server', 'code'));
+                $cacheKey = $request->getModule() . '\\' . $request->getController()
+                    . '\\' . $request->getAction() . '_' . sha1(serialize($request->request()));
+                $cacheValue = Cache::get($cacheKey);
+                if ($cacheValue !== false) {
                     $isAjax = $request->isAjax();
                     $type = $isAjax ? 'json' : 'html';
-                    $response = Response::create($view, $type);
-                } else {
-                    $response = Response::create();
+                    $response = Response::create($cacheValue, $type, 200,
+                        ['X-Cache-Time' => $request->request('SOURCE_CACHE_TIME')]
+                    );
+                    return $response->send();
                 }
-
-                return $response->send();
             }
+
+            $view = null;
+            $action = $request->getAction();
+            if ($class->beforeAction()) {
+                if (!method_exists($class, $action)) {
+                    throw new \Exception('method error');
+                }
+                $view = $class->$action();
+                $class->afterAction();
+            } else {
+                throw new \Exception($className . ':' . $action . ' _before() no return true');
+            }
+            // 输出数据到客户端
+            if ($view instanceof Response) {
+                $response = $view;
+            } elseif (!is_null($view)) {
+                // 默认自动识别响应输出类型
+                $isAjax = $request->isAjax();
+                $type = $isAjax ? 'json' : 'html';
+                $response = Response::create($view, $type);
+            } else {
+                $response = Response::create();
+            }
+
+            if ($request->request('SOURCE_CACHE_TIME') > 0) {
+                Cache::set($cacheKey, $response->getContent(), $request->request('SOURCE_CACHE_TIME'));
+            }
+
+            return $response->send();
+
         } catch (\Exception $e) {
             if ($class instanceof IController) {
                 $class->afterAction();
