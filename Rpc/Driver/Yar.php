@@ -2,6 +2,9 @@
 
 namespace Mll\Rpc\Driver;
 
+use Mll\Common\Common;
+use Mll\Mll;
+use Mll\Response\Response;
 use Mll\Rpc\IRpc;
 
 /**
@@ -15,8 +18,10 @@ class Yar implements IRpc
 {
     private $config = [
         'host' => '',   //Rpc Host
-        'connect_timeout' => 2,    //连接超时
-        'timeout' => 10,    //响应超时
+        'connect_timeout' => 1000,    //连接超时 单位毫秒
+        'timeout' => 5000,    //响应超时 单位毫秒
+        'persistent' => 1,   //需要服务端支持keepalive
+        'packager' => 'php', //打包类型 "php", "json", "msgpack"
     ];
 
     /**
@@ -34,6 +39,7 @@ class Yar implements IRpc
         $this->client = new \Yar_Client($this->config['host']);
         $this->client->SetOpt(YAR_OPT_TIMEOUT, $this->config['timeout']);
         $this->client->SetOpt(YAR_OPT_CONNECT_TIMEOUT, $this->config['connect_timeout']);
+        $this->client->SetOpt(YAR_OPT_PERSISTENT, 1);
     }
 
     /**
@@ -78,12 +84,35 @@ class Yar implements IRpc
     {
         if ($timeout > 0) {
             $this->client->SetOpt(YAR_OPT_TIMEOUT, (int)$timeout);
+            $this->config['timeout'] = $timeout;
         }
+        $request_id_key = Mll::app()->config->get('request.request_id_key', 'x-request-id');
         $params = [
             'method' => $method,
             'param' => $param,
+            "{$request_id_key}" => Mll::app()->request->getRequestId(true)
         ];
-        return $this->client->api($url, $params);
+        $startTime = Common::getMicroTime();
+        $errorMessage = '';
+        try {
+            $rs = $this->client->api($url, $params);
+        } catch (\Exception $e) {
+            $rs = false;
+            $errorMessage = $e->getMessage();
+        }
+        $level = !empty($errorMessage) ? 'error' : 'info';
+        Mll::app()->log->log($level, 'rpc调用', array(
+            'url' => $url,
+            'execTime' => Common::getMicroTime() - $startTime,
+            'timeout' => $this->config['timeout'],
+            'requestHeaders' => $this->config,
+            'requestParams' => $params,
+            'responseHeaders' => '',
+            'response' => $rs,
+            'errorMessage' => $errorMessage,
+        ), LOG_TYPE_RPC);
+
+        return $rs;
     }
 
 }

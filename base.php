@@ -88,3 +88,8 @@ defined('LOG_TYPE_GENERAL') or define('LOG_TYPE_GENERAL', 'GENERAL');
  * 系统日志类型
  */
 defined('LOG_TYPE_SYSTEM') or define('LOG_TYPE_SYSTEM', 'SYSTEM');
+
+/*
+ * 请求结束日志类型
+ */
+defined('LOG_TYPE_FINISH') or define('LOG_TYPE_FINISH', 'FINISH');

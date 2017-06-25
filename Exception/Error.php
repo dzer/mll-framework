@@ -4,6 +4,7 @@ namespace Mll\Exception;
 
 use Mll\Mll;
 use Mll\Common\Common;
+use Mll\Response\Response;
 
 /**
  * 错误注册类
@@ -88,24 +89,39 @@ class Error
      */
     public static function appShutdown()
     {
+        $errorMessage = '';
         if (!is_null($error = error_get_last()) && self::isFatal($error['type'])) {
             // 将错误信息托管至 Mll\Exception\ErrorException
             $exception = new ErrorException($error['type'], $error['message'], $error['file'], $error['line']);
-
+            $errorMessage = $error['message'];
             self::appException($exception);
         }
-        if (Mll::$debug) {
-            $time = Common::getMicroTime() - Common::getMicroTime(MLL_BEGIN_TIME);
-            $mem_use = memory_get_usage() - MLL_BEGIN_MEMORY;
-            $run_id = 0;
-            Mll::app()->log->info('debug', array(
-                    'exec_time: ' . $time,
-                    'use_memory: ' . Common::convert($mem_use),
-                    'run_id: ' . $run_id,
-                    'url: ' . $_SERVER['HTTP_HOST'] . $_SERVER['PHP_SELF'] . $_SERVER['REQUEST_URI'],
-                ), LOG_TYPE_SYSTEM
-            );
+        $level = !empty($errorMessage) ? 'error' : 'info';
+        $response = isset(Response::$content) ? Response::$content : ob_get_contents();
+
+        $xhprof_data = null;
+        if ((Mll::app()->config->get('xhprof.enable', false) || $_REQUEST['xhprof_enable'] == 'mll')
+            && function_exists('xhprof_enable')
+        ) {
+            $xhprof_path = Mll::app()->config->get('xhprof.path');
+            require(ROOT_PATH . $xhprof_path . DS . 'xhprof_lib' . DS . 'utils' . DS . 'xhprof_lib.php');
+            require(ROOT_PATH . $xhprof_path . DS . 'xhprof_lib' . DS . 'utils' . DS . 'xhprof_runs.php');
+            $xhprof_data = xhprof_disable();
         }
+        $url = Mll::app()->request->getUrl(true);
+        Mll::app()->log->log($level, '请求', array(
+            'url' => Mll::app()->request->getUrl(true),
+            'execTime' => Common::getMicroTime() - Common::getMicroTime(MLL_BEGIN_TIME),
+            'timeout' => '',
+            'useMemory' => Common::convert(memory_get_usage() - MLL_BEGIN_MEMORY),
+            'requestHeaders' => Mll::app()->request->header(),
+            'requestParams' => Mll::app()->request->param(),
+            'responseHeaders' => Response::$header,
+            'response' => $response,
+            'errorMessage' => $errorMessage,
+            'xhprof' => $xhprof_data,
+        ), LOG_TYPE_FINISH);
+
         // 写入日志
         Mll::app()->log->save();
     }

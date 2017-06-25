@@ -45,6 +45,8 @@ class Rpc implements IServer
         }
         $_REQUEST = array_merge($_GET, $_POST);
 
+        $request_id_key = Mll::app()->config->get('request.request_id_key', 'x-request-id');
+        Mll::app()->request->setRequestId(isset($params[$request_id_key]) ? $params[$request_id_key] : null);
         Mll::app()->request->parse($pathInfo, $params['param']);
         Mll::app()->config->load(Mll::getConfigPath(Mll::app()->request->getModule()));
 

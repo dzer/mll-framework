@@ -2,9 +2,7 @@
 
 namespace Mll\Curl;
 
-use Mll\Curl\ArrayUtil;
 use Mll\Mll;
-use Mll\Mll\Curl\Decoder;
 
 class Curl
 {
@@ -386,15 +384,6 @@ class Curl
             $message = 'curl';
             $log_type = LOG_TYPE_GENERAL;
         }
-        Mll::app()->log->info($message, array(
-            'url' => $this->url,
-            'exec_time' => self::getMicroTime() - $startTime,
-            'requestHeaders' => isset($this->requestHeaders->data) ? $this->requestHeaders->data : '',
-            'requestParams' => $this->options[CURLOPT_POSTFIELDS],
-            'responseHeaders' => isset($this->responseHeaders->data) ? $this->responseHeaders->data : '',
-            'response' => $this->response
-        ), $log_type);
-
 
         $this->httpErrorMessage = '';
         if ($this->error) {
@@ -403,6 +392,18 @@ class Curl
             }
         }
         $this->errorMessage = $this->curlError ? $this->curlErrorMessage : $this->httpErrorMessage;
+
+        $level = !empty($this->errorMessage) ? 'error' : 'info';
+        Mll::app()->log->log($level, $message, array(
+            'url' => $this->url,
+            'execTime' => self::getMicroTime() - $startTime,
+            'timeout' => isset($this->options[CURLOPT_TIMEOUT]) ? $this->options[CURLOPT_TIMEOUT] : '',
+            'requestHeaders' => isset($this->requestHeaders->data) ? $this->requestHeaders->data : '',
+            'requestParams' => isset($this->options[CURLOPT_POSTFIELDS]) ? $this->options[CURLOPT_POSTFIELDS] : '',
+            'responseHeaders' => isset($this->responseHeaders->data) ? $this->responseHeaders->data : '',
+            'response' => $this->response,
+            'errorMessage' => $this->errorMessage,
+        ), $log_type);
 
         if ($this->error) {
             $this->call($this->errorFunction);
@@ -441,16 +442,20 @@ class Curl
      * @access public
      * @param  $url
      * @param  $data
+     * @param  $timeout
      *
      * @return mixed Returns the value provided by exec.
      */
-    public function get($url, $data = array())
+    public function get($url, $data = array(), $timeout = 0)
     {
         if (is_array($url)) {
             $data = $url;
             $url = $this->baseUrl;
         }
         $this->setUrl($url, $data);
+        if ($timeout > 0) {
+            $this->setOpt(CURLOPT_TIMEOUT, $timeout);
+        }
         $this->setOpt(CURLOPT_CUSTOMREQUEST, 'GET');
         $this->setOpt(CURLOPT_HTTPGET, true);
         return $this->exec();
@@ -563,6 +568,7 @@ class Curl
      * @access public
      * @param  $url
      * @param  $data
+     * @param  $timeout
      * @param  $follow_303_with_post
      *     If true, will cause 303 redirections to be followed using a POST request (default: false).
      *     Notes:
@@ -582,12 +588,16 @@ class Curl
      * [2] https://github.com/php/php-src/pull/531
      * [3] http://php.net/ChangeLog-5.php#5.5.11
      */
-    public function post($url, $data = array(), $follow_303_with_post = false)
+    public function post($url, $data = array(), $timeout = 0, $follow_303_with_post = false)
     {
         if (is_array($url)) {
             $follow_303_with_post = (bool)$data;
             $data = $url;
             $url = $this->baseUrl;
+        }
+
+        if ($timeout > 0) {
+            $this->setOpt(CURLOPT_TIMEOUT, $timeout);
         }
 
         $this->setUrl($url);

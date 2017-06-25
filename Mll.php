@@ -13,7 +13,7 @@ use Mll\Core\Container;
  *
  * @package Mll
  * @property \Mll\Config\Driver\ArrayFormat $config
- * @property \Mll\Request\IRequest $request
+ * @property \Mll\Request\Base $request
  * @property \Mll\Log\ILog $log
  * @property \Mll\Server\IServer $server
  * @property \Mll\Rpc\IRpc $rpc
@@ -107,7 +107,6 @@ class Mll
             'config' => function () {
                 return Config\Factory::getInstance();
             },
-
         ]);
         //加载公共配置文件
         Mll::app()->config->load(self::getConfigPath());
@@ -143,6 +142,9 @@ class Mll
 
         //设置调试模式
         self::$debug = Mll::app()->config->get('app_debug', true);
+
+        //xhprof
+        self::Xhprof();
 
         //错误注册
         Error::register();
@@ -199,6 +201,15 @@ class Mll
             && !trait_exists($className, false)
         ) {
             throw new \Exception("没有找到 '$className'：$classFile");
+        }
+    }
+
+    public static function Xhprof()
+    {
+        $config = Mll::app()->config;
+        if (($config->get('xhprof.enable', false) || $_REQUEST['xhprof_enable'] == 'mll')
+            && function_exists('xhprof_enable')) {
+            xhprof_enable(XHPROF_FLAGS_CPU | XHPROF_FLAGS_MEMORY | XHPROF_FLAGS_NO_BUILTINS);
         }
     }
 }

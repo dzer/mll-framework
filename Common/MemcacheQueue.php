@@ -2,9 +2,6 @@
 
 namespace Mll\Common;
 
-use Mll\Cache;
-use Mll\Mll;
-
 /**
  * PHP memcache 队列类.
  *
@@ -217,7 +214,7 @@ class MemcacheQueue
      *
      * @param int $length 要读取的长度(反向读取使用负数)
      *
-     * @return array
+     * @return array|bool
      */
     public function read($length = 0)
     {
@@ -258,7 +255,7 @@ class MemcacheQueue
      *
      * @param int $length 要取出的长度(反向读取使用负数)
      *
-     * @return array
+     * @return array|bool
      */
     public function get($length = 0)
     {

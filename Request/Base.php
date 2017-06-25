@@ -116,6 +116,8 @@ abstract class Base implements IRequest
      */
     private $pathInfo;
 
+    private $domain;
+
     /**
      * @var array 请求参数
      */
@@ -828,17 +830,107 @@ abstract class Base implements IRequest
     }
 
     /**
-     * 获取当前Url.
+     * 设置或获取当前完整URL 包括QUERY_STRING
      *
-     * @return mixed|string
+     * @access public
+     * @param string|true $url URL地址 true 带域名获取
+     *
+     * @return string
      */
-    public function getUrl()
+    public function getUrl($url = null)
     {
-        if ($this->url === null) {
-            $this->url = $this->resolveRequestUri();
+        if (!is_null($url) && true !== $url) {
+            $this->url = $url;
+            return $this;
+        } elseif (!$this->url) {
+            if (isset($_SERVER['HTTP_X_REWRITE_URL'])) {
+                $this->url = $_SERVER['HTTP_X_REWRITE_URL'];
+            } elseif (isset($_SERVER['REQUEST_URI'])) {
+                $this->url = $_SERVER['REQUEST_URI'];
+            } elseif (isset($_SERVER['ORIG_PATH_INFO'])) {
+                $this->url = $_SERVER['ORIG_PATH_INFO'] . (!empty($_SERVER['QUERY_STRING']) ? '?' . $_SERVER['QUERY_STRING'] : '');
+            } else {
+                $this->url = '';
+            }
         }
+        return true === $url ? $this->domain() . $this->url : $this->url;
+    }
 
-        return $this->url;
+    /**
+     * 设置或获取当前URL 不含QUERY_STRING
+     *
+     * @access public
+     * @param string $url URL地址
+     *
+     * @return string
+     */
+    public function getBaseUrl($url = null)
+    {
+        if (!is_null($url) && true !== $url) {
+            $this->baseUrl = $url;
+            return $this;
+        } elseif (!$this->baseUrl) {
+            $str           = $this->getUrl();
+            $this->baseUrl = strpos($str, '?') ? strstr($str, '?', true) : $str;
+        }
+        return true === $url ? $this->domain() . $this->baseUrl : $this->baseUrl;
+    }
+
+    /**
+     * 设置或获取当前包含协议的域名
+     * @access public
+     * @param string $domain 域名
+     * @return string
+     */
+    public function domain($domain = null)
+    {
+        if (!is_null($domain)) {
+            $this->domain = $domain;
+            return $this;
+        } elseif (!$this->domain) {
+            $this->domain = $this->scheme() . '://' . $this->host();
+        }
+        return $this->domain;
+    }
+
+    /**
+     * 当前请求的host
+     * @access public
+     * @return string
+     */
+    public function host()
+    {
+        return $this->server('HTTP_HOST');
+    }
+
+    /**
+     * 当前URL地址中的scheme参数
+     * @access public
+     * @return string
+     */
+    public function scheme()
+    {
+        return $this->isSsl() ? 'https' : 'http';
+    }
+
+    /**
+     * 当前是否ssl
+     * @access public
+     * @return bool
+     */
+    public function isSsl()
+    {
+        $server = array_merge($_SERVER, $this->server);
+        if (isset($server['HTTPS']) && ('1' == $server['HTTPS'] || 'on' == strtolower($server['HTTPS']))) {
+            return true;
+        } elseif (isset($server['REQUEST_SCHEME']) && 'https' == $server['REQUEST_SCHEME']) {
+            return true;
+        } elseif (isset($server['SERVER_PORT']) && ('443' == $server['SERVER_PORT'])) {
+            return true;
+        } elseif (isset($server['HTTP_X_FORWARDED_PROTO']) && 'https' == $server['HTTP_X_FORWARDED_PROTO']) {
+            return true;
+        }
+        return false;
     }
 
     /**
@@ -964,21 +1056,7 @@ abstract class Base implements IRequest
         return $_SERVER['SCRIPT_FILENAME'];
     }
 
-    /**
-     * 返回应用程序的相对URL。
-     *
-     * @return string 应用程序的相对URL
-     *
-     * @see setScriptUrl()
-     */
-    public function getBaseUrl()
-    {
-        if ($this->baseUrl === null) {
-            $this->baseUrl = rtrim(dirname($this->getScriptUrl()), '\\/');
-        }
 
-        return $this->baseUrl;
-    }
 
     /**
      * 当前是否Ajax请求

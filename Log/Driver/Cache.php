@@ -62,6 +62,7 @@ class Cache extends Base implements ILog
             'time' => $now,
             'level' => $level,
             'type' => $type,
+            'requestId' => Mll::app()->request->getRequestId(),
             'message' => $message,
             'content' => $context
         );
@@ -83,7 +84,7 @@ class Cache extends Base implements ILog
         foreach ($this->logs as $level => $val) {
             if (in_array('all', $allowLevel) || in_array($val['level'], $allowLevel)) {
                 // 独立记录的日志级别
-                $log[] = $val;
+                $log = array_merge($log, $val);
             }
         }
         $queue = new MemcacheQueue(Mll::app()->config->get('cache.' . $this->config['cache_server']),
