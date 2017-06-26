@@ -857,23 +857,19 @@ abstract class Base implements IRequest
     }
 
     /**
-     * 设置或获取当前URL 不含QUERY_STRING
+     * 设置或获取当前URL
      *
      * @access public
-     * @param string $url URL地址
      *
      * @return string
      */
-    public function getBaseUrl($url = null)
+    public function getBaseUrl()
     {
-        if (!is_null($url) && true !== $url) {
-            $this->baseUrl = $url;
-            return $this;
-        } elseif (!$this->baseUrl) {
-            $str           = $this->getUrl();
-            $this->baseUrl = strpos($str, '?') ? strstr($str, '?', true) : $str;
+        if ($this->baseUrl === null) {
+            $this->baseUrl = rtrim(dirname($this->getScriptUrl()), '\\/');
         }
-        return true === $url ? $this->domain() . $this->baseUrl : $this->baseUrl;
+
+        return $this->baseUrl;
     }
 
     /**
@@ -961,6 +957,7 @@ abstract class Base implements IRequest
         return $requestUri;
     }
 
+
     /**
      * 解析PathInfo
      *
@@ -969,7 +966,7 @@ abstract class Base implements IRequest
      */
     protected function resolvePathInfo()
     {
-        $pathInfo = $this->getUrl();
+        $pathInfo = $this->resolveRequestUri();
 
         if (($pos = strpos($pathInfo, '?')) !== false) {
             $pathInfo = substr($pathInfo, 0, $pos);

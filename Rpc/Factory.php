@@ -3,6 +3,7 @@
 namespace Mll\Rpc;
 
 use Mll\Core\Container;
+use Mll\Mll;
 
 /**
  * 工厂方法
@@ -17,7 +18,9 @@ class Factory
     {
         $driver = ucfirst(strtolower($driver));
         $className = __NAMESPACE__."\\Driver\\{$driver}";
-
+        if (empty($config)) {
+            $config = Mll::app()->config->get('rpc.' . strtolower($driver));
+        }
         return Container::getInstance($className, $config);
     }
 }

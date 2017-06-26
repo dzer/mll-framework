@@ -113,27 +113,19 @@ class Mll
         Container::addDefinitions([
             'log' => function () {
                 return Log\Factory::getInstance(
-                    Mll::app()->config->get('log.driver', 'file'),
-                    Mll::app()->config->get('log.file')
+                    Mll::app()->config->get('log.driver', 'file')
                 );
             },
             'server' => function () {
                 return Server\Factory::getInstance(SERVER_MODEL);
             },
             'request' => function () {
-                return Request\Factory::getInstance(
-                    SERVER_MODEL,
-                    Mll::app()->config->get('request.http')
-                );
+                return Request\Factory::getInstance(SERVER_MODEL);
             },
             'rpc' => function () {
                 return Rpc\Factory::getInstance(
-                    Mll::app()->config->get('rpc.driver', 'yar'),
-                    Mll::app()->config->get('rpc.yar')
+                    Mll::app()->config->get('rpc.driver', 'yar')
                 );
-            },
-            'write' => function () {
-                return Write\Factory::getInstance();
             },
         ]);
 

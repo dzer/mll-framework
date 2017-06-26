@@ -97,7 +97,6 @@ class Error
             self::appException($exception);
         }
         $level = !empty($errorMessage) ? 'error' : 'info';
-        $response = isset(Response::$content) ? Response::$content : ob_get_contents();
 
         $xhprof_data = null;
         if ((Mll::app()->config->get('xhprof.enable', false) || $_REQUEST['xhprof_enable'] == 'mll')
@@ -108,7 +107,6 @@ class Error
             require(ROOT_PATH . $xhprof_path . DS . 'xhprof_lib' . DS . 'utils' . DS . 'xhprof_runs.php');
             $xhprof_data = xhprof_disable();
         }
-        $url = Mll::app()->request->getUrl(true);
         Mll::app()->log->log($level, '请求', array(
             'url' => Mll::app()->request->getUrl(true),
             'execTime' => Common::getMicroTime() - Common::getMicroTime(MLL_BEGIN_TIME),
@@ -116,10 +114,8 @@ class Error
             'useMemory' => Common::convert(memory_get_usage() - MLL_BEGIN_MEMORY),
             'requestHeaders' => Mll::app()->request->header(),
             'requestParams' => Mll::app()->request->param(),
-            'responseHeaders' => Response::$header,
-            'response' => $response,
             'errorMessage' => $errorMessage,
-            'xhprof' => $xhprof_data,
+            //'xhprof' => $xhprof_data,
         ), LOG_TYPE_FINISH);
 
         // 写入日志

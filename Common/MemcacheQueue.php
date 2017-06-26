@@ -2,6 +2,8 @@
 
 namespace Mll\Common;
 
+use Mll\Mll;
+
 /**
  * PHP memcache 队列类.
  *
@@ -25,6 +27,8 @@ class MemcacheQueue
     public $currentHead;        //当前队首值
     public $currentTail;        //当前队尾值
 
+    private $keyArr = [];
+
     const    MAXNUM = 10000;                //最大队列数,建议上限10K
     const    HEAD_KEY = '_lkkQueueHead_';        //队列首kye
     const    TAIL_KEY = '_lkkQueueTail_';        //队列尾key
@@ -34,14 +38,16 @@ class MemcacheQueue
     /**
      * 构造函数.
      *
-     * @param string $config 缓存服务器配置 array('host'=>'127.0.0.1','port'=>'11211')
+     * @param string $cacheServer 缓存服务器
      * @param string $queueName 队列名称
      * @param int $expire 过期时间
      *
      * @return mixed
      */
-    public function __construct($config, $queueName = '', $expire = 3600)
+    public function __construct($cacheServer, $queueName = '', $expire = 3600)
     {
+        $config = Mll::app()->config->get("cache.{$cacheServer}");
+
         if (isset($config['host']) && isset($config['port'])) {
             self::$client = memcache_pconnect($config['host'], $config['port']);
         }
@@ -103,9 +109,10 @@ class MemcacheQueue
     private function _changeTail($step = 1, $reverse = false)
     {
         if (!$reverse) {
-            $this->currentTail += $step;
+            $this->currentTail = min(self::MAXNUM, $this->currentTail + $step);
         } else {
-            $this->currentTail -= $step;
+            $this->currentTail = max(0, $this->currentTail - $step);
+
         }
 
         memcache_set(self::$client, $this->tail_key, $this->currentTail, false, $this->expire);
@@ -118,7 +125,7 @@ class MemcacheQueue
      */
     private function _isEmpty()
     {
-        return (bool)($this->currentHead === $this->currentTail);
+        return (bool)($this->currentHead >= $this->currentTail);
     }
 
     /**
@@ -130,7 +137,7 @@ class MemcacheQueue
     {
         $len = $this->currentTail - $this->currentHead;
 
-        return (bool)($len === self::MAXNUM);
+        return $len >= self::MAXNUM;
     }
 
     /**
@@ -140,7 +147,7 @@ class MemcacheQueue
     {
         $i = 0;
         if ($this->access === false) {
-            while (!memcache_add(self::$client, $this->lock_key, 1, false, $this->expire)) {
+            while (!memcache_add(self::$client, $this->lock_key, 1, false, 20)) {
                 usleep($this->sleepTime);
                 ++$i;
                 if ($i > $this->retryNum) {//尝试等待N次
@@ -212,7 +219,7 @@ class MemcacheQueue
     /**
      * 读取队列数据.
      *
-     * @param int $length 要读取的长度(反向读取使用负数)
+     * @param int $length 要读取的长度
      *
      * @return array|bool
      */
@@ -230,22 +237,16 @@ class MemcacheQueue
         if (empty($length)) {
             $length = self::MAXNUM;
         } //默认所有
-        $keyArr = array();
+        $this->keyArr = array();
         if ($length > 0) {//正向读取(从队列首向队列尾)
-            $tmpMin = $this->currentHead;
-            $tmpMax = $tmpMin + $length;
-            for ($i = $tmpMin; $i <= $tmpMax; ++$i) {
-                $keyArr[] = $this->queueName . self::VALU_KEY . $i;
-            }
-        } else {//反向读取(从队列尾向队列首)
             $tmpMax = $this->currentTail;
-            $tmpMin = $tmpMax + $length;
+            $tmpMin = max($tmpMax - $length, $this->currentHead);
             for ($i = $tmpMax; $i > $tmpMin; --$i) {
-                $keyArr[] = $this->queueName . self::VALU_KEY . $i;
+                $this->keyArr[] = $this->queueName . self::VALU_KEY . $i;
             }
         }
 
-        $result = @memcache_get(self::$client, $keyArr);
+        $result = @memcache_get(self::$client, $this->keyArr);
 
         return $result;
     }
@@ -259,46 +260,19 @@ class MemcacheQueue
      */
     public function get($length = 0)
     {
-        if (!is_numeric($length)) {
-            return false;
-        }
         if (!$this->_getLock()) {
             return false;
         }
-
-        if ($this->_isEmpty()) {
-            $this->_unLock();
-
-            return false;
-        }
-
-        if (empty($length)) {
-            $length = self::MAXNUM;
-        } //默认所有
-        $length = intval($length);
-        $keyArr = array();
-        if ($length > 0) {//正向读取(从队列首向队列尾)
-            $tmpMin = $this->currentHead;
-            $tmpMax = $tmpMin + $length;
-            for ($i = $tmpMin; $i <= $tmpMax; ++$i) {
-                $keyArr[] = $this->queueName . self::VALU_KEY . $i;
-            }
-            $this->_changeHead($length);
-        } else {//反向读取(从队列尾向队列首)
-            $tmpMax = $this->currentTail;
-            $tmpMin = $tmpMax + $length;
-            for ($i = $tmpMax; $i > $tmpMin; --$i) {
-                $keyArr[] = $this->queueName . self::VALU_KEY . $i;
-            }
-            $this->_changeTail(abs($length), true);
-        }
-        $result = @memcache_get(self::$client, $keyArr);
-
-        foreach ($keyArr as $v) {//取出之后删除
+        $result = $this->read($length);
+        foreach ($this->keyArr as $v) {//取出之后删除
             @memcache_delete(self::$client, $v, 0);
         }
-
+        $this->_changeTail($length, true);
+        if ($result === false || $this->currentTail <= $this->currentHead) {
+            $this->clear();
+        }
         $this->_unLock();
+
 
         return $result;
     }
@@ -318,8 +292,8 @@ class MemcacheQueue
             return false;
         }
 
-        $tmpMin = $this->currentHead--;
-        $tmpMax = $this->currentTail++;
+        $tmpMin = max(0, $this->currentHead--);
+        $tmpMax = min($this->currentTail++, self::MAXNUM);
 
         for ($i = $tmpMin; $i <= $tmpMax; ++$i) {
             $tmpKey = $this->queueName . self::VALU_KEY . $i;

@@ -4,6 +4,7 @@ namespace Mll\Request;
 
 use Mll\Core\Container;
 use Mll\Core\Factory as DFactory;
+use Mll\Mll;
 
 /**
  * 工厂类
@@ -18,7 +19,9 @@ class Factory
     {
         $driver = ucfirst(strtolower($driver));
         $className = __NAMESPACE__."\\Driver\\{$driver}";
-
+        if (empty($config)) {
+            $config = Mll::app()->config->get('request.' . strtolower($driver), []);
+        }
         return Container::getInstance($className, $config);
     }
 }

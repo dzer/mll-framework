@@ -87,8 +87,7 @@ class Cache extends Base implements ILog
                 $log = array_merge($log, $val);
             }
         }
-        $queue = new MemcacheQueue(Mll::app()->config->get('cache.' . $this->config['cache_server']),
-            $this->config['queue_name'], $this->config['expire']);
+        $queue = new MemcacheQueue($this->config['cache_server'], $this->config['queue_name'], $this->config['expire']);
         $queue->add(json_encode($log));
         $this->logs = null;
         return true;

@@ -28,9 +28,9 @@ class Response
     // 输出参数
     protected $options = [];
     // header参数
-    public static $header = [];
+    public $header = [];
 
-    public static $content = null;
+    public $content = null;
 
     const RESPONSE_TIME_KEY = 'x-run-Time';
 
@@ -45,13 +45,13 @@ class Response
     public function __construct($data = '', $code = 200, array $header = [], $options = [])
     {
         $this->data($data);
-        self::$header = $header;
-        self::$content = null;
+        $this->header = $header;
+        $this->content = null;
         $this->code = $code;
         if (!empty($options)) {
             $this->options = array_merge($this->options, $options);
         }
-        self::$header[self::RESPONSE_TIME_KEY] = Common::getMicroTime() - Common::getMicroTime(MLL_BEGIN_TIME);
+        $this->header[self::RESPONSE_TIME_KEY] = Common::getMicroTime() - Common::getMicroTime(MLL_BEGIN_TIME);
 
         $this->contentType($this->contentType, $this->charset);
     }
@@ -93,11 +93,11 @@ class Response
         // 处理输出数据
         $data = $this->getContent();
 
-        if (!headers_sent() && !empty(self::$header)) {
+        if (!headers_sent() && !empty($this->header)) {
             // 发送状态码
             http_response_code($this->code);
             // 发送头部信息
-            foreach (self::$header as $name => $val) {
+            foreach ($this->header as $name => $val) {
                 header($name.':'.$val);
             }
         }
@@ -166,9 +166,9 @@ class Response
     public function header($name, $value = null)
     {
         if (is_array($name)) {
-            self::$header = array_merge(self::$header, $name);
+            $this->header = array_merge($this->header, $name);
         } else {
-            self::$header[$name] = $value;
+            $this->header[$name] = $value;
         }
 
         return $this;
@@ -191,7 +191,7 @@ class Response
             throw new \InvalidArgumentException(sprintf('variable type error： %s', gettype($content)));
         }
 
-        self::$content = (string) $content;
+        $this->content = (string) $content;
 
         return $this;
     }
@@ -219,7 +219,7 @@ class Response
      */
     public function lastModified($time)
     {
-        self::$header['Last-Modified'] = $time;
+        $this->header['Last-Modified'] = $time;
 
         return $this;
     }
@@ -233,7 +233,7 @@ class Response
      */
     public function expires($time)
     {
-        self::$header['Expires'] = $time;
+        $this->header['Expires'] = $time;
 
         return $this;
     }
@@ -247,7 +247,7 @@ class Response
      */
     public function eTag($eTag)
     {
-        self::$header['ETag'] = $eTag;
+        $this->header['ETag'] = $eTag;
 
         return $this;
     }
@@ -261,7 +261,7 @@ class Response
      */
     public function cacheControl($cache)
     {
-        self::$header['Cache-control'] = $cache;
+        $this->header['Cache-control'] = $cache;
 
         return $this;
     }
@@ -276,7 +276,7 @@ class Response
      */
     public function contentType($contentType, $charset = 'utf-8')
     {
-        self::$header['Content-Type'] = $contentType.'; charset='.$charset;
+        $this->header['Content-Type'] = $contentType.'; charset='.$charset;
 
         return $this;
     }
@@ -291,9 +291,9 @@ class Response
     public function getHeader($name = '')
     {
         if (!empty($name)) {
-            return isset(self::$header[$name]) ? self::$header[$name] : null;
+            return isset($this->header[$name]) ? $this->header[$name] : null;
         } else {
-            return self::$header;
+            return $this->header;
         }
     }
 
@@ -314,7 +314,7 @@ class Response
      */
     public function getContent()
     {
-        if (null == self::$content) {
+        if (null == $this->content) {
             $content = $this->output($this->data);
 
             if (null !== $content && !is_string($content) && !is_numeric($content) && !is_callable([
@@ -325,10 +325,10 @@ class Response
                 throw new \InvalidArgumentException(sprintf('variable type error： %s', gettype($content)));
             }
 
-            self::$content = (string) $content;
+            $this->content = (string) $content;
         }
 
-        return self::$content;
+        return $this->content;
     }
 
     /**

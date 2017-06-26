@@ -25,4 +25,10 @@ class Controller implements IController
     {
         return Response::create($data, 'json', $code, $header, $options);
     }
+
+    public function render($template, $params = [], $code = 200, $header = [], $options = [])
+    {
+        $content = View\Factory::getInstance()->fetch($template, $params);
+        return Response::create($content, 'view', $code, $header, $options);
+    }
 }

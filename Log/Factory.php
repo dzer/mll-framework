@@ -3,6 +3,7 @@
 namespace Mll\Log;
 
 use Mll\Core\Container;
+use Mll\Mll;
 
 /**
  * 工厂类
@@ -17,7 +18,9 @@ class Factory
     {
         $driver = ucfirst(strtolower($driver));
         $className = __NAMESPACE__."\\Driver\\{$driver}";
-
+        if (empty($config)) {
+            $config = Mll::app()->config->get('log.' . strtolower($driver), []);
+        }
         return Container::getInstance($className, $config);
     }
 }
