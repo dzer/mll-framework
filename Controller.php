@@ -28,7 +28,12 @@ class Controller implements IController
 
     public function render($template, $params = [], $code = 200, $header = [], $options = [])
     {
-        $content = View\Factory::getInstance()->fetch($template, $params);
+        $content = Mll::app()->view->fetch($template, $params);
         return Response::create($content, 'view', $code, $header, $options);
+    }
+
+    public function assign($name, $value = '')
+    {
+        return Mll::app()->view->assign($name, $value);
     }
 }

@@ -87,10 +87,14 @@ class Yar implements IRpc
             $this->config['timeout'] = $timeout;
         }
         $request_id_key = Mll::app()->config->get('request.request_id_key', 'x-request-id');
+        $trace_id_key = Mll::app()->config->get('request.trace_id_key', 'x-trace-id');
+
+        $traceId = Mll::app()->request->getTraceId();
         $params = [
             'method' => $method,
             'param' => $param,
-            "{$request_id_key}" => Mll::app()->request->getRequestId(true)
+            "{$request_id_key}" => Mll::app()->request->getRequestId(true),
+            "{$trace_id_key}" => Mll::app()->request->getSonTraceId($traceId)
         ];
         $startTime = Common::getMicroTime();
         $errorMessage = '';
@@ -102,13 +106,16 @@ class Yar implements IRpc
         }
         $level = !empty($errorMessage) ? 'error' : 'info';
         Mll::app()->log->log($level, 'rpc调用', array(
-            'url' => $url,
+            'traceId' => $traceId,
+            'url' => $this->config['host'] . ' (' . $url . ')',
+            'method' => $method,
             'execTime' => Common::getMicroTime() - $startTime,
+            'useMemory' => '',
             'timeout' => $this->config['timeout'],
             'requestHeaders' => $this->config,
             'requestParams' => $params,
-            'responseHeaders' => '',
-            'response' => $rs,
+            //'responseHeaders' => '',
+            //'response' => $rs,
             'errorMessage' => $errorMessage,
         ), LOG_TYPE_RPC);
 

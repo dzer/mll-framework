@@ -1,6 +1,7 @@
 <?php
 
 namespace Mll\Request;
+
 use Mll\Mll;
 
 /**
@@ -29,6 +30,7 @@ abstract class Base implements IRequest
         'request_id_key' => 'x-request-id',
         //请求时间key
         'request_time_key' => 'x-request-time',
+        'trace_id_key' => 'x-trace-id',
         // 表单请求类型伪装变量
         'var_method' => '_method',
     ];
@@ -133,6 +135,8 @@ abstract class Base implements IRequest
     protected $server = [];
     protected $header = [];
 
+    protected static $traceId;
+
     public function __construct($config = [])
     {
         if (is_array($config)) {
@@ -182,6 +186,8 @@ abstract class Base implements IRequest
         $this->tplFile = $this->module . DS . \str_replace('\\', DS, $this->controller) . DS . $this->action . '.php';
 
         $this->setRequestId();
+
+        $this->setTraceId();
     }
 
     /**
@@ -204,6 +210,24 @@ abstract class Base implements IRequest
     }
 
     /**
+     * 设置TraceId
+     *
+     * @param string $traceId 请求TraceId
+     *
+     * @return string
+     */
+    public function setTraceId($traceId = null)
+    {
+        if ($traceId === null) {
+            $traceId = self::getTraceId(true);
+        }
+        self::$traceId = $traceId;
+        $this->header([$this->config['trace_id_key'] => $traceId]);
+
+        return $traceId;
+    }
+
+    /**
      * 获取请求id.
      *
      * @param bool $autoMake 当请求id为空时是否设置请求id
@@ -218,6 +242,43 @@ abstract class Base implements IRequest
         }
 
         return $requestId;
+    }
+
+    /**
+     * 获取traceId.
+     *
+     * @param bool $autoMake true时返回原traceId
+     *
+     * @return mixed|null|string
+     */
+    public function getTraceId($autoMake = false)
+    {
+        if ($autoMake) {
+            $traceId = $this->header($this->config['trace_id_key']);
+            return !empty($traceId) ? $traceId : '0';
+        }
+        if (empty(self::$traceId)) {
+            self::$traceId = '0.0';
+        }
+
+        $traceArr = explode('.', self::$traceId);
+        array_push($traceArr, array_pop($traceArr) + 1);
+        self::$traceId = implode('.', $traceArr);
+
+        return self::$traceId;
+    }
+
+    /**
+     * 获取下层traceId
+     * @param $traceId
+     * @return int|string
+     */
+    public function getSonTraceId($traceId = null)
+    {
+        if ($traceId === null) {
+            self::$traceId = $this->getTraceId();
+        }
+        return self::$traceId . '.1';
     }
 
     /**
@@ -502,6 +563,7 @@ abstract class Base implements IRequest
                 return $data;
             }
         }
+
 
         // 解析过滤器
         if (is_null($filter)) {
@@ -1052,7 +1114,6 @@ abstract class Base implements IRequest
     {
         return $_SERVER['SCRIPT_FILENAME'];
     }
-
 
 
     /**

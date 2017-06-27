@@ -58,8 +58,13 @@ class Cache extends Base implements ILog
         }
 
         $now = date($this->config['time_format']);
+        if (!isset($context['traceId'])) {
+            $context['traceId'] = Mll::app()->request->getTraceId();
+        }
         $this->logs[$level][] = array(
             'time' => $now,
+            'microtime' => microtime(true),
+            'server' => $_SERVER['REMOTE_ADDR'],
             'level' => $level,
             'type' => $type,
             'requestId' => Mll::app()->request->getRequestId(),

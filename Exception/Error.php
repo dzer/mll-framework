@@ -93,7 +93,8 @@ class Error
         if (!is_null($error = error_get_last()) && self::isFatal($error['type'])) {
             // 将错误信息托管至 Mll\Exception\ErrorException
             $exception = new ErrorException($error['type'], $error['message'], $error['file'], $error['line']);
-            $errorMessage = $error['message'];
+
+            $errorMessage = "[{$error['type']}]{$error['message']}[{$error['file']}:{$error['line']}]";
             self::appException($exception);
         }
         $level = !empty($errorMessage) ? 'error' : 'info';
@@ -107,13 +108,16 @@ class Error
             require(ROOT_PATH . $xhprof_path . DS . 'xhprof_lib' . DS . 'utils' . DS . 'xhprof_runs.php');
             $xhprof_data = xhprof_disable();
         }
+        $request = Mll::app()->request;
         Mll::app()->log->log($level, '请求', array(
-            'url' => Mll::app()->request->getUrl(true),
+            'traceId' => $request->getTraceId(true),
+            'url' => $request->getUrl(true),
+            'method' => $request->method(true),
             'execTime' => Common::getMicroTime() - Common::getMicroTime(MLL_BEGIN_TIME),
             'timeout' => '',
-            'useMemory' => Common::convert(memory_get_usage() - MLL_BEGIN_MEMORY),
-            'requestHeaders' => Mll::app()->request->header(),
-            'requestParams' => Mll::app()->request->param(),
+            'useMemory' => memory_get_usage() - MLL_BEGIN_MEMORY,
+            'requestHeaders' => $request->header(),
+            'requestParams' => $request->param(),
             'errorMessage' => $errorMessage,
             //'xhprof' => $xhprof_data,
         ), LOG_TYPE_FINISH);

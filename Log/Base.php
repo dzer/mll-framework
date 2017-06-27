@@ -30,7 +30,7 @@ abstract class Base
      */
     public function emergency($message, array $context = array(), $type = null)
     {
-        $this->log(self::EMERGENCY, $message, $context);
+        $this->log(self::EMERGENCY, $message, $context, $type);
     }
 
     /**
@@ -45,7 +45,7 @@ abstract class Base
      */
     public function alert($message, array $context = array(), $type = null)
     {
-        $this->log(self::ALERT, $message, $context);
+        $this->log(self::ALERT, $message, $context, $type);
     }
 
     /**
@@ -60,7 +60,7 @@ abstract class Base
      */
     public function critical($message, array $context = array(), $type = null)
     {
-        $this->log(self::CRITICAL, $message, $context);
+        $this->log(self::CRITICAL, $message, $context, $type);
     }
 
     /**
@@ -73,7 +73,7 @@ abstract class Base
      */
     public function error($message, array $context = array(), $type = null)
     {
-        $this->log(self::ERROR, $message, $context);
+        $this->log(self::ERROR, $message, $context, $type);
     }
 
     /**
@@ -88,7 +88,7 @@ abstract class Base
      */
     public function warning($message, array $context = array(), $type = null)
     {
-        $this->log(self::WARNING, $message, $context);
+        $this->log(self::WARNING, $message, $context, $type);
     }
 
     /**
@@ -101,7 +101,7 @@ abstract class Base
      */
     public function notice($message, array $context = array(), $type = null)
     {
-        $this->log(self::NOTICE, $message, $context);
+        $this->log(self::NOTICE, $message, $context, $type);
     }
 
     /**
@@ -116,7 +116,7 @@ abstract class Base
      */
     public function info($message, array $context = array(), $type = null)
     {
-        $this->log(self::INFO, $message, $context);
+        $this->log(self::INFO, $message, $context, $type);
     }
 
     /**
@@ -129,7 +129,7 @@ abstract class Base
      */
     public function debug($message, array $context = array(), $type = null)
     {
-        $this->log(self::DEBUG, $message, $context);
+        $this->log(self::DEBUG, $message, $context, $type);
     }
 
     /**

@@ -47,7 +47,7 @@ defined('MLL_DEBUG') or define('MLL_DEBUG', false);
 /*
  * 当前环境
  */
-defined('MLL_ENV') or define('MLL_ENV', 'dev');
+defined('MLL_ENV') or define('MLL_ENV', 'prod');
 
 /*
  * 是否为生产环境
@@ -92,4 +92,4 @@ defined('LOG_TYPE_SYSTEM') or define('LOG_TYPE_SYSTEM', 'SYSTEM');
 /*
  * 请求结束日志类型
  */
-defined('LOG_TYPE_FINISH') or define('LOG_TYPE_FINISH', 'FINISH');
+defined('LOG_TYPE_FINISH') or define('LOG_TYPE_FINISH', 'REQUEST');

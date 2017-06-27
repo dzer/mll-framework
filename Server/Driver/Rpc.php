@@ -33,9 +33,6 @@ class Rpc implements IServer
      */
     public function api($pathInfo, $params)
     {
-        //去掉yar post自定义的协议
-        array_pop($_POST);
-
         $method = strtolower(isset($params['method']) ? $params['method'] : 'GET');
         if ($method == 'get') {
             $_GET = array_merge($_GET, $params['param']);
@@ -46,7 +43,10 @@ class Rpc implements IServer
         $_REQUEST = array_merge($_GET, $_POST);
 
         $request_id_key = Mll::app()->config->get('request.request_id_key', 'x-request-id');
+        $trace_id_key = Mll::app()->config->get('request.trace_id_key', 'x-trace-id');
         Mll::app()->request->setRequestId(isset($params[$request_id_key]) ? $params[$request_id_key] : null);
+        Mll::app()->request->setTraceId(isset($params[$trace_id_key]) ? $params[$trace_id_key] : null);
+
         Mll::app()->request->parse($pathInfo, $params['param']);
         Mll::app()->config->load(Mll::getConfigPath(Mll::app()->request->getModule()));
 

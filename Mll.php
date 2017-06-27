@@ -19,6 +19,7 @@ use Mll\Core\Container;
  * @property \Mll\Rpc\IRpc $rpc
  * @property \Mll\Session $session
  * @property \Mll\Cache $cache
+ * @property \Mll\View\Base $view
  * @author Xu Dong <d20053140@gmail.com>
  * @since 1.0
  */
@@ -125,6 +126,11 @@ class Mll
             'rpc' => function () {
                 return Rpc\Factory::getInstance(
                     Mll::app()->config->get('rpc.driver', 'yar')
+                );
+            },
+            'view' => function () {
+                return View\Factory::getInstance(
+                    Mll::app()->config->get('view.driver', 'php')
                 );
             },
         ]);

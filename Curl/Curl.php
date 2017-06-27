@@ -331,8 +331,13 @@ class Curl
     public function exec($ch = null)
     {
         self::setHeader(
-            Mll::app()->config->get('request.request_id_key', 'X-Request-Id'),
+            Mll::app()->config->get('request.request_id_key', 'x-request-id'),
             Mll::app()->request->getRequestId(true)
+        );
+        $trace_id = Mll::app()->request->getTraceId();
+        self::setHeader(
+            Mll::app()->config->get('request.trace_id_key', 'x-trace-id'),
+            Mll::app()->request->getSonTraceId($trace_id)
         );
         $startTime = self::getMicroTime();
 
@@ -382,7 +387,7 @@ class Curl
             $log_type = LOG_TYPE_RULE;
         } else {
             $message = 'curl';
-            $log_type = LOG_TYPE_GENERAL;
+            $log_type = LOG_TYPE_CURL;
         }
 
         $this->httpErrorMessage = '';
@@ -394,14 +399,18 @@ class Curl
         $this->errorMessage = $this->curlError ? $this->curlErrorMessage : $this->httpErrorMessage;
 
         $level = !empty($this->errorMessage) ? 'error' : 'info';
+
         Mll::app()->log->log($level, $message, array(
+            'traceId' => $trace_id,
             'url' => $this->url,
+            'method' => isset($this->options[CURLOPT_CUSTOMREQUEST]) ? $this->options[CURLOPT_CUSTOMREQUEST] : '',
             'execTime' => self::getMicroTime() - $startTime,
             'timeout' => isset($this->options[CURLOPT_TIMEOUT]) ? $this->options[CURLOPT_TIMEOUT] : '',
+            'useMemory' => '',
             'requestHeaders' => isset($this->requestHeaders->data) ? $this->requestHeaders->data : '',
             'requestParams' => isset($this->options[CURLOPT_POSTFIELDS]) ? $this->options[CURLOPT_POSTFIELDS] : '',
-            'responseHeaders' => isset($this->responseHeaders->data) ? $this->responseHeaders->data : '',
-            'response' => $this->response,
+            //'responseHeaders' => isset($this->responseHeaders->data) ? $this->responseHeaders->data : '',
+            //'response' => $this->response,
             'errorMessage' => $this->errorMessage,
         ), $log_type);
 

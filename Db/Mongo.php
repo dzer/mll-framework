@@ -42,6 +42,7 @@ class Mongo
             $this->config = array_merge($this->config, Mll::app()->config->get('db.mongo', []));
         }
         $this->connect($this->config);
+        return $this;
     }
 
     /**

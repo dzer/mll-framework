@@ -27,6 +27,7 @@ class Handle
      * 报告和记录异常.
      *
      * @param \Exception $exception
+     * @return string
      */
     public function report(Exception $exception)
     {
@@ -41,6 +42,7 @@ class Handle
             ];
             $log = "[{$data['code']}]{$data['message']}[{$data['file']}:{$data['line']}]";
             Mll::app()->log->error($log, [], LOG_TYPE_SYSTEM);
+            return $log;
         }
     }
 

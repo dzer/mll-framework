@@ -71,7 +71,9 @@ class Common
     public static function convert($size)
     {
         $unit = array('B', 'K', 'M', 'G', 'T', 'P');
-
+        if ($size == 0) {
+            return $size;
+        }
         return round($size / pow(1024, ($i = floor(log($size, 1024)))), 2) . ' ' . $unit[$i];
     }
 
