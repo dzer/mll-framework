@@ -7,6 +7,13 @@ use Mll\Common\ErpTableIdHelper;
 use Mll\Common\ReturnMsg;
 use Mll\Common\Rule;
 
+/**
+ * 规则调用类
+ *
+ * @package Mll\Cache
+ * @author wang zhou <zhouwang@mll.com>
+ * @since 1.0
+ */
 class Write
 {
 	var $transactionNum    = ''; # 运行中事务号数
@@ -62,7 +69,7 @@ class Write
 	    if (empty($info) || $info['code'] != '0'
 	    	|| $info['description'] != 'Succeed') {
             $msg = "设定事务规则[{$serviceName}]返回异常:[{$info['description']}]";
-	        return Tools::dberr($msg);
+	        return Common::dberr($msg);
 	    }
 	    $this->transactionNum = $info['transactionNum'];
 
