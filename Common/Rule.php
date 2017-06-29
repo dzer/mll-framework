@@ -46,7 +46,7 @@ class Rule
             $msg = '规则[' . $serviceName . ']返回异常:[' . $result['description'] . ']';
             return ReturnMsg::err($msg);
         }
-        return \Mll\Common\ReturnMsg::ret($result['rows']);
+        return ReturnMsg::ret($result['rows']);
     }
     /**
      * 抛出异常
@@ -224,6 +224,7 @@ class Rule
             'time_cost' => $total_time
         );
     }
+
     /**
      * 拼接header
      *

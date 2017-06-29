@@ -133,6 +133,9 @@ class Mll
                     Mll::app()->config->get('view.driver', 'php')
                 );
             },
+            'write' => function () {
+                return Write\Factory::getInstance();
+            },
         ]);
 
         //时区设置
