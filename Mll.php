@@ -89,6 +89,8 @@ class Mll
      */
     public function run($serveModel = 'Http')
     {
+        error_reporting(E_ALL);
+
         self::$serveModel = $serveModel;
         //自动加载
         spl_autoload_register(__CLASS__ . '::autoload', true, true);
