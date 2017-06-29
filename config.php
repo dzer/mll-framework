@@ -2,6 +2,8 @@
 
 namespace Mll;
 
+use Mll\Core\Container;
+
 return [
     'container' => [
         'log' => function () {
@@ -27,6 +29,9 @@ return [
         },
         'write' => function () {
             return Write\Factory::getInstance();
+        },
+        'curl' => function () {
+            return Container::getInstance(__NAMESPACE__.'\\Curl\\Curl');
         },
     ],
     'classMap' => [

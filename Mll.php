@@ -18,6 +18,7 @@ use Mll\Core\Container;
  * @property \Mll\Session $session
  * @property \Mll\Cache $cache
  * @property \Mll\View\Base $view
+ * @property \Mll\Curl\Curl $curl
  * @author Xu Dong <d20053140@gmail.com>
  * @since 1.0
  */
