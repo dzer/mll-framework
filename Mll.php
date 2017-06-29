@@ -40,32 +40,7 @@ class Mll
      *
      * @var array
      */
-    private static $classMap = [
-        'Mll\\Core\\Container' => '/Core/Container.php',
-        'Mll\\Config\\Factory' => '/Config/Factory.php',
-        'Mll\\Config\\Driver\\ArrayFormat' => '/Config/Driver/ArrayFormat.php',
-        'Mll\\Config\\IConfig' => '/Config/IConfig.php',
-        'Mll\\Common\\Dir' => '/Common/Dir.php',
-        'Mll\\Exception\\Error' => '/Exception/Error.php',
-        'Mll\\Server\\Factory' => '/Server/Factory.php',
-        'Mll\\Server\\Driver\\Http' => '/Server/Driver/Http.php',
-        'Mll\\Server\\IServer' => '/Server/IServer.php',
-        'Mll\\Request\\Factory' => '/Request/Factory.php',
-        'Mll\\Request\\Driver\\Http' => '/Request/Driver/Http.php',
-        'Mll\\Request\\Base' => '/Request/Base.php',
-        'Mll\\Request\\IRequest' => '/Request/IRequest.php',
-        'Mll\\Core\\Route' => '/Core/Route.php',
-        'Mll\\Controller' => '/Controller.php',
-        'Mll\\Controller\\IController' => '/Controller/IController.php',
-        'Mll\\Response\\Response' => '/Response/Response.php',
-        'Mll\\Response\\Driver\\Json' => '/Response/Driver/Json.php',
-        'Mll\\Common\\Common' => '/Common/Common.php',
-        'Mll\\Log\\Driver\\File' => '/Log/Driver/File.php',
-        'Mll\\Log\\Driver\\Cache' => '/Log/Driver/Cache.php',
-        'Mll\\Log\\Base' => '/Log/Base.php',
-        'Mll\\Log\\ILog' => '/Log/ILog.php',
-        'Mll\\Log\\Factory' => '/Log/Factory.php',
-    ];
+    private static $classMap = [];
 
     public function __get($name)
     {
@@ -108,6 +83,8 @@ class Mll
 
         //服务容器
         Container::addDefinitions(Mll::app()->config->get('container'));
+
+        self::$classMap = Mll::app()->config->get('classMap');
 
         //时区设置
         date_default_timezone_set(Mll::app()->config->get('time_zone', 'Asia/Shanghai'));
