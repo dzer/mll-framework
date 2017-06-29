@@ -22,7 +22,7 @@ class ArrayFormat implements IConfig
     private static $config = [];
 
     /**
-     * 加载配置文件
+     * 加载配置文件目录
      *
      * @param array $configPathArr 配置文件路径
      *
@@ -41,6 +41,22 @@ class ArrayFormat implements IConfig
         }
         self::$config = array_merge(self::$config, $config);
 
+        return self::$config;
+    }
+
+    /**
+     * 加载配置文件
+     *
+     * @param string $configFile 配置文件
+     *
+     * @return array 返回配置文件
+     */
+    public function loadFile($configFile)
+    {
+        if (is_string($configFile) && file_exists($configFile)) {
+            $config = include $configFile;
+            self::$config = array_merge(self::$config, $config);
+        }
         return self::$config;
     }
 

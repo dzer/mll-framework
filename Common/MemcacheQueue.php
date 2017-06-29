@@ -32,7 +32,7 @@ class MemcacheQueue
     const    MAXNUM = 10000;                //最大队列数,建议上限10K
     const    HEAD_KEY = '_lkkQueueHead_';        //队列首kye
     const    TAIL_KEY = '_lkkQueueTail_';        //队列尾key
-    const    VALU_KEY = '_lkkQueueValu_';        //队列值key
+    const    VALU_KEY = '_lkkQueueValue_';        //队列值key
     const    LOCK_KEY = '_lkkQueueLock_';        //队列锁key
 
     /**
@@ -58,11 +58,11 @@ class MemcacheQueue
         ignore_user_abort(true); //当客户断开连接,允许继续执行
 
         $this->access = false;
-        $this->sleepTime = 1000;
+        $this->sleepTime = 10000;
         $expire = empty($expire) ? 3600 : intval($expire) + 1;
         $this->expire = $expire;
         $this->queueName = $queueName;
-        $this->retryNum = 1000;
+        $this->retryNum = 10000;
 
         $this->head_key = $this->queueName . self::HEAD_KEY;
         $this->tail_key = $this->queueName . self::TAIL_KEY;
@@ -171,6 +171,7 @@ class MemcacheQueue
     {
         memcache_delete(self::$client, $this->lock_key, 0);
         $this->access = false;
+        memcache_close(self::$client);
     }
 
     /**
@@ -228,7 +229,6 @@ class MemcacheQueue
         if (!is_numeric($length)) {
             return false;
         }
-        $this->_initSetHeadNTail();
 
         if ($this->_isEmpty()) {
             return false;

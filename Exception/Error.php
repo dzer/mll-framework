@@ -93,19 +93,16 @@ class Error
         if (!is_null($error = error_get_last()) && self::isFatal($error['type'])) {
             // 将错误信息托管至 Mll\Exception\ErrorException
             $exception = new ErrorException($error['type'], $error['message'], $error['file'], $error['line']);
-
-            $errorMessage = "[{$error['type']}]{$error['message']}[{$error['file']}:{$error['line']}]";
+            $codeMsg = self::getExceptionHandler()->getCodeMsg($error['type']);
+            $errorMessage = "[{$error['type']}] {$codeMsg} {$error['message']}[{$error['file']}:{$error['line']}]";
             self::appException($exception);
         }
-        $level = !empty($errorMessage) ? 'error' : 'info';
+        $level = !empty($codeMsg) ? strtolower($codeMsg) : 'info';
 
         $xhprof_data = null;
-        if ((Mll::app()->config->get('xhprof.enable', false) || $_REQUEST['xhprof_enable'] == 'mll')
-            && function_exists('xhprof_enable')
+        if (Mll::app()->config->get('xhprof.enable', false)
+            && function_exists('xhprof_disable')
         ) {
-            $xhprof_path = Mll::app()->config->get('xhprof.path');
-            require(ROOT_PATH . $xhprof_path . DS . 'xhprof_lib' . DS . 'utils' . DS . 'xhprof_lib.php');
-            require(ROOT_PATH . $xhprof_path . DS . 'xhprof_lib' . DS . 'utils' . DS . 'xhprof_runs.php');
             $xhprof_data = xhprof_disable();
         }
         $request = Mll::app()->request;
@@ -119,7 +116,7 @@ class Error
             'requestHeaders' => $request->header(),
             'requestParams' => $request->param(),
             'errorMessage' => $errorMessage,
-            //'xhprof' => $xhprof_data,
+            'xhprof' => $xhprof_data,
         ), LOG_TYPE_FINISH);
 
         // 写入日志

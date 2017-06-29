@@ -4,8 +4,6 @@ namespace Mll;
 
 use Mll\Config;
 use Mll\Exception\Error;
-use Mll\Log;
-use Mll\Server;
 use Mll\Core\Container;
 
 /**
@@ -38,14 +36,6 @@ class Mll
     public static $serveModel;
 
     /**
-     * 系统类库.
-     *
-     * @var array
-     */
-    private static $libMap = [];
-
-
-    /**
      * 加载类.
      *
      * @var array
@@ -71,6 +61,7 @@ class Mll
         'Mll\\Response\\Driver\\Json' => '/Response/Driver/Json.php',
         'Mll\\Common\\Common' => '/Common/Common.php',
         'Mll\\Log\\Driver\\File' => '/Log/Driver/File.php',
+        'Mll\\Log\\Driver\\Cache' => '/Log/Driver/Cache.php',
         'Mll\\Log\\Base' => '/Log/Base.php',
         'Mll\\Log\\ILog' => '/Log/ILog.php',
         'Mll\\Log\\Factory' => '/Log/Factory.php',
@@ -99,41 +90,22 @@ class Mll
     public function run($serveModel = 'Http')
     {
         self::$serveModel = $serveModel;
-
         //自动加载
         spl_autoload_register(__CLASS__ . '::autoload', true, true);
 
-        //服务容器
+        //先将配置组件加入容器
         Container::addDefinitions([
             'config' => function () {
                 return Config\Factory::getInstance();
             },
         ]);
+
         //加载公共配置文件
+        Mll::app()->config->loadFile(__DIR__ . '/config.php');
         Mll::app()->config->load(self::getConfigPath());
-        Container::addDefinitions([
-            'log' => function () {
-                return Log\Factory::getInstance(
-                    Mll::app()->config->get('log.driver', 'file')
-                );
-            },
-            'server' => function () {
-                return Server\Factory::getInstance(SERVER_MODEL);
-            },
-            'request' => function () {
-                return Request\Factory::getInstance(SERVER_MODEL);
-            },
-            'rpc' => function () {
-                return Rpc\Factory::getInstance(
-                    Mll::app()->config->get('rpc.driver', 'yar')
-                );
-            },
-            'view' => function () {
-                return View\Factory::getInstance(
-                    Mll::app()->config->get('view.driver', 'php')
-                );
-            },
-        ]);
+
+        //服务容器
+        Container::addDefinitions(Mll::app()->config->get('container'));
 
         //时区设置
         date_default_timezone_set(Mll::app()->config->get('time_zone', 'Asia/Shanghai'));
@@ -202,11 +174,14 @@ class Mll
         }
     }
 
+    /**
+     * Xhprof 性能分析
+     */
     public static function Xhprof()
     {
-        $config = Mll::app()->config;
-        if (($config->get('xhprof.enable', false) || $_REQUEST['xhprof_enable'] == 'mll')
-            && function_exists('xhprof_enable')) {
+        if (Mll::app()->config->get('xhprof.enable', false)
+            && function_exists('xhprof_enable')
+        ) {
             xhprof_enable(XHPROF_FLAGS_CPU | XHPROF_FLAGS_MEMORY | XHPROF_FLAGS_NO_BUILTINS);
         }
     }
