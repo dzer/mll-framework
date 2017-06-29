@@ -47,7 +47,7 @@ defined('MLL_DEBUG') or define('MLL_DEBUG', false);
 /*
  * 当前环境
  */
-defined('MLL_ENV') or define('MLL_ENV', 'prod');
+defined('MLL_ENV') or define('MLL_ENV', 'dev');
 
 /*
  * 是否为生产环境

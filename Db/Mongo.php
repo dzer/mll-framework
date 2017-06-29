@@ -27,13 +27,13 @@ class Mongo
     private $collection; //集合，相当于数据表
 
     private $config = [
-         'dsn'   => 'mongodb://192.168.31.169:27017', //服务器地址
-         'option'=> [
-             'connect' => true, //参数
-             'db_name'=> 'system_log', //数据库名称
-             'username'=> '', //数据库用户名
-             'password'=> '', //数据库密码
-         ]
+        'dsn' => 'mongodb://192.168.2.214:27017', //服务器地址
+        'option' => [
+            'connect' => true, //参数
+            'db_name' => 'system_log', //数据库名称
+            'username' => '', //数据库用户名
+            'password' => '', //数据库密码
+        ]
     ];
 
     public function __construct($config = array())
@@ -233,5 +233,13 @@ class Mongo
     public function getDb()
     {
         return $this->db;
+    }
+
+    public function __destruct()
+    {
+        $connections = $this->mongo->getConnections();
+        foreach ((array)$connections as $con) {
+            $this->mongo->close($con['hash']);
+        }
     }
 }

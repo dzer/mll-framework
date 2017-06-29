@@ -33,17 +33,35 @@ class Handle
     {
         if (!$this->isIgnoreReport($exception)) {
             // 收集异常数据
-            $isFatal = in_array($this->getCode($exception), [E_ERROR, E_CORE_ERROR, E_COMPILE_ERROR, E_PARSE]);
             $data = [
                 'file' => $exception->getFile(),
                 'line' => $exception->getLine(),
-                'message' => ($isFatal ? 'fatal error:' : '') . $this->getMessage($exception),
+                'message' => $this->getMessage($exception),
                 'code' => $this->getCode($exception),
+
             ];
-            $log = "[{$data['code']}]{$data['message']}[{$data['file']}:{$data['line']}]";
-            Mll::app()->log->error($log, [], LOG_TYPE_SYSTEM);
+            $codeMsg = $this->getCodeMsg($data['code']);
+            $log = "[{$data['code']}] {$codeMsg} {$data['message']}[{$data['file']}:{$data['line']}]";
+            $logLevel = !empty($codeMsg) ? strtolower($codeMsg) : 'info';
+            Mll::app()->log->log($logLevel, $log, [], LOG_TYPE_SYSTEM);
             return $log;
         }
+    }
+
+    public function getCodeMsg($code)
+    {
+        if (in_array($code, [E_ERROR, E_CORE_ERROR, E_COMPILE_ERROR, E_PARSE])) {
+            return 'ERROR';
+        }
+
+        if (in_array($code, [E_WARNING, E_CORE_WARNING, E_COMPILE_WARNING, E_USER_WARNING])) {
+            return 'WARNING';
+        }
+
+        if (in_array($code, [E_NOTICE, E_USER_NOTICE, E_STRICT])) {
+            return 'NOTICE';
+        }
+        return '';
     }
 
     /**
@@ -139,7 +157,6 @@ class Handle
         if (!$code && $exception instanceof ErrorException) {
             $code = $exception->getSeverity();
         }
-
         return $code;
     }
 
