@@ -20,11 +20,10 @@ class ReturnMsg
      *
      * @return array
      */
-    public static function ret($msg = '',$data = []){
+    public static function ret($msg = ''){
         return [
             'error' => self::RIGHT_CODE,
             'msg' => $msg,
-            'data' => $data,
         ];
     }
     /**
@@ -35,11 +34,10 @@ class ReturnMsg
      *
      * @return array
      */
-    public static function err($msg = '',$data = [],$errorCode = self::ERROR_CODE){
+    public static function err($msg = '',$errorCode = self::ERROR_CODE){
         return [
             'error' => $errorCode,
             'msg' => $msg,
-            'data' => $data,
         ];
     }
 }

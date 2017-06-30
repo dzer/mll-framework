@@ -93,3 +93,13 @@ defined('LOG_TYPE_SYSTEM') or define('LOG_TYPE_SYSTEM', 'SYSTEM');
  * 请求结束日志类型
  */
 defined('LOG_TYPE_FINISH') or define('LOG_TYPE_FINISH', 'REQUEST');
+
+/**
+ * 规则引擎
+ */
+define('RULE_ENGINE_URL','http://rule.meilele.com/service');
+
+/**
+ * 规则
+ */
+define('RULE_URL','http://192.168.0.22:3030/service');

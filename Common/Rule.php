@@ -27,7 +27,7 @@ class Rule
      * @param bool|int $needAll 是否全部
      * @param int $time 超时时间
      *
-     * @return void
+     * @return mixed
      */
     public static function callRule($alias_name, $param = array(), $needAll = 1, $time = 30)
     {
@@ -61,7 +61,7 @@ class Rule
     /**
      * 查询需要记录日志的规则
      *
-     * @return void
+     * @return mixed
      */
     private static function _getSaveLogRuleMethod() {
         if(!empty(self::$ruleMethodSave)) { return self::$ruleMethodSave; }
@@ -203,7 +203,7 @@ class Rule
         if (empty($user_name)) {
             $user_name = isset($_SESSION ['user_name']) ? $_SESSION ['user_name'] : '';
         }
-        $referer = $_SERVER ["HTTP_REFERER"] ? $_SERVER ["HTTP_REFERER"] : $_SERVER ["REQUEST_URI"];
+        $referer = isset($_SERVER ["HTTP_REFERER"]) ? $_SERVER ["HTTP_REFERER"] : $_SERVER ["REQUEST_URI"];
         $headers['ruleReferer'] = "{$referer}&_usernm_={$user_name}";
         $headers['ruleUri'] = "{$_SERVER["REQUEST_URI"]}&_usernm_={$user_name}";
         $options[CURLOPT_HTTPHEADER] = self::buildHeaderArray($headers);

@@ -100,6 +100,12 @@ class Yar implements IRpc
         $errorMessage = '';
         try {
             $rs = $this->client->api($url, $params);
+            try {
+                $arr = json_decode($rs, true);
+                $rs = (json_last_error() == JSON_ERROR_NONE) ? $arr : $rs;
+            } catch (\Exception $e) {
+
+            }
         } catch (\Exception $e) {
             $rs = false;
             $errorMessage = $e->getMessage();

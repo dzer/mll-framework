@@ -381,13 +381,17 @@ class Curl
         //$this->response = $this->parseResponse($this->responseHeaders, $this->rawResponse);
         $this->response = $this->rawResponse;
 
-
-        if ($this->url == Mll::app()->config->params('rule_url')) {
+        if ($this->options[CURLOPT_URL] == RULE_URL) {
             $message = '规则调用';
             $log_type = LOG_TYPE_RULE;
+            $ruleParam = json_decode($this->options[CURLOPT_POSTFIELDS], true);
+            $url = isset($ruleParam['serviceName']) ? $ruleParam['serviceName'] : $this->options[CURLOPT_URL];
+            $requestParams = !empty($ruleParam) ? $ruleParam : '';
         } else {
             $message = 'curl';
             $log_type = LOG_TYPE_CURL;
+            $url = $this->options[CURLOPT_URL];
+            $requestParams = isset($this->options[CURLOPT_POSTFIELDS]) ? $this->options[CURLOPT_POSTFIELDS] : '';
         }
 
         $this->httpErrorMessage = '';
@@ -402,13 +406,13 @@ class Curl
 
         Mll::app()->log->log($level, $message, array(
             'traceId' => $trace_id,
-            'url' => $this->url,
+            'url' => $url,
             'method' => isset($this->options[CURLOPT_CUSTOMREQUEST]) ? $this->options[CURLOPT_CUSTOMREQUEST] : '',
             'execTime' => self::getMicroTime() - $startTime,
             'timeout' => isset($this->options[CURLOPT_TIMEOUT]) ? $this->options[CURLOPT_TIMEOUT] : '',
             'useMemory' => '',
             'requestHeaders' => isset($this->requestHeaders->data) ? $this->requestHeaders->data : '',
-            'requestParams' => isset($this->options[CURLOPT_POSTFIELDS]) ? $this->options[CURLOPT_POSTFIELDS] : '',
+            'requestParams' => $requestParams,
             //'responseHeaders' => isset($this->responseHeaders->data) ? $this->responseHeaders->data : '',
             //'response' => $this->response,
             'errorMessage' => $this->errorMessage,

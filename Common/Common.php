@@ -99,11 +99,12 @@ class Common
      *
      * @return string
      */
-    static function BugTrace($args = '') {
+    static function BugTrace($args = '')
+    {
         $ret = debug_backtrace();
         krsort($ret, SORT_NUMERIC);
         $info = array();
-        foreach($ret as $v) {
+        foreach ($ret as $v) {
             $temp = explode('\\', $v['file']);
             $info[] = end($temp) . '::' . $v['class'] . $v['type'] . $v['function'] . "[{$v['line']}]";;
         }
@@ -119,9 +120,32 @@ class Common
      *
      * @return array
      */
-    static function dbErr($msg, $arg = array()) {
+    static function dbErr($msg, $arg = array())
+    {
         $log = self::BugTrace() . print_r($arg, true);
 
-        return ReturnMsg::err($msg.$log);
+        return ReturnMsg::err($msg . $log);
+    }
+
+    /**
+     * 递归方式的对变量中的特殊字符进行转义
+     *
+     * @param $value
+     * @return array|mixed|string
+     * @throws \Exception
+     */
+    public static function addslashes_deep($value)
+    {
+        if (empty($value)) {
+            return $value;
+        } else {
+            $value = str_ireplace('script>', ' ', $value);
+            $value = str_replace('<', '&lt;', $value);
+            $value = str_replace('>', '&gt;', $value);
+            if (preg_match('/SELECT.*FROM|UPDATE.*SET|DELETE.*FROM|UNION.*SELECT|SLEEP\s*\(|DROP\s*TABLE|DROP\s*DATABASE|CREATE\s*TABLE|CREATE\s*DATABASE|TRUNCATE|ALERT\s*TABLE|ALERT\s*DATABASE|SHOW\s*TABLE|SHOW\s*DATABASE|INSERT.*INTO|REPLACE.*INTO|BENCHMARK\s*\(/i', $value)) {
+                throw new \Exception('invalid params');
+            }
+            return addslashes($value);
+        }
     }
 }
