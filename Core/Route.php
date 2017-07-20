@@ -3,6 +3,7 @@
 namespace Mll\Core;
 
 use Mll\Cache;
+use Mll\Exception\HttpException;
 use Mll\Mll;
 use Mll\Response\Response;
 use Mll\Controller\IController;
@@ -28,7 +29,7 @@ class Route
         $className = 'app\\' . $request->getModule() . '\\controller\\'
             . $request->getController();
         if (!class_exists($className)) {
-            throw new \Exception("class {$className} not found");
+            throw new HttpException("class {$className} not found");
         }
         $class = Container::getInstance($className);
 
@@ -57,7 +58,7 @@ class Route
             $action = $request->getAction();
             if ($class->beforeAction()) {
                 if (!method_exists($class, $action)) {
-                    throw new \Exception('method error');
+                    throw new HttpException('method error');
                 }
                 $view = $class->$action();
                 $class->afterAction();

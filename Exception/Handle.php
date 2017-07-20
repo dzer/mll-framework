@@ -20,7 +20,7 @@ class Handle
      * @var array
      */
     protected $ignoreReport = [
-
+        '\\HttpException'
     ];
 
     /**

@@ -33,6 +33,10 @@ class Rpc implements IServer
      */
     public function api($pathInfo, $params)
     {
+        if (!empty($_POST)) {
+            //移除body开头yar自定义的Yar Header
+            array_shift($_POST);
+        }
         $method = strtolower(isset($params['method']) ? $params['method'] : 'GET');
         if ($method == 'get') {
             $_GET = array_merge($_GET, $params['param']);

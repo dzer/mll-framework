@@ -98,22 +98,23 @@ class Yar implements IRpc
         ];
         $startTime = Common::getMicroTime();
         $errorMessage = '';
+
         try {
             $rs = $this->client->api($url, $params);
-            try {
-                $arr = json_decode($rs, true);
-                $rs = (json_last_error() == JSON_ERROR_NONE) ? $arr : $rs;
-            } catch (\Exception $e) {
-
-            }
+            $arr = json_decode($rs, true);
+            $rs = (json_last_error() == JSON_ERROR_NONE) ? $arr : $rs;
+            $responseCode = http_response_code();
         } catch (\Exception $e) {
             $rs = false;
             $errorMessage = $e->getMessage();
+            $responseCode = strpos($errorMessage, "code '500'") !== false ? 500 : 200;
         }
+
         $level = !empty($errorMessage) ? 'error' : 'info';
         Mll::app()->log->log($level, 'rpc调用', array(
             'traceId' => $traceId,
             'url' => $this->config['host'] . ' (' . $url . ')',
+            'responseCode' => $responseCode,
             'method' => $method,
             'execTime' => Common::getMicroTime() - $startTime,
             'useMemory' => '',

@@ -88,6 +88,7 @@ class Error
      */
     public static function appShutdown()
     {
+
         $errorMessage = '';
         if (!is_null($error = error_get_last()) && self::isFatal($error['type'])) {
             // 将错误信息托管至 Mll\Exception\ErrorException
@@ -97,7 +98,6 @@ class Error
             self::appException($exception);
         }
         $level = !empty($codeMsg) ? strtolower($codeMsg) : 'info';
-
         $xhprof_data = null;
         if (Mll::app()->config->get('xhprof.enable', false)
             && function_exists('xhprof_disable')
@@ -105,9 +105,11 @@ class Error
             $xhprof_data = xhprof_disable();
         }
         $request = Mll::app()->request;
+
         Mll::app()->log->log($level, '请求', array(
             'traceId' => $request->getTraceId(true),
             'url' => $request->getUrl(true),
+            'responseCode' => http_response_code(),
             'method' => $request->method(true),
             'execTime' => Common::getMicroTime() - Common::getMicroTime(MLL_BEGIN_TIME),
             'timeout' => '',

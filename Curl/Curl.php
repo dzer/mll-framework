@@ -403,10 +403,10 @@ class Curl
         $this->errorMessage = $this->curlError ? $this->curlErrorMessage : $this->httpErrorMessage;
 
         $level = !empty($this->errorMessage) ? 'error' : 'info';
-
         Mll::app()->log->log($level, $message, array(
             'traceId' => $trace_id,
             'url' => $url,
+            'responseCode' => $this->httpStatusCode,
             'method' => isset($this->options[CURLOPT_CUSTOMREQUEST]) ? $this->options[CURLOPT_CUSTOMREQUEST] : '',
             'execTime' => self::getMicroTime() - $startTime,
             'timeout' => isset($this->options[CURLOPT_TIMEOUT]) ? $this->options[CURLOPT_TIMEOUT] : '',
