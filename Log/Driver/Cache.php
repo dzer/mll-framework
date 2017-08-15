@@ -64,7 +64,8 @@ class Cache extends Base implements ILog
         $this->logs[$level][] = array(
             'time' => $now,
             'microtime' => microtime(true),
-            'server' => $_SERVER['REMOTE_ADDR'],
+            'server' => $_SERVER['SERVER_ADDR'],
+            'client' => $_SERVER['REMOTE_ADDR'],
             'level' => $level,
             'type' => $type,
             'requestId' => Mll::app()->request->getRequestId(),

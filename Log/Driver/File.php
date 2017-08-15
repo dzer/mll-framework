@@ -57,16 +57,27 @@ class File extends Base implements ILog
             return false;
         }
 
-        $now = date($this->config['time_format']);
-        $separator = $this->config['separator'];
+        //$now = date($this->config['time_format']);
+        /*$separator = $this->config['separator'];
         $logStr = $now . $separator . $level . $separator . $type . $separator . $message;
         if (!empty($context)) {
-            /*$logStr .= $separator . implode($separator, array_map(function ($value) {
-                    return json_encode($value, JSON_UNESCAPED_UNICODE);
-            }, $context));*/
             $logStr .= $separator .  json_encode($context, JSON_UNESCAPED_UNICODE);
         }
-        $this->logs[$level][] = $logStr;
+        $this->logs[$level][] = $logStr;*/
+        if (!isset($context['traceId'])) {
+            $context['traceId'] = Mll::app()->request->getTraceId();
+        }
+        $this->logs[$level][] = json_encode(array(
+            'time' => date($this->config['time_format']),
+            'microtime' => microtime(true),
+            'server' => $_SERVER['SERVER_ADDR'],
+            'client' => $_SERVER['REMOTE_ADDR'],
+            'level' => $level,
+            'type' => $type,
+            'requestId' => Mll::app()->request->getRequestId(),
+            'message' => $message,
+            'content' => $context
+        ), JSON_UNESCAPED_UNICODE);
 
         return true;
     }
@@ -87,14 +98,15 @@ class File extends Base implements ILog
         !is_dir($path) && mkdir($path, 0755, true);
 
         //检测日志文件大小，超过配置大小则备份日志文件重新生成
-        if (is_file($destination) && floor($this->config['file_size']) <= filesize($destination)) {
+        /*if (is_file($destination) && floor($this->config['file_size']) <= filesize($destination)) {
             rename($destination, dirname($destination) . DS . $_SERVER['REQUEST_TIME'] . '-' . basename($destination));
-        }
+        }*/
         $allowLevel = explode(',', $this->config['level']);
         foreach ($this->logs as $level => $val) {
             if (in_array('all', $allowLevel) || in_array($val['level'], $allowLevel)) {
                 // 独立记录的日志级别
-                $filename = $path . DS . date('d') . '_' . $level . '.log';
+                //$filename = $path . DS . date('d') . '_' . $level . '.log';
+                $filename = $path . DS . date('d') . '.log';
                 error_log(implode("\r\n", $val) . "\r\n", 3, $filename);
             }
         }

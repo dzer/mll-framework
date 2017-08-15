@@ -88,7 +88,6 @@ class Error
      */
     public static function appShutdown()
     {
-
         $errorMessage = '';
         if (!is_null($error = error_get_last()) && self::isFatal($error['type'])) {
             // 将错误信息托管至 Mll\Exception\ErrorException
