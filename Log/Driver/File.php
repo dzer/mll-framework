@@ -70,8 +70,8 @@ class File extends Base implements ILog
         $this->logs[$level][] = json_encode(array(
             'time' => date($this->config['time_format']),
             'microtime' => microtime(true),
-            'server' => $_SERVER['SERVER_ADDR'],
-            'client' => $_SERVER['REMOTE_ADDR'],
+            'server' => isset($_SERVER['SERVER_ADDR']) ? $_SERVER['SERVER_ADDR'] : '',
+            'client' => isset($_SERVER['REMOTE_ADDR']) ? $_SERVER['REMOTE_ADDR'] : '',
             'level' => $level,
             'type' => $type,
             'requestId' => Mll::app()->request->getRequestId(),

@@ -80,6 +80,11 @@ defined('LOG_TYPE_CURL') or define('LOG_TYPE_CURL', 'CURL');
 defined('LOG_TYPE_RPC') or define('LOG_TYPE_RPC', 'RPC');
 
 /*
+ * MYSQL日志类型
+ */
+defined('LOG_TYPE_MYSQL') or define('LOG_TYPE_MYSQL', 'MYSQL');
+
+/*
  * 普通日志类型
  */
 defined('LOG_TYPE_GENERAL') or define('LOG_TYPE_GENERAL', 'GENERAL');

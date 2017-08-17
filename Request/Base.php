@@ -836,7 +836,7 @@ abstract class Base implements IRequest
         if (true === $method) {
             // 获取原始请求类型
             return isset($this->server['REQUEST_METHOD']) ?
-                $this->server['REQUEST_METHOD'] : $_SERVER['REQUEST_METHOD'];
+                $this->server['REQUEST_METHOD'] : (isset($_SERVER['REQUEST_METHOD']) ? $_SERVER['REQUEST_METHOD'] : '');
         } elseif (!$this->method) {
             if (isset($_POST[$this->config['var_method']])) {
                 $this->method = strtoupper($_POST[$this->config['var_method']]);
@@ -879,15 +879,13 @@ abstract class Base implements IRequest
      */
     public function getPathInfo()
     {
-        if ($this->pathInfo === null) {
-            $this->pathInfo = $this->resolvePathInfo();
-        }
-
         if (isset($_GET[$this->config['path_info_var']])) {
             $this->pathInfo = $_GET[$this->config['path_info_var']];
             unset($_GET[$this->config['path_info_var']]);
         }
-
+        if ($this->pathInfo === null) {
+            $this->pathInfo = $this->resolvePathInfo();
+        }
         return $this->pathInfo;
     }
 
