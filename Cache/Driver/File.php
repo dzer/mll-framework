@@ -155,8 +155,7 @@ class File extends Base implements ICache
             $data = gzcompress($data, 3);
         }
         $data   = "<?php\n//" . sprintf('%012d', $expire) . $data . "\n?>";
-        echo $filename;
-        $result = file_put_contents($filename, $data);
+        $result = file_put_contents($filename, $data, LOCK_EX);
         if ($result) {
             isset($first) && $this->setTagItem($filename);
             clearstatcache();

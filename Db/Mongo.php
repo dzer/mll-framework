@@ -26,13 +26,17 @@ class Mongo
      */
     private $collection; //集合，相当于数据表
 
+    private $query;
+
     private $config = [
-        'dsn' => 'mongodb://192.168.2.214:27017', //服务器地址
-        'option' => [
-            'connect' => true, //参数
-            'db_name' => 'system_log', //数据库名称
-            'username' => '', //数据库用户名
-            'password' => '', //数据库密码
+        'host' => '192.168.0.104:27017', //服务器地址
+        'database' => 'system_log', //数据库名称
+        'username' => '', //数据库用户名
+        'password' => '', //数据库密码
+        'options' => [
+            'connectTimeoutMS' => 2000,
+            'socketTimeoutMSG' => 3000,
+            'readPreference'   => \MongoDB\Driver\ReadPreference::RP_SECONDARY_PREFERRED
         ]
     ];
 
@@ -58,7 +62,11 @@ class Mongo
             if (!empty($config['options'])) {
                 $options = $config['options'];
             }
-            $this->mongo = new \MongoClient($config['dsn'], $options);
+            $host = 'mongodb://' . ($config['username'] ? "{$config['username']}" : '')
+                . ($config['password'] ? ":{$config['password']}@" : '')
+                . $config['host'] . '/' . ($config['database'] ? "{$config['database']}" : '');
+            $this->mongo = new \MongoDB\Driver\Manager($host, $options);
+            $this->db = $config['database'];
         }
         return $this->mongo;
     }
@@ -71,7 +79,7 @@ class Mongo
      */
     public function setDBName($dbName)
     {
-        $this->db = $this->mongo->selectDB($dbName);
+        $this->db = $dbName;
         return $this;
     }
 
@@ -84,7 +92,7 @@ class Mongo
      */
     public function selectCollection($collection)
     {
-        $this->collection = $this->db->selectCollection($collection);
+        $this->collection = $collection;
         return $this;
     }
 
@@ -107,9 +115,18 @@ class Mongo
      * @param array $option 参数
      * @return mixed
      */
-    public function batchInsert($data, $option = array())
+    public function batchInsert($data)
     {
-        return $this->collection->batchInsert($data, $option);
+        if (empty($data)) {
+            return false;
+        }
+        $bulk = new \MongoDB\Driver\BulkWrite();
+        foreach ($data as $v) {
+            $bulk->insert($v);
+        }
+        $writeConcern = new \MongoDB\Driver\WriteConcern(\MongoDB\Driver\WriteConcern::MAJORITY, 5000);
+        $result = $this->mongo->executeBulkWrite("{$this->db}.{$this->collection}", $bulk, $writeConcern);
+        return $result->getInsertedCount();
     }
 
     /**
@@ -158,7 +175,14 @@ class Mongo
      */
     public function findOne($query, $fields = array())
     {
-        return $this->collection->findOne($query, $fields);
+        $options = [
+            'projection' => $fields,
+            'fields' => $fields
+        ];
+
+        $query = new \MongoDB\Driver\Query($query, $options);
+        $cursor = $this->mongo->executeQuery("{$this->db}.{$this->collection}", $query);
+        return $cursor->toArray();
     }
 
     /**
@@ -173,15 +197,18 @@ class Mongo
      */
     public function find($query = array(), $sort = array(), $skip = 0, $limit = 0, $fields = array())
     {
-        $cursor = $this->collection->find($query, $fields);
-        $count = $cursor->count();
-        if (empty($count)) {
-            return array();
-        }
-        if ($sort) $cursor->sort($sort);
-        if ($skip) $cursor->skip($skip);
-        if ($limit) $cursor->limit($limit);
-        return iterator_to_array($cursor);
+        $options = [
+            'projection' => $fields,
+            'sort' => $sort,
+            'skip' => $skip,
+            'limit' => $limit,
+            'fields' => $fields
+        ];
+
+        $query = new \MongoDB\Driver\Query($query, $options);
+        $readPreference = new \MongoDB\Driver\ReadPreference(\MongoDB\Driver\ReadPreference::RP_SECONDARY_PREFERRED);
+        $cursor = $this->mongo->executeQuery("{$this->db}.{$this->collection}", $query, $readPreference);
+        return $cursor->toArray();
     }
 
     /**
@@ -200,9 +227,27 @@ class Mongo
      *
      * @return int
      */
-    public function count()
+    public function count($query = array())
     {
-        return $this->collection->count();
+
+        $commands = [
+            'count' => "{$this->collection}",
+            'query' => $query,
+        ];
+        $command = new \MongoDB\Driver\Command($commands);
+        $cursor = $this->mongo->executeCommand("{$this->db}", $command);
+        return !empty($cursor) ? $cursor->toArray()[0]->n : false;
+    }
+
+    /**
+     * 执行命令
+     *
+     * @return array|object
+     */
+    public function executeCommand($command = array())
+    {
+        $cursor = $this->mongo->executeCommand("{$this->db}", new \MongoDB\Driver\Command($command));
+        return $cursor->toArray();
     }
 
     /**
@@ -210,7 +255,7 @@ class Mongo
      *
      * @return array
      */
-    public function error()
+    public function error($query = array())
     {
         return $this->db->lastError();
     }
@@ -237,9 +282,6 @@ class Mongo
 
     public function __destruct()
     {
-        $connections = $this->mongo->getConnections();
-        foreach ((array)$connections as $con) {
-            $this->mongo->close($con['hash']);
-        }
+        $this->mongo = null;
     }
 }
