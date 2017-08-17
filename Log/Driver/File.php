@@ -86,6 +86,7 @@ class File extends Base implements ILog
      * 日志写入接口.
      *
      * @return bool
+     * @throws \Exception
      */
     public function save()
     {
@@ -101,15 +102,28 @@ class File extends Base implements ILog
         /*if (is_file($destination) && floor($this->config['file_size']) <= filesize($destination)) {
             rename($destination, dirname($destination) . DS . $_SERVER['REQUEST_TIME'] . '-' . basename($destination));
         }*/
+        // 独立记录的日志级别
+        //$filename = $path . DS . date('d') . '_' . $level . '.log';
         $allowLevel = explode(',', $this->config['level']);
+        $logs = '';
         foreach ($this->logs as $level => $val) {
             if (in_array('all', $allowLevel) || in_array($val['level'], $allowLevel)) {
-                // 独立记录的日志级别
-                //$filename = $path . DS . date('d') . '_' . $level . '.log';
-                $filename = $path . DS . date('d') . '.log';
-                error_log(implode("\r\n", $val) . "\r\n", 3, $filename);
+                $logs .= implode("\r\n", $val) . "\r\n";
             }
         }
+        if (($fp = @fopen($destination, 'a')) === false) {
+            throw new \Exception("Unable to append to log file: {$destination}");
+        }
+        for ($i = 5; $i > 0; $i--) {
+            if (@flock($fp, LOCK_EX)) {
+                clearstatcache();
+                @fwrite($fp, $logs);
+                @flock($fp, LOCK_UN);
+                break;
+            }
+        }
+        @fclose($fp);
+        //error_log($logs, 3, $filename);
         $this->logs = null;
         return true;
     }
