@@ -29,13 +29,13 @@ class Route
         $className = 'app\\' . $request->getModule() . '\\controller\\'
             . $request->getController();
         if (!class_exists($className)) {
-            throw new HttpException("class {$className} not found");
+            throw new HttpException(404, "class {$className} not found");
         }
         $class = Container::getInstance($className);
 
         try {
             if (!($class instanceof IController)) {
-                throw new \Exception('ctrl error');
+                throw new HttpException(404, 'ctrl error');
             }
             $cacheKey = '';
             //判断是否走缓存
@@ -58,7 +58,7 @@ class Route
             $action = $request->getAction();
             if ($class->beforeAction()) {
                 if (!method_exists($class, $action)) {
-                    throw new HttpException('method error');
+                    throw new HttpException(404,'method not found');
                 }
                 $view = $class->$action();
                 $class->afterAction();

@@ -411,7 +411,7 @@ class Curl
             'execTime' => self::getMicroTime() - $startTime,
             'timeout' => isset($this->options[CURLOPT_TIMEOUT]) ? $this->options[CURLOPT_TIMEOUT] : '',
             'useMemory' => '',
-            'requestHeaders' => isset($this->requestHeaders->data) ? $this->requestHeaders->data : '',
+            'requestHeaders' => '',//isset($this->requestHeaders->data) ? $this->requestHeaders->data : '',
             'requestParams' => $requestParams,
             //'responseHeaders' => isset($this->responseHeaders->data) ? $this->responseHeaders->data : '',
             //'response' => $this->response,

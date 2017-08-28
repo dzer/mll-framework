@@ -43,18 +43,27 @@ class Error
         //$outData['echo'] = ob_get_clean();
         ob_start();
         // 判断请求头的content_type=json或者是ajax请求就返回json
+        $headers = [];
+        if ($e instanceof HttpException) {
+            $statusCode = $e->getStatusCode();
+            $headers = $e->getHeaders();
+        }
+        if (!isset($statusCode)) {
+            $statusCode = 500;
+        }
         if ((isset($_SERVER['CONTENT_TYPE']) && $_SERVER['CONTENT_TYPE'] == 'application/json') || self::isAjax()) {
-            echo json_encode($outData);
+            $type = 'json';
         } else {
             extract((array)$outData);
             $tpl = Mll::app()->config->get('exception.template', __DIR__ . '/Template/mllExceptionTpl.php');
             if (file_exists($tpl)) {
                 include $tpl;
             }
-            $content = ob_get_clean();
-            http_response_code(500);
-            echo $content;
+            // 获取并清空缓存
+            $outData  = ob_get_clean();
+            $type = 'view';
         }
+        Response::create($outData, $type, $statusCode, $headers)->send();
         // 提高页面响应
         if (function_exists('fastcgi_finish_request')) {
             fastcgi_finish_request();
@@ -113,7 +122,7 @@ class Error
             'execTime' => Common::getMicroTime() - Common::getMicroTime(MLL_BEGIN_TIME),
             'timeout' => '',
             'useMemory' => memory_get_usage() - MLL_BEGIN_MEMORY,
-            'requestHeaders' => $request->header(),
+            'requestHeaders' => '', //$request->header(),
             'requestParams' => $request->param(),
             'errorMessage' => $errorMessage,
             'xhprof' => $xhprof_data,
