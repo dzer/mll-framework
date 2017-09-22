@@ -32,6 +32,9 @@ class Error
      */
     public static function appException($e)
     {
+        if (!$e instanceof \Exception) {
+            $e = new ThrowableError($e);
+        }
         self::getExceptionHandler()->report($e);
         while (ob_get_level() > 1) {
             ob_end_clean();
@@ -43,18 +46,27 @@ class Error
         //$outData['echo'] = ob_get_clean();
         ob_start();
         // 判断请求头的content_type=json或者是ajax请求就返回json
+        $headers = [];
+        if ($e instanceof HttpException) {
+            $statusCode = $e->getStatusCode();
+            $headers = $e->getHeaders();
+        }
+        if (!isset($statusCode)) {
+            $statusCode = 500;
+        }
         if ((isset($_SERVER['CONTENT_TYPE']) && $_SERVER['CONTENT_TYPE'] == 'application/json') || self::isAjax()) {
-            echo json_encode($outData);
+            $type = 'json';
         } else {
             extract((array)$outData);
             $tpl = Mll::app()->config->get('exception.template', __DIR__ . '/Template/mllExceptionTpl.php');
             if (file_exists($tpl)) {
                 include $tpl;
             }
-            $content = ob_get_clean();
-            http_response_code(500);
-            echo $content;
+            // 获取并清空缓存
+            $outData  = ob_get_clean();
+            $type = 'view';
         }
+        Response::create($outData, $type, $statusCode, $headers)->send();
         // 提高页面响应
         if (function_exists('fastcgi_finish_request')) {
             fastcgi_finish_request();
@@ -96,7 +108,11 @@ class Error
             $errorMessage = "[{$error['type']}] {$codeMsg} {$error['message']}[{$error['file']}:{$error['line']}]";
             self::appException($exception);
         }
+        $responseCode = http_response_code();
         $level = !empty($codeMsg) ? strtolower($codeMsg) : 'info';
+        if ($responseCode > 400) {
+            $level = 'error';
+        }
         $xhprof_data = null;
         if (Mll::app()->config->get('xhprof.enable', false)
             && function_exists('xhprof_disable')
@@ -108,12 +124,12 @@ class Error
         Mll::app()->log->log($level, '请求', array(
             'traceId' => $request->getTraceId(true),
             'url' => $request->getUrl(true),
-            'responseCode' => http_response_code(),
+            'responseCode' => $responseCode,
             'method' => $request->method(true),
             'execTime' => Common::getMicroTime() - Common::getMicroTime(MLL_BEGIN_TIME),
             'timeout' => '',
             'useMemory' => memory_get_usage() - MLL_BEGIN_MEMORY,
-            'requestHeaders' => $request->header(),
+            'requestHeaders' => '', //$request->header(),
             'requestParams' => $request->param(),
             'errorMessage' => $errorMessage,
             'xhprof' => $xhprof_data,
@@ -132,7 +148,7 @@ class Error
      */
     protected static function isFatal($type)
     {
-        return in_array($type, [E_ERROR, E_CORE_ERROR, E_COMPILE_ERROR, E_PARSE]);
+        return in_array($type, [E_ERROR, E_CORE_ERROR, E_COMPILE_ERROR, E_PARSE, E_USER_ERROR, E_RECOVERABLE_ERROR]);
     }
 
     /**

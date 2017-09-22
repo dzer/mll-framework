@@ -26,10 +26,10 @@ class Handle
     /**
      * 报告和记录异常.
      *
-     * @param \Exception $exception
-     * @return string
+     * @param \Exception | \Error $exception
+     * @return string|null
      */
-    public function report(Exception $exception)
+    public function report($exception)
     {
         if (!$this->isIgnoreReport($exception)) {
             // 收集异常数据
@@ -38,7 +38,6 @@ class Handle
                 'line' => $exception->getLine(),
                 'message' => $this->getMessage($exception),
                 'code' => $this->getCode($exception),
-
             ];
             $codeMsg = $this->getCodeMsg($data['code']);
             $log = "[{$data['code']}] {$codeMsg} {$data['message']}[{$data['file']}:{$data['line']}]";
@@ -46,15 +45,17 @@ class Handle
             Mll::app()->log->log($logLevel, $log, [], LOG_TYPE_SYSTEM);
             return $log;
         }
+        return null;
     }
 
     public function getCodeMsg($code)
     {
-        if (in_array($code, [E_ERROR, E_CORE_ERROR, E_COMPILE_ERROR, E_PARSE])) {
+        if (in_array($code, [E_ERROR, E_CORE_ERROR, E_COMPILE_ERROR, E_PARSE, E_USER_ERROR, E_RECOVERABLE_ERROR])) {
             return 'ERROR';
         }
 
-        if (in_array($code, [E_WARNING, E_CORE_WARNING, E_COMPILE_WARNING, E_USER_WARNING])) {
+        if (in_array($code, [E_WARNING, E_CORE_WARNING, E_COMPILE_WARNING, E_USER_WARNING,
+            E_DEPRECATED, E_USER_DEPRECATED])) {
             return 'WARNING';
         }
 
@@ -67,11 +68,11 @@ class Handle
     /**
      * 判断是否忽略异常.
      *
-     * @param Exception $exception
+     * @param \Exception | \Error $exception
      *
      * @return bool
      */
-    protected function isIgnoreReport(Exception $exception)
+    protected function isIgnoreReport($exception)
     {
         foreach ($this->ignoreReport as $class) {
             if ($exception instanceof $class) {
@@ -85,11 +86,11 @@ class Handle
     /**
      * 将异常呈现为HTTP响应.
      *
-     * @param \Exception $e
+     * @param \Exception | \Error $e
      *
      * @return array
      */
-    public function render(Exception $e)
+    public function render($e)
     {
         return $this->convertExceptionToResponse($e);
     }
@@ -97,11 +98,11 @@ class Handle
     /**
      * 将异常格式化响应数据.
      *
-     * @param Exception $exception
+     * @param \Exception | \Error $exception
      *
      * @return mixed
      */
-    protected function convertExceptionToResponse(Exception $exception)
+    protected function convertExceptionToResponse($exception)
     {
         // 收集异常数据
         if (Mll::$debug) {
@@ -147,14 +148,14 @@ class Handle
      * 获取错误编码
      * ErrorException则使用错误级别作为错误编码
      *
-     * @param \Exception $exception
+     * @param \Exception | \Error $exception
      *
      * @return int 错误编码
      */
-    protected function getCode(Exception $exception)
+    protected function getCode($exception)
     {
         $code = $exception->getCode();
-        if (!$code && $exception instanceof ErrorException) {
+        if (!$code && ($exception instanceof ErrorException || $exception instanceof ThrowableError)) {
             $code = $exception->getSeverity();
         }
         return $code;
@@ -164,11 +165,11 @@ class Handle
      * 获取错误信息
      * ErrorException则使用错误级别作为错误编码
      *
-     * @param \Exception $exception
+     * @param \Exception | \Error $exception
      *
      * @return string 错误信息
      */
-    protected function getMessage(Exception $exception)
+    protected function getMessage($exception)
     {
         $message = $exception->getMessage();
 
@@ -179,11 +180,11 @@ class Handle
      * 获取出错文件内容
      * 获取错误的前9行和后9行.
      *
-     * @param \Exception $exception
+     * @param \Exception | \Error $exception
      *
      * @return array 错误文件内容
      */
-    protected function getSourceCode(Exception $exception)
+    protected function getSourceCode($exception)
     {
         // 读取前9行和后9行
         $line = $exception->getLine();

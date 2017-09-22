@@ -5,7 +5,6 @@ namespace Mll\Cache\Driver;
 use Mll\Cache\Base;
 use Mll\Cache\ICache;
 
-
 /**
  * memcache缓存
  *
@@ -17,12 +16,12 @@ class Memcache extends Base implements ICache
 {
     protected $handler = null;
     protected $options = [
-        'host'       => '127.0.0.1',
-        'port'       => 11211,
-        'expire'     => 0,
-        'timeout'    => 0, // 超时时间（单位：毫秒）
+        'host' => '127.0.0.1',
+        'port' => 11211,
+        'expire' => 0,
+        'timeout' => 0, // 超时时间（单位：毫秒）
         'persistent' => true,
-        'prefix'     => '',
+        'prefix' => '',
     ];
 
     /**
@@ -35,13 +34,13 @@ class Memcache extends Base implements ICache
      */
     public function __construct($options = [])
     {
-        if (!extension_loaded('memcache')) {
-            throw new \BadFunctionCallException('not support: memcache');
+        if (!extension_loaded('memcached')) {
+            throw new \BadFunctionCallException('not support: memcached');
         }
         if (!empty($options)) {
             $this->options = array_merge($this->options, $options);
         }
-        $this->handler = new \Memcache;
+        $this->handler = new \Memcached;
         // 支持集群
         $hosts = explode(',', $this->options['host']);
         $ports = explode(',', $this->options['port']);
@@ -49,11 +48,9 @@ class Memcache extends Base implements ICache
             $ports[0] = 11211;
         }
         // 建立连接
-        foreach ((array) $hosts as $i => $host) {
+        foreach ((array)$hosts as $i => $host) {
             $port = isset($ports[$i]) ? $ports[$i] : $ports[0];
-            $this->options['timeout'] > 0 ?
-            $this->handler->addServer($host, $port, $this->options['persistent'], 1, $this->options['timeout']) :
-            $this->handler->addServer($host, $port, $this->options['persistent'], 1);
+            $this->handler->addServer($host, $port, 1);
         }
     }
 
@@ -76,7 +73,7 @@ class Memcache extends Base implements ICache
      *
      * @access public
      * @param string $name 缓存变量名
-     * @param mixed  $default 默认值
+     * @param mixed $default 默认值
      *
      * @return mixed
      */
@@ -90,9 +87,9 @@ class Memcache extends Base implements ICache
      * 写入缓存
      *
      * @access public
-     * @param string    $name 缓存变量名
-     * @param mixed     $value  存储数据
-     * @param integer   $expire  有效时间（秒）
+     * @param string $name 缓存变量名
+     * @param mixed $value 存储数据
+     * @param integer $expire 有效时间（秒）
      *
      * @return bool
      */
@@ -105,7 +102,7 @@ class Memcache extends Base implements ICache
             $first = true;
         }
         $key = $this->getCacheKey($name);
-        if ($this->handler->set($key, $value, 0, $expire)) {
+        if ($this->handler->set($key, $value, $expire)) {
             isset($first) && $this->setTagItem($key);
             return true;
         }
@@ -116,8 +113,8 @@ class Memcache extends Base implements ICache
      * 自增缓存（针对数值缓存）
      *
      * @access public
-     * @param string    $name 缓存变量名
-     * @param int       $step 步长
+     * @param string $name 缓存变量名
+     * @param int $step 步长
      *
      * @return false|int
      */
@@ -131,16 +128,16 @@ class Memcache extends Base implements ICache
      * 自减缓存（针对数值缓存）
      *
      * @access public
-     * @param string    $name 缓存变量名
-     * @param int       $step 步长
+     * @param string $name 缓存变量名
+     * @param int $step 步长
      *
      * @return false|int
      */
     public function dec($name, $step = 1)
     {
-        $key   = $this->getCacheKey($name);
+        $key = $this->getCacheKey($name);
         $value = $this->handler->get($key) - $step;
-        $res   = $this->handler->set($key, $value);
+        $res = $this->handler->set($key, $value);
         if (!$res) {
             return false;
         } else {
@@ -151,17 +148,15 @@ class Memcache extends Base implements ICache
     /**
      * 删除缓存
      *
-     * @param    string  $name 缓存变量名
-     * @param bool|false $ttl
+     * @param string $name 缓存变量名
+     * @param integer $time 服务端等待删除该元素的总时间
      *
      * @return bool
      */
-    public function rm($name, $ttl = false)
+    public function rm($name, $time = 0)
     {
         $key = $this->getCacheKey($name);
-        return false === $ttl ?
-        $this->handler->delete($key) :
-        $this->handler->delete($key, $ttl);
+        return $this->handler->delete($key, $time);
     }
 
     /**

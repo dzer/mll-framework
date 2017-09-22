@@ -4,7 +4,6 @@ namespace Mll\Common;
 
 use Mll\Cache;
 use Mll\Mll;
-use Mll\Exception;
 use Mll\Curl\Curl;
 
 /**
@@ -48,6 +47,7 @@ class Rule
         }
         return ReturnMsg::ret($result['rows']);
     }
+
     /**
      * 抛出异常
      *
@@ -55,20 +55,26 @@ class Rule
      *
      * @throws \ErrorException
      */
-    public static function throwMst($msg){
+    public static function throwMst($msg)
+    {
         throw new \ErrorException($msg);
     }
+
     /**
      * 查询需要记录日志的规则
      *
      * @return mixed
      */
-    private static function _getSaveLogRuleMethod() {
-        if(!empty(self::$ruleMethodSave)) { return self::$ruleMethodSave; }
+    protected static function getSaveLogRuleMethod()
+    {
+        if (!empty(self::$ruleMethodSave)) {
+            return self::$ruleMethodSave;
+        }
         $var = 'rule_method_save';
         $info = self::getDBVariableFromRule($var);
         return self::$ruleMethodSave = empty($info) ? 'NO_HAVE_RULE_SAVE_LOG' : $info;
     }
+
     /**
      * 取系统变量
      *
@@ -76,15 +82,15 @@ class Rule
      *
      * @return mixed
      */
-    static function getDBVariableFromRule($info = array())
+    public static function getDBVariableFromRule($info = array())
     {
-        if(empty($info)) {
+        if (empty($info)) {
             return false;
         }
         $data = array(
             'serviceName' => 'Order_BUV1_variabletable',
             'param' => array(
-                'var_name_str' => (string) is_array($info) ? "'" . implode("','", $info) . "'" : "'{$info}'",
+                'var_name_str' => (string)is_array($info) ? "'" . implode("','", $info) . "'" : "'{$info}'",
             ),
             'needAll' => 1,
         );
@@ -95,16 +101,16 @@ class Rule
             true,
             true
         );
-        if(isset($config_info['code']) && !empty($config_info['code'])) {
+        if (isset($config_info['code']) && !empty($config_info['code'])) {
             return false;
         }
-        if(!is_array($info)) {
+        if (!is_array($info)) {
             return isset($config_info['rows']['0']['var_value']) ? $config_info['rows']['0']['var_value'] : '';
         }
         $ret = array();
-        if(isset($config_info['rows']) && $config_info['rows']){
-            foreach($config_info['rows'] as $v) {
-                if(!isset($v['var_name'])){
+        if (isset($config_info['rows']) && $config_info['rows']) {
+            foreach ($config_info['rows'] as $v) {
+                if (!isset($v['var_name'])) {
                     continue;
                 }
                 $ret[$v['var_name']] = isset($v['var_value']) ? $v['var_value'] : '';
@@ -112,6 +118,7 @@ class Rule
         }
         return $ret;
     }
+
     /**
      * 获取缓存规则名
      *
@@ -119,7 +126,8 @@ class Rule
      *
      * @return string
      */
-    public static function getRuleName($rule_name) {
+    public static function getRuleName($rule_name)
+    {
         if (empty($rule_name)) {
             return false;
         }
@@ -137,6 +145,7 @@ class Rule
         }
         return $rule_name_mem;
     }
+
     /**
      * 获取规则配置
      *
@@ -144,10 +153,11 @@ class Rule
      *
      * @return mixed
      */
-    private static function RuleConfig($rule_name){
-        $data = array (
+    private static function ruleConfig($rule_name)
+    {
+        $data = array(
             'serviceName' => 'BUV1_RuleConfig',
-            'param' => array (
+            'param' => array(
                 'alias_name' => $rule_name
             ),
             'needAll' => 1
@@ -160,6 +170,7 @@ class Rule
             true
         );
     }
+
     /**
      * 获取缓存规则名
      *
@@ -181,8 +192,8 @@ class Rule
         $options = array(
             CURLOPT_URL => $url,
             CURLOPT_HEADER => 0,
-            CURLOPT_RETURNTRANSFER => TRUE,
-            CURLOPT_FOLLOWLOCATION => TRUE,
+            CURLOPT_RETURNTRANSFER => true,
+            CURLOPT_FOLLOWLOCATION => true,
         );
         if (!empty($data)) {
             if ($json) {
@@ -197,7 +208,7 @@ class Rule
         } else {
             $options[CURLOPT_POST] = 0;
         }
-        $options[CURLOPT_NOBODY] = FALSE;
+        $options[CURLOPT_NOBODY] = false;
         $options[CURLOPT_TIMEOUT] = $time;
         $user_name = isset($_SESSION ['admin_name']) ? $_SESSION ['admin_name'] : '';
         if (empty($user_name)) {
@@ -208,16 +219,16 @@ class Rule
         $headers['ruleUri'] = "{$_SERVER["REQUEST_URI"]}&_usernm_={$user_name}";
         $options[CURLOPT_HTTPHEADER] = self::buildHeaderArray($headers);
         $curl->setOpts($options);
-        list ( $s_usec, $s_sec ) = explode(" ", microtime());
+        list ($s_usec, $s_sec) = explode(" ", microtime());
         $result = $curl->exec();
-        list ( $e_usec, $e_sec ) = explode(" ", microtime());
-        $total_time = ( float ) (($e_sec - $s_sec) + ($e_usec - $s_usec));
+        list ($e_usec, $e_sec) = explode(" ", microtime());
+        $total_time = ( float )(($e_sec - $s_sec) + ($e_usec - $s_usec));
         $http_code = $curl->getInfo(CURLINFO_HTTP_CODE);
         if ($for_result) {
             $back_json = json_decode($result, true);
             return $back_json ? $back_json : $result;
         }
-        return array (
+        return array(
             'url' => $url,
             'result' => $result,
             'http_code' => $http_code,
@@ -232,8 +243,9 @@ class Rule
      *
      * @return string
      */
-    private static function buildHeaderArray($headers) {
-        $output = array ();
+    private static function buildHeaderArray($headers)
+    {
+        $output = array();
         foreach ($headers as $key => $header) {
             $output [] = "{$key}:{$header};";
         }

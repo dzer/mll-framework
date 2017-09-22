@@ -74,7 +74,7 @@ class Cache
      *
      * @param string $name 缓存标识 memcache.code
      *
-     * @return \Mll\Cache\Base
+     * @return \Memcache | object
      *
      * @throws \ErrorException
      */
@@ -98,16 +98,16 @@ class Cache
         );
         return self::$handler;
     }
+
     /**
      * 加载缓存配置.
      *
-     * @return array
-     *
      * @throws \ErrorException
      */
-    private static function loadOptions(){
+    private static function loadOptions()
+    {
         self::$options = Mll::app()->config->get('cache');
-        if(empty(self::$options)){
+        if (empty(self::$options)) {
             throw new \ErrorException('cache : no configuration found!');
         }
     }
