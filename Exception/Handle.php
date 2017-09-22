@@ -27,7 +27,7 @@ class Handle
      * 报告和记录异常.
      *
      * @param \Exception | \Error $exception
-     * @return string
+     * @return string|null
      */
     public function report($exception)
     {
@@ -38,7 +38,6 @@ class Handle
                 'line' => $exception->getLine(),
                 'message' => $this->getMessage($exception),
                 'code' => $this->getCode($exception),
-
             ];
             $codeMsg = $this->getCodeMsg($data['code']);
             $log = "[{$data['code']}] {$codeMsg} {$data['message']}[{$data['file']}:{$data['line']}]";
@@ -46,15 +45,17 @@ class Handle
             Mll::app()->log->log($logLevel, $log, [], LOG_TYPE_SYSTEM);
             return $log;
         }
+        return null;
     }
 
     public function getCodeMsg($code)
     {
-        if (in_array($code, [E_ERROR, E_CORE_ERROR, E_COMPILE_ERROR, E_PARSE])) {
+        if (in_array($code, [E_ERROR, E_CORE_ERROR, E_COMPILE_ERROR, E_PARSE, E_USER_ERROR, E_RECOVERABLE_ERROR])) {
             return 'ERROR';
         }
 
-        if (in_array($code, [E_WARNING, E_CORE_WARNING, E_COMPILE_WARNING, E_USER_WARNING])) {
+        if (in_array($code, [E_WARNING, E_CORE_WARNING, E_COMPILE_WARNING, E_USER_WARNING,
+            E_DEPRECATED, E_USER_DEPRECATED])) {
             return 'WARNING';
         }
 
@@ -154,7 +155,7 @@ class Handle
     protected function getCode($exception)
     {
         $code = $exception->getCode();
-        if (!$code && $exception instanceof ErrorException) {
+        if (!$code && ($exception instanceof ErrorException || $exception instanceof ThrowableError)) {
             $code = $exception->getSeverity();
         }
         return $code;

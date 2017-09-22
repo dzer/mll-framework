@@ -32,6 +32,9 @@ class Error
      */
     public static function appException($e)
     {
+        if (!$e instanceof \Exception) {
+            $e = new ThrowableError($e);
+        }
         self::getExceptionHandler()->report($e);
         while (ob_get_level() > 1) {
             ob_end_clean();
@@ -105,7 +108,11 @@ class Error
             $errorMessage = "[{$error['type']}] {$codeMsg} {$error['message']}[{$error['file']}:{$error['line']}]";
             self::appException($exception);
         }
+        $responseCode = http_response_code();
         $level = !empty($codeMsg) ? strtolower($codeMsg) : 'info';
+        if ($responseCode > 400) {
+            $level = 'error';
+        }
         $xhprof_data = null;
         if (Mll::app()->config->get('xhprof.enable', false)
             && function_exists('xhprof_disable')
@@ -117,7 +124,7 @@ class Error
         Mll::app()->log->log($level, '请求', array(
             'traceId' => $request->getTraceId(true),
             'url' => $request->getUrl(true),
-            'responseCode' => http_response_code(),
+            'responseCode' => $responseCode,
             'method' => $request->method(true),
             'execTime' => Common::getMicroTime() - Common::getMicroTime(MLL_BEGIN_TIME),
             'timeout' => '',
@@ -141,7 +148,7 @@ class Error
      */
     protected static function isFatal($type)
     {
-        return in_array($type, [E_ERROR, E_CORE_ERROR, E_COMPILE_ERROR, E_PARSE]);
+        return in_array($type, [E_ERROR, E_CORE_ERROR, E_COMPILE_ERROR, E_PARSE, E_USER_ERROR, E_RECOVERABLE_ERROR]);
     }
 
     /**
