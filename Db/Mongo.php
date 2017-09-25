@@ -14,7 +14,7 @@ use Mll\Mll;
 class Mongo
 {
     /**
-     * @var \Mongo
+     * @var \MongoDB\Driver\Manager
      */
     private $mongo; //mongo对象
     /**
@@ -226,7 +226,7 @@ class Mongo
      */
     public function explain($query)
     {
-        return $this->collection->find($query)->explain();
+        return $this->mongo->executeCommand("{$this->db}.{$this->collection}", $query);
     }
 
     /**

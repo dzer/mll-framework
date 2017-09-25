@@ -99,6 +99,9 @@ class Mll
         //错误注册
         Error::register();
 
+        session_start();
+        //Session::init();
+
         //run server
         Mll::app()->server->run();
     }
