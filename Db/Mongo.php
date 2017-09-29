@@ -221,12 +221,14 @@ class Mongo
     /**
      * 分析查询语句
      *
-     * @param $query
+     * @param array $command 命令
      * @return array
      */
-    public function explain($query)
+    public function explain($command = array())
     {
-        return $this->mongo->executeCommand("{$this->db}.{$this->collection}", $query);
+        $command['explain'] = true;
+        $cursor = $this->mongo->executeCommand("{$this->db}", new \MongoDB\Driver\Command($command));
+        return $cursor->toArray();
     }
 
     /**
@@ -236,7 +238,6 @@ class Mongo
      */
     public function count($query = array())
     {
-
         $commands = [
             'count' => "{$this->collection}",
             'query' => $query,
@@ -249,6 +250,7 @@ class Mongo
     /**
      * 执行命令
      *
+     * @param array $command 命令
      * @return array|object
      */
     public function executeCommand($command = array())

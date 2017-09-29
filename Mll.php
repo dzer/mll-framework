@@ -65,7 +65,7 @@ class Mll
      */
     public function run($serveModel = 'Http')
     {
-        error_reporting(E_ALL);
+        error_reporting(E_ALL & ~E_NOTICE);
 
         self::$serveModel = $serveModel;
         //自动加载
