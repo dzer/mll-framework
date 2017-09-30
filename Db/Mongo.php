@@ -36,7 +36,7 @@ class Mongo
         'options' => [
             'connectTimeoutMS' => 2000,
             'socketTimeoutMSG' => 3000,
-            'readPreference'   => \MongoDB\Driver\ReadPreference::RP_SECONDARY_PREFERRED
+            'readPreference' => \MongoDB\Driver\ReadPreference::RP_SECONDARY_PREFERRED
         ]
     ];
 
@@ -165,12 +165,22 @@ class Mongo
      *
      * @param array $query 条件 例如：array(('title' => '1000'))
      * @param array $data 需要更新的数据 例如：array(0=>array('title' => '1000', 'username' => 'xcxx'))
-     * @param array $option 参数
+     * @param array $option 参数 array('multi' => false, 'upsert' => false)
      * @return bool
      */
     public function update($query, $data, $option = array())
     {
-        return $this->collection->update($query, $data, $option);
+        if (empty($data) || empty($query)) {
+            return false;
+        }
+        $bulk = new \MongoDB\Driver\BulkWrite();
+        $bulk->update(
+            $query,
+            $data,
+            $option
+        );
+        $result = $this->mongo->executeBulkWrite("{$this->db}.{$this->collection}", $bulk);
+        return $result->getMatchedCount() + $result->getUpsertedCount();
     }
 
     /**
