@@ -129,6 +129,7 @@ class Error
             'execTime' => Common::getMicroTime() - Common::getMicroTime(MLL_BEGIN_TIME),
             'timeout' => '',
             'useMemory' => memory_get_usage() - MLL_BEGIN_MEMORY,
+            'useMemoryPeak' => memory_get_peak_usage(),
             'requestHeaders' => '', //$request->header(),
             'requestParams' => $request->param(),
             'errorMessage' => $errorMessage,

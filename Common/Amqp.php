@@ -15,7 +15,7 @@ class Amqp
      *
      * @var AMQPConnection
      */
-    private $conn;
+    private static $conn;
 
     /**
      *
@@ -25,11 +25,15 @@ class Amqp
     function __construct($conn_args)
     {
         $this->conn_args = $conn_args;
-        $conn = new \AMQPConnection($this->conn_args);
-        if (!$conn->connect()) {
-            throw new \Exception("Cannot connect to the broker  <br> ");
+        if (self::$conn === null) {
+            $conn = new \AMQPConnection($this->conn_args);
+            if (!$conn->connect()) {
+                throw new \Exception("Cannot connect to the broker  <br> ");
+            }
+            self::$conn = $conn;
         }
-        $this->conn = $conn;
+
+
     }
 
     /**
@@ -41,7 +45,7 @@ class Amqp
     public function sendMessage($messages, $qname, $exchange_name, $routing_key = '')
     {
 
-        $conn = $this->conn;
+        $conn = self::$conn;
         if (!$conn->isConnected()) {
             throw new \Exception('Connection lost.<br>');
         }
@@ -83,19 +87,24 @@ class Amqp
      * 获取消息
      * TODO 优化各种判断
      *
-     * @param unknown $qname
+     * @param string $qname
      * @return mixed
      */
     public function getMessage($qname)
     {
-        $conn = $this->conn;
-        if (!$conn->isConnected()) {
-            throw new \Exception('Connection lost.<br>');
+        static $q;
+
+        if ($q === null) {
+            $conn = self::$conn;
+            if (!$conn->isConnected()) {
+                throw new \Exception('Connection lost.<br>');
+            }
+            $channel = new \AMQPChannel($conn);
+            $q = new \AMQPQueue($channel);
+            $q->setName($qname);
+            $q->setFlags(AMQP_DURABLE);
         }
-        $channel = new \AMQPChannel($conn);
-        $q = new \AMQPQueue($channel);
-        $q->setName($qname);
-        $q->setFlags(AMQP_DURABLE);
+
         $messages = $q->get(AMQP_AUTOACK);
         if ($messages) {
             return $messages->getBody();
@@ -104,6 +113,6 @@ class Amqp
 
     function __destruct()
     {
-        $this->conn->disconnect();
+        self::$conn->disconnect();
     }
 }

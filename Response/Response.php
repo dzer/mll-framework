@@ -37,9 +37,9 @@ class Response
     /**
      * 架构函数.
      *
-     * @param mixed $data    输出数据
-     * @param int   $code    http状态码
-     * @param array $header  响应头
+     * @param mixed $data 输出数据
+     * @param int $code http状态码
+     * @param array $header 响应头
      * @param array $options 输出参数
      */
     public function __construct($data = '', $code = 200, array $header = [], $options = [])
@@ -59,11 +59,11 @@ class Response
     /**
      * 创建Response对象
      *
-     * @param mixed  $data    输出数据
-     * @param string $type    输出类型
-     * @param int    $code    http状态码
-     * @param array  $header
-     * @param array  $options 输出参数
+     * @param mixed $data 输出数据
+     * @param string $type 输出类型
+     * @param int $code http状态码
+     * @param array $header
+     * @param array $options 输出参数
      *
      * @return Response
      */
@@ -71,7 +71,7 @@ class Response
     {
         $type = empty($type) ? 'null' : strtolower($type);
 
-        $class = false !== strpos($type, '\\') ? $type : '\\Mll\\Response\\Driver\\'.ucfirst($type);
+        $class = false !== strpos($type, '\\') ? $type : '\\Mll\\Response\\Driver\\' . ucfirst($type);
         if (class_exists($class)) {
             $response = new $class($data, $code, $header, $options);
         } else {
@@ -94,10 +94,11 @@ class Response
         $data = $this->getContent();
         if (!headers_sent() && !empty($this->header)) {
             // 发送状态码
-            http_response_code($this->code);
+            http_response_code(intval($this->code));
+
             // 发送头部信息
             foreach ($this->header as $name => $val) {
-                header($name.':'.$val);
+                header($name . ':' . $val);
             }
         }
 
@@ -157,8 +158,8 @@ class Response
     /**
      * 设置响应头.
      *
-     * @param string|array $name  参数名
-     * @param string       $value 参数值
+     * @param string|array $name 参数名
+     * @param string $value 参数值
      *
      * @return $this
      */
@@ -190,7 +191,7 @@ class Response
             throw new \InvalidArgumentException(sprintf('variable type error： %s', gettype($content)));
         }
 
-        $this->content = (string) $content;
+        $this->content = (string)$content;
 
         return $this;
     }
@@ -269,13 +270,13 @@ class Response
      * 页面输出类型.
      *
      * @param string $contentType 输出类型
-     * @param string $charset     输出编码
+     * @param string $charset 输出编码
      *
      * @return $this
      */
     public function contentType($contentType, $charset = 'utf-8')
     {
-        $this->header['Content-Type'] = $contentType.'; charset='.$charset;
+        $this->header['Content-Type'] = $contentType . '; charset=' . $charset;
 
         return $this;
     }
@@ -324,7 +325,7 @@ class Response
                 throw new \InvalidArgumentException(sprintf('variable type error： %s', gettype($content)));
             }
 
-            $this->content = (string) $content;
+            $this->content = (string)$content;
         }
 
         return $this->content;

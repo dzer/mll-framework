@@ -16,7 +16,7 @@ class Mongo
     /**
      * @var \MongoDB\Driver\Manager
      */
-    private $mongo; //mongo对象
+    public $mongo; //mongo对象
     /**
      * @var \MongoDb
      */
@@ -34,9 +34,9 @@ class Mongo
         'username' => 'logfenxi', //数据库用户名
         'password' => '9C1Xh(86%E7DFe', //数据库密码
         'options' => [
-            'connectTimeoutMS' => 2000,
-            'socketTimeoutMSG' => 3000,
-            'readPreference' => \MongoDB\Driver\ReadPreference::RP_SECONDARY_PREFERRED
+            //'connectTimeoutMS' => 2000,
+            //'socketTimeoutMSG' => 3000,
+            'readPreference' => \MongoDB\Driver\ReadPreference::RP_PRIMARY_PREFERRED
         ]
     ];
 
@@ -44,7 +44,10 @@ class Mongo
     {
         if (empty($config)) {
             $this->config = array_merge($this->config, Mll::app()->config->get('db.mongo', []));
+        } else {
+            $this->config = $config;
         }
+
         $this->connect($this->config);
         return $this;
     }
@@ -223,7 +226,7 @@ class Mongo
         ];
 
         $query = new \MongoDB\Driver\Query($query, $options);
-        $readPreference = new \MongoDB\Driver\ReadPreference(\MongoDB\Driver\ReadPreference::RP_SECONDARY_PREFERRED);
+        $readPreference = new \MongoDB\Driver\ReadPreference(\MongoDB\Driver\ReadPreference::RP_PRIMARY_PREFERRED);
         $cursor = $this->mongo->executeQuery("{$this->db}.{$this->collection}", $query, $readPreference);
         return $cursor->toArray();
     }
@@ -246,12 +249,15 @@ class Mongo
      *
      * @return int
      */
-    public function count($query = array())
+    public function count($query, $options = array())
     {
         $commands = [
             'count' => "{$this->collection}",
             'query' => $query,
         ];
+        if (!empty($options)) {
+            $commands = array_merge($commands, $options);
+        }
         $command = new \MongoDB\Driver\Command($commands);
         $cursor = $this->mongo->executeCommand("{$this->db}", $command);
         return !empty($cursor) ? $cursor->toArray()[0]->n : false;
