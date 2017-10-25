@@ -66,10 +66,12 @@ class Mongo
                 $options = $config['options'];
             }
             $host = 'mongodb://' . ($config['username'] ? "{$config['username']}" : '')
-                . ($config['password'] ? ":{$config['password']}@" : '')
-                . $config['host'] . '/' . ($config['database'] ? "{$config['database']}" : '');
+                . (!empty($config['password']) ? ":{$config['password']}@" : '')
+                . $config['host'] . '/' . (!empty($config['database']) ? "{$config['database']}" : '');
             $this->mongo = new \MongoDB\Driver\Manager($host, $options);
-            $this->db = $config['database'];
+            if (!empty($config['database'])) {
+                $this->db = $config['database'];
+            }
         }
         return $this->mongo;
     }
