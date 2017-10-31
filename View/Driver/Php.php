@@ -36,7 +36,7 @@ class Php extends Base
         }
         // 模板不存在 抛出异常
         if (!is_file($template)) {
-            throw new \Exception('template not exists:' . $template, $template);
+            throw new \Exception('template not exists:' . $template);
         }
 
         if (!empty($this->data) && is_array($this->data)) {

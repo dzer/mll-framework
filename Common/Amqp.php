@@ -111,6 +111,40 @@ class Amqp
         }
     }
 
+    public function countMessage($qname, $exchange_name)
+    {
+        if (!self::$conn->isConnected()) {
+            self::$conn = new \AMQPConnection($this->conn_args);
+        }
+        // 创建channel
+        $channel = new \AMQPChannel(self::$conn);
+        // 创建exchange
+        $ex = new \AMQPExchange($channel);
+        $ex->setName($exchange_name); // 设置关联的exchange名字
+        $ex->setType(AMQP_EX_TYPE_DIRECT);
+        $ex->setFlags(AMQP_DURABLE);
+
+        if (method_exists($ex, 'declareExchange')) {
+            $ex->declareExchange();
+        } else {
+            $ex->declare();
+        }
+
+        /*
+         * 创建队列
+         */
+        $q = new \AMQPQueue($channel);
+        $q->setName($qname);
+        $q->setFlags(AMQP_PASSIVE);
+        if (method_exists($q, 'declareQueue')) {
+            $msgNum = $q->declareQueue();
+        } else {
+            $msgNum = $q->declare();
+        }
+
+        return $msgNum;
+    }
+
     function __destruct()
     {
         self::$conn->disconnect();
