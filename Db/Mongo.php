@@ -162,7 +162,16 @@ class Mongo
      */
     public function remove($query, $option = array())
     {
-        return $this->collection->remove($query, $option);
+        if (empty($query)) {
+            return false;
+        }
+        $bulk = new \MongoDB\Driver\BulkWrite();
+        $bulk->delete(
+            $query,
+            $option
+        );
+        $result = $this->mongo->executeBulkWrite("{$this->db}.{$this->collection}", $bulk);
+        return $result->getDeletedCount();
     }
 
     /**

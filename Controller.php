@@ -36,4 +36,9 @@ class Controller implements IController
     {
         return Mll::app()->view->assign($name, $value);
     }
+
+    public function redirect($url)
+    {
+        return Response::create()->redirect($url);
+    }
 }

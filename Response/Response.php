@@ -3,6 +3,7 @@
 namespace Mll\Response;
 
 use Mll\Common\Common;
+use Mll\Mll;
 
 /**
  * 响应类.
@@ -339,5 +340,16 @@ class Response
     public function getCode()
     {
         return $this->code;
+    }
+
+    public function redirect($url, $statusCode = 302)
+    {
+        if (strpos($url, '/') === 0 && strpos($url, '//') !== 0) {
+            $url = Mll::app()->request->domain() . $url;
+        }
+        $this->code($statusCode);
+        $this->header('Location', $url);
+
+        return $this;
     }
 }

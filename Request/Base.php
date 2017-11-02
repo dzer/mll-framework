@@ -182,6 +182,7 @@ abstract class Base implements IRequest
 
         $this->param = $params;
         $this->viewMode = $viewMode;
+        $this->method = $this->method(true);
 
         $this->tplFile = $this->module . DS . \str_replace('\\', DS, $this->controller) . DS . $this->action . '.php';
 
@@ -1121,11 +1122,43 @@ abstract class Base implements IRequest
      *
      * @return bool
      */
-    public function isAjax($ajax = false)
+    public function getIsAjax()
     {
-        $value = $this->server('HTTP_X_REQUESTED_WITH', '', 'strtolower');
-        $result = ('xmlhttprequest' == $value) ? true : false;
+        return isset($_SERVER['HTTP_X_REQUESTED_WITH']) && $_SERVER['HTTP_X_REQUESTED_WITH'] === 'XMLHttpRequest';
+    }
 
-        return $result;
+    public function getIsGet()
+    {
+        return $this->getMethod() === 'GET';
+    }
+
+    public function getIsOptions()
+    {
+        return $this->getMethod() === 'OPTIONS';
+    }
+
+    public function getIsHead()
+    {
+        return $this->getMethod() === 'HEAD';
+    }
+
+    public function getIsPost()
+    {
+        return $this->getMethod() === 'POST';
+    }
+
+    public function getIsDelete()
+    {
+        return $this->getMethod() === 'DELETE';
+    }
+
+    public function getIsPut()
+    {
+        return $this->getMethod() === 'PUT';
+    }
+
+    public function getIsPatch()
+    {
+        return $this->getMethod() === 'PATCH';
     }
 }

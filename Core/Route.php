@@ -45,7 +45,7 @@ class Route
                     . '\\' . $request->getAction() . '_' . sha1(serialize($request->request()));
                 $cacheValue = Cache::get($cacheKey);
                 if ($cacheValue !== false) {
-                    $isAjax = $request->isAjax();
+                    $isAjax = $request->getIsAjax();
                     $type = $isAjax ? 'json' : 'html';
                     $response = Response::create($cacheValue, $type, 200,
                         ['X-Cache-Time' => $request->request('SOURCE_CACHE_TIME')]
@@ -56,12 +56,15 @@ class Route
 
             $view = null;
             $action = $request->getAction();
-            if ($class->beforeAction()) {
+            $before = $class->beforeAction();
+            if ($before === true) {
                 if (!method_exists($class, $action)) {
                     throw new HttpException(404,'method not found');
                 }
                 $view = $class->$action();
                 $class->afterAction();
+            } elseif ($before instanceof Response) {
+                $view = $before;
             } else {
                 throw new \Exception($className . ':' . $action . ' _before() no return true');
             }
@@ -70,7 +73,7 @@ class Route
                 $response = $view;
             } elseif (!is_null($view)) {
                 // 默认自动识别响应输出类型
-                $isAjax = $request->isAjax();
+                $isAjax = $request->getIsAjax();
                 $type = $isAjax ? 'json' : 'html';
                 $response = Response::create($view, $type);
             } else {

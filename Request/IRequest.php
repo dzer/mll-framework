@@ -42,13 +42,6 @@ interface IRequest
     public function getMethod();
 
     /**
-     * isAjax.
-     *
-     * @return mixed
-     */
-    public function isAjax();
-
-    /**
      * 获取请求时间.
      *
      * @param bool $clear

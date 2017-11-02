@@ -28,7 +28,9 @@ class Http extends Base implements IRequest
         $controller = $this->config['default_controller'];
         $action = $this->config['default_action'];
 
-        $pathInfo = $this->getPathInfo();
+        if (empty($pathInfo)) {
+            $pathInfo = $this->getPathInfo();
+        }
 
         if (!empty($pathInfo)) {
             list($path, $var) = Route::parseUrlPath($pathInfo);

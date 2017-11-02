@@ -98,7 +98,8 @@ class Mll
 
         //错误注册
         Error::register();
-
+        //临时使用默认session
+        session_set_cookie_params(86400);
         session_start();
         //Session::init();
 
