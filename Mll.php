@@ -100,7 +100,9 @@ class Mll
         Error::register();
         //临时使用默认session
         session_set_cookie_params(86400);
-        session_start();
+        session_start([
+            'read_and_close' => true
+        ]);
         //Session::init();
 
         //run server
