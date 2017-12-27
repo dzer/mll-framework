@@ -28,6 +28,9 @@ class Controller implements IController
 
     public function render($template, $params = [], $code = 200, $header = [], $options = [])
     {
+        $params['IMG'] = Mll::app()->config->get('source_server_host.0');
+        $params['RES'] = Mll::app()->config->get('res_server_host');
+
         $content = Mll::app()->view->fetch($template, $params);
         return Response::create($content, 'view', $code, $header, $options);
     }

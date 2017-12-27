@@ -1,6 +1,7 @@
 <?php
 
 namespace Mll\Common;
+use Mll\Mll;
 
 /**
  * 常用工具类
@@ -74,7 +75,8 @@ class Common
         if ($size == 0) {
             return $size;
         }
-        return round($size / pow(1024, ($i = floor(log($size, 1024)))), 2) . ' ' . $unit[$i];
+        return round($size / pow(1024, ($i = floor(log($size, 1024)))), 2)
+            . ' ' . $unit[$i];
     }
 
     /**
@@ -142,10 +144,89 @@ class Common
             $value = str_ireplace('script>', ' ', $value);
             $value = str_replace('<', '&lt;', $value);
             $value = str_replace('>', '&gt;', $value);
-            if (preg_match('/SELECT.*FROM|UPDATE.*SET|DELETE.*FROM|UNION.*SELECT|SLEEP\s*\(|DROP\s*TABLE|DROP\s*DATABASE|CREATE\s*TABLE|CREATE\s*DATABASE|TRUNCATE|ALERT\s*TABLE|ALERT\s*DATABASE|SHOW\s*TABLE|SHOW\s*DATABASE|INSERT.*INTO|REPLACE.*INTO|BENCHMARK\s*\(/i', $value)) {
+            if (preg_match('/SELECT.*FROM|UPDATE.*SET|DELETE.*FROM|UNION.*SELECT|SLEEP\s*\(|DROP\s*TABLE|'
+                . 'DROP\s*DATABASE|CREATE\s*TABLE|CREATE\s*DATABASE|TRUNCATE|ALERT\s*TABLE|ALERT\s*DATABASE'
+                . '|SHOW\s*TABLE|SHOW\s*DATABASE|INSERT.*INTO|REPLACE.*INTO|BENCHMARK\s*\(/i', $value)) {
                 throw new \Exception('invalid params');
             }
             return addslashes($value);
         }
     }
+
+    /**
+     *  返回缩略图路径
+     *
+     * @param string $path
+     * @param string $width
+     * @param string $height
+     * @param int $mode
+     * @param int $percent
+     * @return bool|mixed|string
+     * @throws \Exception
+     */
+    public static function mllThumb($path = '', $width = '', $height = '', $mode = 1, $percent = 92)
+    {
+        if (empty($path)) {
+            return false;
+        }
+        if (empty($width) && empty($height)) {
+            return $path;
+        }
+        if (strlen($path) >= 100 && strpos($path, '/small/')) {
+            return $path;
+        }
+        $path = preg_replace('/(.*?)(.com)\//', '', $path);
+        $img_servers = Mll::app()->config->get('source_server_host');
+        if (empty($img_servers)) {
+            throw new \Exception('resource server is empty');
+        }
+        $img = $img_servers[0];
+
+        $path = $img . '/' . $path;
+        if ($percent == 92) {
+            $encrypt = md5($width . $height . $path . '8@#ccmll_$%Z@#4a0cz!@#');
+        } else {
+            $encrypt = md5($width . $height . $path . $percent . '8@#ccmll_$%Z@#4a0cz!@#');
+            $path = $path . '?percent=' . $percent;
+        }
+        if (!$mode) {
+            $mode = 1;
+        }
+
+        $dir = substr(crc32($path . $width . $height . $mode), 0, 3);
+        $pass = self::transCrypt($path, 'encode');
+        $ext = pathinfo($path, PATHINFO_EXTENSION);
+
+        return $img . '/images/small/' . $dir . '/width/' . $width . '/height/' . $height . '/mode/'
+            . $mode . '/encrypt/' . $encrypt . '/path/' . $pass . '.' . $ext;
+    }
+
+    /**
+     * 可逆加密
+     *
+     * @param $date
+     * @param string $mode
+     * @return mixed|string
+     */
+    public static function transCrypt($date, $mode = 'encode')
+    {
+        //用MD5哈希生成一个密钥，注意加密和解密的密钥必须统一
+        $key = md5('sdf*sf2e1dfv(^$');
+
+        $cipher = 'aes-256-ecb';
+        $iv_len = openssl_cipher_iv_length($cipher);
+        $iv = openssl_random_pseudo_bytes($iv_len);
+        if ($mode == 'encode') {
+            $pass_crypt = openssl_encrypt($date, $cipher, $key, 0, $iv);
+            return str_replace('/', '_', $pass_crypt);
+        }
+
+        if ($mode == 'decode') {
+            $date = str_replace('_', '/', $date);
+            return openssl_decrypt($date, $cipher, $key, 0, $iv);
+        }
+
+        return null;
+    }
+
 }

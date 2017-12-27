@@ -36,14 +36,14 @@ class Error
             $e = new ThrowableError($e);
         }
         self::getExceptionHandler()->report($e);
-        while (ob_get_level() > 1) {
+        /*while (ob_get_level() > 1) {
             ob_end_clean();
-        }
+        }*/
         //ob_get_clean();
 
         $outData = self::getExceptionHandler()->render($e);
         // 获取并清空缓存
-        //$outData['echo'] = ob_get_clean();
+        $outData['echo'] = ob_get_clean();
         ob_start();
         // 判断请求头的content_type=json或者是ajax请求就返回json
         $headers = [];

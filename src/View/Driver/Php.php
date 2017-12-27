@@ -8,7 +8,7 @@ use Mll\View\Base;
 class Php extends Base
 {
     private $config = [
-        'template_path' => '/template',
+        'template_dir' => '/template',
     ];
 
     public function __construct()
@@ -55,11 +55,11 @@ class Php extends Base
      */
     private function parseTemplate($template)
     {
-        if (empty($this->config['template_path'])) {
-            $this->config['template_path'] = '/template';
+        if (empty($this->config['template_dir'])) {
+            $this->config['template_dir'] = '/template';
         }
         $request = Mll::app()->request;
-        $path = ROOT_PATH . $this->config['template_path'];
+        $path = ROOT_PATH . $this->config['template_dir'];
         if (strpos($template, '/') === false) {
             $template = $request->getModule() . DS . $request->getController() . DS . $template;
         }
