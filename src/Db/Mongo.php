@@ -30,9 +30,9 @@ class Mongo
 
     private $config = [
         'host' => '192.168.0.155:27017', //服务器地址
-        'database' => 'meilele_log_fenxi', //数据库名称
-        'username' => 'logfenxi', //数据库用户名
-        'password' => '9C1Xh(86%E7DFe', //数据库密码
+        'database' => '', //数据库名称
+        'username' => '', //数据库用户名
+        'password' => '', //数据库密码
         'options' => [
             //'connectTimeoutMS' => 2000,
             //'socketTimeoutMSG' => 3000,
