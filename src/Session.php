@@ -113,9 +113,10 @@ class Session
      *
      * @throws \ErrorException
      */
-    private static function loadConfig(){
+    private static function loadConfig()
+    {
         self::$config = Mll::app()->config->get('session');
-        if(empty(self::$config)){
+        if (empty(self::$config)) {
             throw new \ErrorException('session : no configuration found!');
         }
     }

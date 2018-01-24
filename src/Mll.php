@@ -94,16 +94,13 @@ class Mll
         self::$debug = Mll::app()->config->get('app_debug', true);
 
         //xhprof
-        self::Xhprof();
+        self::xhprof();
 
         //错误注册
         Error::register();
-        //临时使用默认session
-        session_set_cookie_params(86400);
-        session_start([
-            'read_and_close' => true
-        ]);
-        //Session::init();
+
+        //session
+        Session::init();
 
         //run server
         Mll::app()->server->run();
@@ -163,7 +160,7 @@ class Mll
     /**
      * Xhprof 性能分析
      */
-    public static function Xhprof()
+    public static function xhprof()
     {
         if (Mll::app()->config->get('xhprof.enable', false)
             && function_exists('xhprof_enable')
