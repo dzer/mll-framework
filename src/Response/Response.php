@@ -72,7 +72,7 @@ class Response
     {
         $type = empty($type) ? 'null' : strtolower($type);
 
-        $class = false !== strpos($type, '\\') ? $type : '\\Mll\\Response\\Driver\\' . ucfirst($type);
+        $class = false !== strpos($type, '\\') ? $type : 'Mll\\Response\\Driver\\' . ucfirst($type);
         if (class_exists($class)) {
             $response = new $class($data, $code, $header, $options);
         } else {

@@ -5,6 +5,7 @@ namespace Mll;
 use Mll\Config;
 use Mll\Exception\Error;
 use Mll\Core\Container;
+use Mll\Session\Session;
 
 /**
  * Class Mll
@@ -15,8 +16,8 @@ use Mll\Core\Container;
  * @property \Mll\Log\ILog $log
  * @property \Mll\Server\IServer $server
  * @property \Mll\Rpc\IRpc $rpc
- * @property \Mll\Session $session
- * @property \Mll\Cache $cache
+ * @property \Mll\Session\Session $session
+ * @property \Mll\Cache\ICache $cache
  * @property \Mll\View\Base $view
  * @property \Mll\Curl\Curl $curl
  * @author Xu Dong <d20053140@gmail.com>
@@ -65,7 +66,7 @@ class Mll
      */
     public function run($serveModel = 'Http')
     {
-        error_reporting(E_ALL & ~E_NOTICE);
+        error_reporting(E_ALL);
 
         self::$serveModel = $serveModel;
         //自动加载

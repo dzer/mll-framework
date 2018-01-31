@@ -1,8 +1,8 @@
 <?php
 
-namespace Mll;
+namespace Mll\Session;
 
-use Mll\Exception;
+use Mll\Mll;
 
 /**
  * session类
@@ -15,14 +15,14 @@ class Session
 {
     protected static $prefix = '';
     protected static $init = null;
-    static $config = [];
+    public static $config = [];
 
     /**
      * 设置或者获取session作用域（前缀）
      *
      * @param string $prefix
      *
-     * @return string|void
+     * @return string
      */
     public static function prefix($prefix = '')
     {
@@ -31,15 +31,14 @@ class Session
         } else {
             self::$prefix = $prefix;
         }
+        return self::$prefix;
     }
 
     /**
      * session初始化
      *
      * @param array $config
-     * @return void
-     *
-     * @throws \Mll\Exception
+     * @throws \ErrorException
      */
     public static function init(array $config = [])
     {
@@ -92,9 +91,12 @@ class Session
         }
         if (!empty($config['driver'])) {
             // 读取session驱动
-            $class = false !== strpos($config['driver'], '\\') ? $config['driver'] : '\\Mll\\Session\\Driver\\' . ucwords($config['driver']);
+            $class = false !== strpos($config['driver'], '\\') ?
+                $config['driver'] : '\\Mll\\Session\\Driver\\' . ucwords($config['driver']);
             // 检查驱动类
-            if (!class_exists($class) || !session_set_save_handler(new $class(isset($config['driver_config']) ? $config['driver_config'] : []))) {
+            if (!class_exists($class) ||
+                !session_set_save_handler(new $class(isset($config['driver_config']) ? $config['driver_config'] : []))
+            ) {
                 throw new \ErrorException('error session handler:' . $class, $class);
             }
         }
@@ -108,8 +110,6 @@ class Session
 
     /**
      * 加载session配置.
-     *
-     * @return array
      *
      * @throws \ErrorException
      */
@@ -318,7 +318,7 @@ class Session
      *
      * @return void
      */
-    private static function regenerate($delete = false)
+    protected static function regenerate($delete = false)
     {
         session_regenerate_id($delete);
     }

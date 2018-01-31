@@ -1,6 +1,6 @@
 <?php
 
-namespace Mll;
+namespace Mll\Write;
 
 use Mll\Common\Common;
 use Mll\Common\ErpTableIdHelper;
