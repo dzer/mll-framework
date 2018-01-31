@@ -66,8 +66,6 @@ class Mll
      */
     public function run($serveModel = 'Http')
     {
-        error_reporting(E_ALL);
-
         self::$serveModel = $serveModel;
         //自动加载
         spl_autoload_register(__CLASS__ . '::autoload', true, true);
@@ -93,6 +91,11 @@ class Mll
 
         //设置调试模式
         self::$debug = Mll::app()->config->get('app_debug', true);
+        if (self::$debug) {
+            error_reporting(E_ALL);
+        } else {
+            error_reporting(E_ALL ^ E_NOTICE);
+        }
 
         //xhprof
         self::xhprof();
