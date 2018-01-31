@@ -1,6 +1,6 @@
 <?php
 
-namespace Mll;
+namespace Mll\Model;
 
 /**
  * model

@@ -33,6 +33,11 @@ return [
         'curl' => function () {
             return Container::getInstance(__NAMESPACE__.'\\Curl\\Curl');
         },
+        'cache' => function () {
+            return Cache\Factory::getInstance(
+                Mll::app()->config->get('cache.driver', 'memcached')
+            );
+        },
     ],
     'classMap' => [
         'Mll\\Core\\Container' => '/Core/Container.php',
