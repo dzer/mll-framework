@@ -3,7 +3,9 @@
 namespace Mll\Cache\Driver;
 
 use Mll\Cache\Base;
+use Mll\Cache\Cache;
 use Mll\Cache\ICache;
+use Mll\Mll;
 
 /**
  * memcache缓存
@@ -12,7 +14,7 @@ use Mll\Cache\ICache;
  * @author wang zhou <zhouwang@mll.com>
  * @since 1.0
  */
-class Memcache extends Base implements ICache
+class Memcached extends Base implements ICache
 {
     protected $handler = null;
     protected $options = [
@@ -52,6 +54,11 @@ class Memcache extends Base implements ICache
             $port = isset($ports[$i]) ? $ports[$i] : $ports[0];
             $this->handler->addServer($host, $port, 1);
         }
+    }
+
+    public function init($driver, $cacheName = '')
+    {
+        Cache::init($driver, $cacheName);
     }
 
     /**

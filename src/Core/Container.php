@@ -46,16 +46,17 @@ class Container
      *
      * @param string $className 类名
      * @param null $params 参数
+     * @param boolean $is_force 是否强制new
      * @return mixed
      * @throws \Exception
      */
-    public static function getInstance($className, $params = null)
+    public static function getInstance($className, $params = null, $is_force = false)
     {
         $keyName = $className;
         if (!empty($params['_prefix'])) {
             $keyName .= $params['_prefix'];
         }
-        if (isset(self::$instances[$keyName])) {
+        if (!$is_force && isset(self::$instances[$keyName])) {
             return self::$instances[$keyName];
         }
 
@@ -93,6 +94,7 @@ class Container
         if (isset(self::$instances[$name])) {
             return self::$instances[$name];
         }
+
         if (isset(self::$classAlias[$name]) && isset(self::$instances[self::$classAlias[$name]])
             && is_object(self::$instances[self::$classAlias[$name]])
         ) {
@@ -126,6 +128,25 @@ class Container
     public function has($name)
     {
         if (isset(self::$instances[self::$classAlias[$name]])) {
+            return true;
+        }
+        return false;
+    }
+
+    /**
+     * 测试名称是否存在容器中
+     *
+     * @param string $name 实例别名
+     * @return bool
+     */
+    public static function setAlias($name, $class)
+    {
+        if (is_object($class)) {
+            self::$classAlias[$name] = get_class($class);
+            return true;
+        }
+        if (is_string($class) && class_exists($class)) {
+            self::$classAlias[$name] = $class;
             return true;
         }
         return false;

@@ -13,10 +13,8 @@ use Mll\Core\Container;
  */
 class Factory
 {
-    public static function getInstance($driver = 'cache', $config = [])
+    public static function getInstance($driver = 'memcached')
     {
-        $driver = ucfirst(strtolower($driver));
-        $className = "Mll\\{$driver}";
-        return Container::getInstance($className, $config);
+        return Cache::init($driver);
     }
 }

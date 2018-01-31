@@ -4,6 +4,13 @@ namespace Mll\Session\Driver;
 
 use SessionHandler;
 
+/**
+ * Class Memcached
+ *
+ * @package Mll\Session\Driver
+ * @author Xu Dong <d20053140@gmail.com>
+ * @since 1.0
+ */
 class Memcached extends SessionHandler
 {
     /**
@@ -17,8 +24,8 @@ class Memcached extends SessionHandler
         'timeout' => 0, // 连接超时时间（单位：毫秒）
         'persistent' => true, // 长连接
         'session_name' => '', // memcache key前缀
-        'username'     => '', //账号
-        'password'     => '', //密码
+        'username' => '', //账号
+        'password' => '', //密码
     ];
 
     public function __construct($config = [])
@@ -28,9 +35,12 @@ class Memcached extends SessionHandler
 
     /**
      * 打开Session
+     *
      * @access public
      * @param string $savePath
      * @param mixed $sessName
+     * @throws \Exception
+     * @return boolean
      */
     public function open($savePath, $sessName)
     {

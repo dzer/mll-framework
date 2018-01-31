@@ -3,6 +3,7 @@
 namespace Mll\Cache\Driver;
 
 use Mll\Cache\Base;
+use Mll\Cache\Cache;
 use Mll\Cache\ICache;
 
 /**
@@ -35,7 +36,12 @@ class File extends Base implements ICache
             $this->options['path'] .= DS;
         }
         $this->options['path'] = ROOT_PATH . $this->options['path'];
-        $this->init();
+        $this->checkCacheDir();
+    }
+
+    public function init($driver, $cacheName = '')
+    {
+        Cache::init($driver, $cacheName);
     }
 
     /**
@@ -45,7 +51,7 @@ class File extends Base implements ICache
      *
      * @return boolean
      */
-    private function init()
+    private function checkCacheDir()
     {
         // 创建项目缓存目录
         if (!is_dir($this->options['path'])) {

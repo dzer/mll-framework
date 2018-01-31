@@ -5,6 +5,15 @@ namespace Mll\Cache;
 interface ICache
 {
     /**
+     * 初始化缓存
+     *
+     * @param string $driver 缓存类型
+     * @param string $cacheName 缓存host名称
+     * @return mixed
+     */
+    public function init($driver, $cacheName = '');
+
+    /**
      * 判断缓存是否存在
      *
      * @access public
@@ -19,7 +28,7 @@ interface ICache
      *
      * @access public
      * @param string $name 缓存变量名
-     * @param mixed  $default 默认值
+     * @param mixed $default 默认值
      *
      * @return mixed
      */
@@ -30,9 +39,9 @@ interface ICache
      *
      *
      * @access public
-     * @param string    $name 缓存变量名
-     * @param mixed     $value  存储数据
-     * @param int       $expire  有效时间 0为永久
+     * @param string $name 缓存变量名
+     * @param mixed $value 存储数据
+     * @param int $expire 有效时间 0为永久
      *
      * @return boolean
      */
@@ -42,8 +51,8 @@ interface ICache
      * 自增缓存（针对数值缓存）
      *
      * @access public
-     * @param string    $name 缓存变量名
-     * @param int       $step 步长
+     * @param string $name 缓存变量名
+     * @param int $step 步长
      *
      * @return false|int
      */
@@ -53,8 +62,8 @@ interface ICache
      * 自减缓存（针对数值缓存）
      *
      * @access public
-     * @param string    $name 缓存变量名
-     * @param int       $step 步长
+     * @param string $name 缓存变量名
+     * @param int $step 步长
      *
      * @return false|int
      */

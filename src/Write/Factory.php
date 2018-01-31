@@ -16,7 +16,7 @@ class Factory
     public static function getInstance($driver = 'write', $config = [])
     {
         $driver = ucfirst(strtolower($driver));
-        $className = "Mll\\{$driver}";
+        $className = __NAMESPACE__ . $driver;
         return Container::getInstance($className, $config);
     }
 }

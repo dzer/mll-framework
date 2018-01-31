@@ -2,6 +2,7 @@
 namespace Mll\Cache\Driver;
 
 use Mll\Cache\Base;
+use Mll\Cache\Cache;
 use Mll\Cache\ICache;
 
 
@@ -50,6 +51,11 @@ class Redis extends Base implements ICache
         if (0 != $this->options['select']) {
             $this->handler->select($this->options['select']);
         }
+    }
+
+    public function init($driver, $cacheName = '')
+    {
+        Cache::init($driver, $cacheName);
     }
 
     /**

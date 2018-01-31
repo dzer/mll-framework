@@ -9,7 +9,7 @@ class Factory
     public static function getInstance($driver = 'session', $config = [])
     {
         $driver = ucfirst(strtolower($driver));
-        $className = "Mll\\{$driver}";
+        $className = __NAMESPACE__ . "\\{$driver}";
         return Container::getInstance($className, $config);
     }
 }
