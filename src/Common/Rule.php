@@ -2,14 +2,12 @@
 
 namespace Mll\Common;
 
-use Mll\Cache;
 use Mll\Mll;
 use Mll\Curl\Curl;
 
 /**
  * 规则调用类
  *
- * @package Mll\Cache
  * @author wang zhou <zhouwang@mll.com>
  * @since 1.0
  */
@@ -131,7 +129,7 @@ class Rule
         if (empty($rule_name)) {
             return false;
         }
-        $adminCache = Cache::cut(MLL::app()->config->get('rule_cache'));
+        $adminCache = Mll::app()->cache->init('memcached');
         //别名缓存一小时
         $memkey = self::$RuleAliasMemkey . $rule_name;
         $rule_name_mem = $adminCache->get($memkey);
