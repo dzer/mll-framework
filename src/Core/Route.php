@@ -2,7 +2,6 @@
 
 namespace Mll\Core;
 
-use Mll\Cache;
 use Mll\Exception\HttpException;
 use Mll\Mll;
 use Mll\Response\Response;
@@ -40,10 +39,10 @@ class Route
             $cacheKey = '';
             //判断是否走缓存
             if ($request->request('SOURCE_CACHE_TIME') > 0) {
-                Cache::cut(Mll::app()->config->get('request.cache_server', 'code'));
+                Mll::app()->cache->init('memcached');
                 $cacheKey = $request->getModule() . '\\' . $request->getController()
                     . '\\' . $request->getAction() . '_' . sha1(serialize($request->request()));
-                $cacheValue = Cache::get($cacheKey);
+                $cacheValue = Mll::app()->cache->get($cacheKey);
                 if ($cacheValue !== false) {
                     $isAjax = $request->getIsAjax();
                     $type = $isAjax ? 'json' : 'html';
@@ -59,7 +58,7 @@ class Route
             $before = $class->beforeAction();
             if ($before === true) {
                 if (!method_exists($class, $action)) {
-                    throw new HttpException(404,'method not found');
+                    throw new HttpException(404, 'method not found');
                 }
                 $view = $class->$action();
                 $class->afterAction();
@@ -81,11 +80,10 @@ class Route
             }
 
             if ($request->request('SOURCE_CACHE_TIME') > 0) {
-                Cache::set($cacheKey, $response->getContent(), $request->request('SOURCE_CACHE_TIME'));
+                Mll::app()->cache->set($cacheKey, $response->getContent(), $request->request('SOURCE_CACHE_TIME'));
             }
 
             return $response->send();
-
         } catch (\Exception $e) {
             if ($class instanceof IController) {
                 $class->afterAction();
