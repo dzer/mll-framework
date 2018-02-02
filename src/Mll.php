@@ -20,6 +20,7 @@ use Mll\Session\Session;
  * @property \Mll\Cache\ICache $cache
  * @property \Mll\View\Base $view
  * @property \Mll\Curl\Curl $curl
+ * @property \Mll\Queue\IQueue $queue
  * @author Xu Dong <d20053140@gmail.com>
  * @since 1.0
  */

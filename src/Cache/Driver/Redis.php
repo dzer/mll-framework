@@ -7,7 +7,7 @@ use Mll\Cache\ICache;
 
 
 /**
- * memcache缓存
+ * redis缓存
  *
  * @package Mll\Cache\Driver
  * @author Xu Dong <d20053140@gmail.com>
@@ -15,6 +15,9 @@ use Mll\Cache\ICache;
  */
 class Redis extends Base implements ICache
 {
+    /**
+     * @var null|\Redis
+     */
     protected $handler = null;
     protected $options = [
         'host'       => '127.0.0.1',
