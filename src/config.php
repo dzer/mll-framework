@@ -38,6 +38,11 @@ return [
                 Mll::app()->config->get('cache.driver', 'memcached')
             );
         },
+        'queue' => function () {
+            return Queue\Factory::getInstance(
+                Mll::app()->config->get('queue.driver', 'rabbitmq')
+            );
+        },
     ],
     'classMap' => [
         'Mll\\Core\\Container' => '/Core/Container.php',

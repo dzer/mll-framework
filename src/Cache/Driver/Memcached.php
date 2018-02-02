@@ -8,7 +8,7 @@ use Mll\Cache\ICache;
 use Mll\Mll;
 
 /**
- * memcache缓存
+ * memcached缓存
  *
  * @package Mll\Cache\Driver
  * @author wang zhou <zhouwang@mll.com>
