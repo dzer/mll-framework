@@ -66,6 +66,12 @@ class Rabbitmq implements IQueue
         }
     }
 
+    /**
+     * init
+     *
+     * @param string $exchange_name
+     * @param string $queue_name
+     */
     public function init($exchange_name = '', $queue_name = '')
     {
         if ($exchange_name != '') {
@@ -89,7 +95,6 @@ class Rabbitmq implements IQueue
 
         //Declare Queue
         $this->setQueue($this->config['queue_name']);
-
     }
 
     /**
