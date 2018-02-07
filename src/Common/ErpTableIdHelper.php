@@ -2247,7 +2247,7 @@ class ErpTableIdHelper
      * 自动检测并设置ERP表可以用于插入的主键值
      *
      * @param string $service_name| 表名，用于检测是否为ERP序列主键表
-     * @param string $data(ref) | 插入时的字段参数， 如果为ERP需要获取序列主键的表，则会自动设置主键值
+     * @param array $data(ref) | 插入时的字段参数， 如果为ERP需要获取序列主键的表，则会自动设置主键值
      * @param string $type| 操作类型 仅支持 insert, batch_insert
      * @param string $error(ref) | 错误消息会被设置在这个变量
      * @return boolean | true if no error occur, false otherwise
