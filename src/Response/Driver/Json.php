@@ -26,8 +26,10 @@ class Json extends Response
     public function __construct($data = '', $code = 200, array $header = [], array $options = [])
     {
         //兼容IE
-        $this->contentType = preg_match('/(trident)|(MSIE)/i', $_SERVER['HTTP_USER_AGENT']) ?
-            'text/json' : 'application/json';
+        if (isset($_SERVER['HTTP_USER_AGENT'])) {
+            $this->contentType = preg_match('/(trident)|(MSIE)/i', $_SERVER['HTTP_USER_AGENT']) ?
+                'text/json' : 'application/json';
+        }
         parent::__construct($data, $code, $header, $options);
     }
 
