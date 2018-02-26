@@ -70,7 +70,11 @@ class Cache extends Base implements ILog
             'type' => $type,
             'requestId' => Mll::app()->request->getRequestId(),
             'message' => $message,
-            'content' => $context
+            'content' => $context,
+            'project' => Mll::app()->config->params('project', 'service'),
+            'other' => array(
+                'refer' => $_SERVER['HTTP_REFERER'],
+            ),
         );
         return true;
     }

@@ -40,7 +40,7 @@ class Rule
         );
         $result = self::callUrl(RULE_URL, $time, $data, true, true);
         if (empty($result) || (isset($result['code']) && $result['code'] !== '0')) {
-            $msg = '规则[' . $serviceName . ']返回异常:[' . $result['description'] . ']';
+            $msg = '规则[' . $serviceName . ']返回异常:[' . ($result['description'] ?? '') . ']';
             return ReturnMsg::err($msg);
         }
         return ReturnMsg::ret($result['rows']);
