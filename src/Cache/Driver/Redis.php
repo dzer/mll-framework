@@ -58,7 +58,7 @@ class Redis extends Base implements ICache
 
     public function init($driver, $cacheName = '')
     {
-        Cache::init($driver, $cacheName);
+        return Cache::init($driver, $cacheName);
     }
 
     /**
