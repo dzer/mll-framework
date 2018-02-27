@@ -256,6 +256,7 @@ abstract class Base implements IRequest
     {
         if ($autoMake) {
             $traceId = $this->header($this->config['trace_id_key']);
+            $traceId = rtrim($traceId, ';'); //兼容common mll的curl方法header带有分号
             return !empty($traceId) ? $traceId : '0';
         }
         if (empty(self::$traceId)) {
