@@ -99,7 +99,7 @@ class ArrayFormat implements IConfig
         if ($set) {
             eval("$varStr = \$value;");
         } else {
-            if (empty(eval("$varStr"))) {
+            if (empty(eval("return $varStr;"))) {
                 eval("$varStr = \$value;");
             }
         }
