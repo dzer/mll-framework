@@ -97,10 +97,10 @@ class ArrayFormat implements IConfig
         $key = '["' . implode('"]["', explode('.', $key)) . '"]';
         $varStr = 'self::$config' . $key;
         if ($set) {
-            eval("$varStr = \$value");
+            eval("$varStr = \$value;");
         } else {
-            if (empty(eval("$varStr"))) {
-                eval("$varStr = \$value");
+            if (empty(eval("return $varStr;"))) {
+                eval("$varStr = \$value;");
             }
         }
 
