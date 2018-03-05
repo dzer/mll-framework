@@ -63,7 +63,7 @@ class Error
                 include $tpl;
             }
             // 获取并清空缓存
-            $outData  = ob_get_clean();
+            $outData = ob_get_clean();
             $type = 'view';
         }
         Response::create($outData, $type, $statusCode, $headers)->send();
@@ -120,10 +120,13 @@ class Error
             $xhprof_data = xhprof_disable();
         }
         $request = Mll::app()->request;
-
+        $url = $request->getUrl(true);
+        if (SERVER_MODEL == 'Rpc') {
+            $url .= ' (' . $request->getModule() . '/' . $request->getController() . '/' . $request->getAction() . ')';
+        }
         Mll::app()->log->log($level, '请求', array(
             'traceId' => $request->getTraceId(true),
-            'url' => $request->getUrl(true),
+            'url' => $url,
             'responseCode' => $responseCode,
             'method' => $request->method(true),
             'execTime' => Common::getMicroTime() - Common::getMicroTime(MLL_BEGIN_TIME),
