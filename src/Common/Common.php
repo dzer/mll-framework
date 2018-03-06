@@ -124,7 +124,7 @@ class Common
      */
     static function dbErr($msg, $arg = array())
     {
-        $log = self::BugTrace() . print_r($arg, true);
+        $log = print_r($arg, true);
 
         return ReturnMsg::err($msg . $log);
     }
