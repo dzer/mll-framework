@@ -92,11 +92,9 @@ class Mll
 
         //设置调试模式
         self::$debug = Mll::app()->config->get('app_debug', true);
-        if (self::$debug) {
-            error_reporting(E_ALL);
-        } else {
-            error_reporting(E_ALL ^ E_NOTICE);
-        }
+
+        //设置错误级别
+        error_reporting(Mll::app()->config->get('error_level', E_ALL));
 
         //xhprof
         self::xhprof();
