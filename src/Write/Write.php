@@ -167,9 +167,11 @@ class Write
             //Common::dbErr('批量更新数据更新失败!'); # 只需做个记录,仍需向下处理
             //continue;
             //}
-            foreach ($info['msg'] as $v1) {
-                $ret['count'] += $v1['updateCount'];
-                $ret['insert_id'][] = $v1['generateKey'];
+            if (is_array($info['msg'])) {
+                foreach ($info['msg'] as $v1) {
+                    $ret['count'] += $v1['updateCount'];
+                    $ret['insert_id'][] = $v1['generateKey'];
+                }
             }
         }
 
