@@ -78,6 +78,7 @@ class Response
         } else {
             $response = new static($data, $code, $header, $options);
         }
+        
 
         return $response;
     }
@@ -93,6 +94,11 @@ class Response
     {
         // 处理输出数据
         $data = $this->getContent();
+
+        if (SERVER_MODEL == 'SwooleHttp') {
+            return $data;
+        }
+
         if (!headers_sent() && !empty($this->header)) {
             // 发送状态码
             http_response_code(intval($this->code));
@@ -103,9 +109,11 @@ class Response
             }
         }
 
+
+
         echo $data;
 
-        if (strtolower(SERVER_MODEL) == 'rpc') {
+        if (SERVER_MODEL == 'Rpc' || SERVER_MODEL == 'SwooleHttp') {
             return ob_get_clean();
         }
 

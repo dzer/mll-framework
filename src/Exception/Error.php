@@ -44,7 +44,9 @@ class Error
         $outData = self::getExceptionHandler()->render($e);
         // 获取并清空缓存
         $outData['echo'] = ob_get_clean();
+
         ob_start();
+        
         // 判断请求头的content_type=json或者是ajax请求就返回json
         $headers = [];
         if ($e instanceof HttpException) {
@@ -66,11 +68,8 @@ class Error
             $outData = ob_get_clean();
             $type = 'view';
         }
-        Response::create($outData, $type, $statusCode, $headers)->send();
-        // 提高页面响应
-        if (function_exists('fastcgi_finish_request')) {
-            fastcgi_finish_request();
-        }
+
+        return Response::create($outData, $type, $statusCode, $headers)->send();
     }
 
     /**

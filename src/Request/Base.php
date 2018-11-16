@@ -205,8 +205,10 @@ abstract class Base implements IRequest
         }
         $this->header([$this->config['request_id_key'] => $requestId]);
         //todo 添加响应头
-        header("{$this->config['request_id_key']}: $requestId");
-
+        if (SERVER_MODEL == 'Http') {
+            header("{$this->config['request_id_key']}: $requestId");
+        }
+        
         return $requestId;
     }
 
@@ -820,7 +822,7 @@ abstract class Base implements IRequest
                     $vars = [];
             }
             // 当前请求参数和URL地址中的参数合并
-            $this->param = array_merge($this->get(false), $vars, $this->route(false));
+            $this->param = array_merge((array)$this->get(false), (array)$vars, (array)$this->route(false));
         }
 
         return $this->input($this->param, $name, $default, $filter);

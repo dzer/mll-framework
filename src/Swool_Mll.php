@@ -6,6 +6,7 @@ use Mll\Config;
 use Mll\Exception\Error;
 use Mll\Core\Container;
 use Mll\Session\Session;
+use Mll\Command\ServiceCommand;
 
 /**
  * Class Mll
@@ -24,7 +25,7 @@ use Mll\Session\Session;
  * @author Xu Dong <d20053140@gmail.com>
  * @since 1.0
  */
-class Mll
+class Swool_Mll
 {
     /**
      * debug模式
@@ -45,6 +46,11 @@ class Mll
      */
     private static $classMap = [];
 
+    /**
+     * @var 脚本文件名
+     */
+    private $_scriptFileName;
+
     public function __get($name)
     {
         return Container::get($name);
@@ -60,12 +66,23 @@ class Mll
         return Container::getInstance(__CLASS__);
     }
 
+    public function run() {
+        
+    }
+
+
+
+
+
+
+
+
     /**
      * run
      *
      * @param string $serveModel
      */
-    public function run($serveModel = 'Http')
+    public function run2($serveModel = 'Http')
     {
         self::$serveModel = $serveModel;
         //自动加载
@@ -102,12 +119,11 @@ class Mll
         //错误注册
         Error::register();
 
+        //session
+        Session::init();
+
         //run server
-        if ($serveModel != 'SwooleHttp') {
-            //session
-            Session::init();
-            Mll::app()->server->run();
-        }
+        Mll::app()->server->run();
     }
 
     /**

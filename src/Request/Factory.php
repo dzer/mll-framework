@@ -17,7 +17,6 @@ class Factory
 {
     public static function getInstance($driver = 'Http', $config = [])
     {
-        $driver = ucfirst(strtolower($driver));
         $className = __NAMESPACE__."\\Driver\\{$driver}";
         if (empty($config)) {
             $config = Mll::app()->config->get('request.' . strtolower($driver), []);
