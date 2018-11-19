@@ -89,7 +89,7 @@ class SwoolHttp
     {
         $this->_server->on('Start', function ($server) {
             // 进程命名
-            ProcessHelper::setTitle("mll: master {$this->_host}:{$this->_port}");
+            ProcessHelper::setTitle("MLLPHP: master {$this->_host}:{$this->_port}");
         });
     }
 
@@ -98,7 +98,7 @@ class SwoolHttp
     {
         $this->_server->on('ManagerStart', function ($server) {
             // 进程命名
-            ProcessHelper::setTitle("mll: manager");
+            ProcessHelper::setTitle("MLLPHP: manager");
         });
     }
 
@@ -108,9 +108,9 @@ class SwoolHttp
         $this->_server->on('WorkerStart', function ($server, $workerId) {
             // 进程命名
             if ($workerId < $server->setting['worker_num']) {
-                ProcessHelper::setTitle("mll: worker #{$workerId}");
+                ProcessHelper::setTitle("MLLPHP: worker #{$workerId}");
             } else {
-                ProcessHelper::setTitle("mll: task #{$workerId}");
+                ProcessHelper::setTitle("MLLPHP: task #{$workerId}");
             }
             Mll::app()->run(SERVER_MODEL);
         });
@@ -132,32 +132,36 @@ class SwoolHttp
             //$response->header(Mll::app()->request->header());
             //$response->header(Mll::app()->respon->header());
             try {
-               $rs = Mll::app()->server->run();
+                $rs = Mll::app()->server->run();
             } catch (\Throwable $e) {
                 $rs = Error::appException($e);
             }
+            //$response->header('Content-Type','application/json; charset=UTF-8;');
             $response->end($rs);
             // 执行请求
             //
         });
     }
 
-    // 欢迎信息
+    /**
+     * welcome
+     *
+     */
     protected function welcome()
     {
         $swooleVersion = swoole_version();
         $phpVersion = PHP_VERSION;
         echo <<<EOL
-                           _____
-_______ ___ _____ ___ _____  / /_  ____
-__/ __ `__ \/ /\ \/ / / __ \/ __ \/ __ \
-_/ / / / / / / /\ \/ / /_/ / / / / /_/ /
-/_/ /_/ /_/_/ /_/\_\/ .___/_/ /_/ .___/
-                   /_/         /_/
-
-
+ ____    ____  _____     _____     _______  ____  ____  _______   
+|_   \  /   _||_   _|   |_   _|   |_   __ \|_   ||   _||_   __ \  
+  |   \/   |    | |       | |       | |__) | | |__| |    | |__) | 
+  | |\  /| |    | |   _   | |   _   |  ___/  |  __  |    |  ___/  
+ _| |_\/_| |_  _| |__/ | _| |__/ | _| |_    _| |  | |_  _| |_     
+|_____||_____||________||________||_____|  |____||____||_____|  
+                                                           
 EOL;
-        echo 'Server      Name:      mll' . PHP_EOL;
+        echo PHP_EOL;
+        echo 'Server      Name:      MLLPHP' . PHP_EOL;
         echo 'Framework   Version:   ' . MLL_VERSION . PHP_EOL;
         echo "PHP         Version:   {$phpVersion}" . PHP_EOL;
         echo "Swoole      Version:   {$swooleVersion}" . PHP_EOL;
@@ -165,71 +169,6 @@ EOL;
         echo "Listen      Port:      {$this->_port}" . PHP_EOL;
         echo 'Hot         Update:    ' . ($this->settings['max_request'] == 1 ? 'enabled' : 'disabled') . PHP_EOL;
         echo 'Coroutine   Mode:      ' . ($this->settings['enable_coroutine'] ? 'enabled' : 'disabled') . PHP_EOL;
-    }
-
-
-
-
-    /**
-     * 获取配置文件目录路径.
-     *
-     * @param null $module
-     *
-     * @return array
-     */
-    public static function getConfigPath($module = null)
-    {
-        $path = [];
-        if (!empty($module)) {
-            $moduleConfigPath = ROOT_PATH . DS . 'app' . DS . $module . DS . 'config';
-            if (is_dir($moduleConfigPath)) {
-                $path[] = $moduleConfigPath;
-            }
-        } else {
-            $path[] = ROOT_PATH . DS . 'app' . DS . 'common' . DS . 'config';
-        }
-
-        return $path;
-    }
-
-    /**
-     * 自动加载.
-     *
-     * @param $className
-     *
-     * @throws \Exception
-     */
-    public static function autoload($className)
-    {
-        if (isset(static::$classMap[$className])) {
-            $classFile = MLL_PATH . static::$classMap[$className];
-        } elseif (strpos($className, '\\') !== false) {
-            $classFile = ROOT_PATH . DS . str_replace('\\', DS, $className) . '.php';
-            if ($classFile === false || !is_file($classFile)) {
-                return;
-            }
-        } else {
-            return;
-        }
-
-        include $classFile;
-
-        if (self::$debug && !class_exists($className, false) && !interface_exists($className, false)
-            && !trait_exists($className, false)
-        ) {
-            throw new \Exception("没有找到 '$className'：$classFile");
-        }
-    }
-
-    /**
-     * Xhprof 性能分析
-     */
-    public static function xhprof()
-    {
-        if (Mll::app()->config->get('xhprof.enable', false)
-            && function_exists('xhprof_enable')
-        ) {
-            xhprof_enable(XHPROF_FLAGS_CPU | XHPROF_FLAGS_MEMORY | XHPROF_FLAGS_NO_BUILTINS);
-        }
+        echo 'Coroutine   Mode:      ' . print_r($this->settings, true) . PHP_EOL;
     }
 }

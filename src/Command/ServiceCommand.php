@@ -7,23 +7,22 @@ use Mll\SwoolHttp;
 
 class ServiceCommand
 {
+    const OK = 0;
+    const UNSPECIFIED_ERROR = 1;
+    const EXCEPTION = 2;
+
     // 是否后台运行
     public $daemon = false;
     // 是否热更新
     public $update = false;
     // PID 文件
     protected $pidFile;
-    // 选项配置
-    public function options()
-    {
-        return ['daemon', 'update'];
-    }
-    // 选项别名配置
-    public function optionAliases()
-    {
-        return ['d' => 'daemon', 'u' => 'update'];
-    }
-    // 初始化事件
+
+
+    /**
+     * 初始化
+     * @param $options
+     */
     public function __construct($options)
     {
         // 设置pidfile
@@ -37,12 +36,18 @@ class ServiceCommand
             $this->update = true;
         }
     }
-    // 启动服务
+
+    /**
+     * 启动服务
+     *
+     * @return int
+     */
     public function start()
     {
         
         if ($pid = ProcessHelper::readPidFile($this->pidFile)) {
-            exit("mll-service is running, PID : {$pid}" . PHP_EOL);
+           echo "mll-service is running, PID : {$pid}" . PHP_EOL;
+           return self::OK;
         }
         $server = new SwoolHttp();
         if ($this->update) {
@@ -52,7 +57,12 @@ class ServiceCommand
         $server->settings['pid_file']  = $this->pidFile;
         $server->start();
     }
-    // 停止服务
+
+    /**
+     * 停止服务
+     *
+     * @return int
+     */
     public function stop()
     {
         if ($pid = ProcessHelper::readPidFile($this->pidFile)) {
@@ -61,22 +71,32 @@ class ServiceCommand
                 // 等待进程退出
                 usleep(100000);
             }
-            Output::writeln('mix-httpd stop completed.');
+            echo 'MLLPHP stop completed.' . PHP_EOL;
         } else {
-            Output::writeln('mix-httpd is not running.');
+            echo 'MLLPHP is not running.' . PHP_EOL;
         }
         // 返回退出码
-        return ExitCode::OK;
+        return self::OK;
     }
-    // 重启服务
+
+    /**
+     * 重启服务
+     *
+     * @return int
+     */
     public function restart()
     {
-        $this->actionStop();
-        $this->actionStart();
+        $this->stop();
+        $this->start();
         // 返回退出码
-        return ExitCode::OK;
+        return self::OK;
     }
-    // 重启工作进程
+
+    /**
+     * 重启工作进程
+     *
+     * @return int
+     */
     public function reload()
     {
         if ($pid = ProcessHelper::readPidFile($this->pidFile)) {
@@ -84,21 +104,26 @@ class ServiceCommand
         }
         if (!$pid) {
             Output::writeln('mix-httpd is not running.');
-            return ExitCode::UNSPECIFIED_ERROR;
+            return self::UNSPECIFIED_ERROR;
         }
-        Output::writeln('mix-httpd worker process restart completed.');
+        echo 'MLLPHP worker process restart completed.' . PHP_EOL;
         // 返回退出码
-        return ExitCode::OK;
+        return self::OK;
     }
-    // 查看服务状态
+
+    /**
+     * 查看服务状态
+     *
+     * @return int
+     */
     public function status()
     {
         if ($pid = ProcessHelper::readPidFile($this->pidFile)) {
-            Output::writeln("mix-httpd is running, PID : {$pid}.");
+            echo "MLLPHP is running, PID : {$pid}." . PHP_EOL;
         } else {
-            Output::writeln('mix-httpd is not running.');
+            echo "MLLPHP is not running." . PHP_EOL;
         }
         // 返回退出码
-        return ExitCode::OK;
+        return self::OK;
     }
 }
