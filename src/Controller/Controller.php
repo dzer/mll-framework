@@ -25,9 +25,6 @@ use Mll\Response\Response;
  */
 class Controller implements IController
 {
-
-    protected static $response;
-
     public function beforeAction()
     {
         return true;
@@ -41,7 +38,7 @@ class Controller implements IController
 
     public function json($data = [], $code = 200, $header = [], $options = [])
     {
-        return Response::create($data, 'json', $code, $header, $options);
+        return Mll::app()->response->create($data, 'json', $code, $header, $options);
     }
 
     public function render($template, $params = [], $code = 200, $header = [], $options = [])
@@ -50,7 +47,7 @@ class Controller implements IController
         $params['RES'] = Mll::app()->config->get('res_server_host');
 
         $content = Mll::app()->view->fetch($template, $params);
-        return Response::create($content, 'view', $code, $header, $options);
+        return Mll::app()->response->create($data, 'html', $code, $header, $options);
     }
 
     /**
@@ -73,7 +70,7 @@ class Controller implements IController
      */
     public function redirect($url)
     {
-        return Response::create()->redirect($url);
+        return Mll::app()->response->redirect($url);
     }
 
     /**

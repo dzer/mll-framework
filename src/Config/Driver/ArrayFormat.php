@@ -22,6 +22,12 @@ class ArrayFormat implements IConfig
     private static $config = [];
 
     /**
+     * 已load过的目录
+     * @var array
+     */
+    private static $alreadyLoadConfigPath = [];
+
+    /**
      * 加载配置文件目录
      *
      * @param array $configPathArr 配置文件路径
@@ -33,7 +39,11 @@ class ArrayFormat implements IConfig
         $config = array();
         if (is_array($configPathArr)) {
             foreach ($configPathArr as $configPath) {
+                if (isset(self::$alreadyLoadConfigPath[$configPath])) {
+                    continue;
+                }
                 $files = Dir::tree($configPath, '/.php$/');
+                self::$alreadyLoadConfigPath[$configPath] = $files;
                 array_map(function ($file) use (&$config) {
                     $config += include $file;
                 }, $files);
@@ -73,14 +83,19 @@ class ArrayFormat implements IConfig
      */
     public function get($key, $default = null, $throw = false)
     {
-        $key = '["' . implode('"]["', explode('.', $key)) . '"]';
-        $varStr = 'self::$config' . $key;
-        $result = eval("return isset($varStr) ? $varStr : \$default;");
-        if ($throw && is_null($result)) {
+        $keys = explode('.', $key);
+        $config = self::$config;
+        foreach ($keys as $k) {
+            if (!isset($config[$k])) {
+                $config = $default;
+                break;
+            }
+            $config = &$config[$k];
+        }
+        if ($throw && is_null($config)) {
             throw new \Exception('{key} config empty');
         }
-
-        return $result;
+        return $config;
     }
 
     /**

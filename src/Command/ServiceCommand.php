@@ -27,11 +27,11 @@ class ServiceCommand
     {
         // 设置pidfile
         $this->pidFile = '/var/run/mll.pid';
-        
+
         if (in_array('d', $options)) {
             $this->daemon = true;
-        } 
-        
+        }
+
         if (in_array('u', $options)) {
             $this->update = true;
         }
@@ -44,17 +44,17 @@ class ServiceCommand
      */
     public function start()
     {
-        
+
         if ($pid = ProcessHelper::readPidFile($this->pidFile)) {
-           echo "mll-service is running, PID : {$pid}" . PHP_EOL;
-           return self::OK;
+            echo "mll-service is running, PID : {$pid}" . PHP_EOL;
+            return self::OK;
         }
         $server = new SwoolHttp();
         if ($this->update) {
             $server->settings['max_request'] = 1;
         }
         $server->settings['daemonize'] = $this->daemon;
-        $server->settings['pid_file']  = $this->pidFile;
+        $server->settings['pid_file'] = $this->pidFile;
         $server->start();
     }
 
@@ -103,7 +103,7 @@ class ServiceCommand
             ProcessHelper::kill($pid, SIGUSR1);
         }
         if (!$pid) {
-            Output::writeln('mix-httpd is not running.');
+            echo 'MLLPHP is not running.' . PHP_EOL;
             return self::UNSPECIFIED_ERROR;
         }
         echo 'MLLPHP worker process restart completed.' . PHP_EOL;

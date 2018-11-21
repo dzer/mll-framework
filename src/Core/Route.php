@@ -46,10 +46,9 @@ class Route
                 if ($cacheValue !== false) {
                     $isAjax = $request->getIsAjax();
                     $type = $isAjax ? 'json' : 'html';
-                    $response = Response::create($cacheValue, $type, 200,
-                        ['X-Cache-Time' => $request->request('SOURCE_CACHE_TIME')]
-                    );
-                    return $response->send();
+                    $response = Mll::app()->response->code(200)
+                        ->header(['X-Cache-Time' => $request->request('SOURCE_CACHE_TIME')]);
+                    return $response->send($cacheValue, $type);
                 }
             }
 
@@ -74,9 +73,9 @@ class Route
                 // 默认自动识别响应输出类型
                 $isAjax = $request->getIsAjax();
                 $type = $isAjax ? 'json' : 'html';
-                $response = Response::create($view, $type);
+                $response = Mll::app()->response->data($view)->type($type);
             } else {
-                $response = Response::create();
+                $response = Mll::app()->response;
             }
 
             if ($request->request('SOURCE_CACHE_TIME') > 0) {
@@ -113,26 +112,28 @@ class Route
             return $route['static'][$pathInfo];
         }
 
-        foreach ($route['dynamic'] as $regex => $rule) {
-            if (!preg_match($regex, $pathInfo, $matches)) {
-                continue;
-            }
-            if (!empty($matches)) {
-                unset($matches[0]);
-                foreach ($matches as $index => $val) {
-                    $rule[0] = str_replace("{{$index}}", $val, $rule[0], $count);
-                    if (($count) > 0) {
-                        unset($matches[$index]);
+        if (!empty($route['dynamic'])) {
+            foreach ($route['dynamic'] as $regex => $rule) {
+                if (!preg_match($regex, $pathInfo, $matches)) {
+                    continue;
+                }
+                if (!empty($matches)) {
+                    unset($matches[0]);
+                    foreach ($matches as $index => $val) {
+                        $rule[0] = str_replace("{{$index}}", $val, $rule[0], $count);
+                        if (($count) > 0) {
+                            unset($matches[$index]);
+                        }
                     }
-                }
-                if (!empty($rule[1]) && !empty($matches)) {
-                    $rule[1] = array_combine($rule[1], $matches);
-                }
-                if (isset($cache)) {
-                    $cache->set($pathInfo, json_encode($rule));
-                }
+                    if (!empty($rule[1]) && !empty($matches)) {
+                        $rule[1] = array_combine($rule[1], $matches);
+                    }
+                    if (isset($cache)) {
+                        $cache->set($pathInfo, json_encode($rule));
+                    }
 
-                return $rule;
+                    return $rule;
+                }
             }
         }
 
@@ -148,23 +149,28 @@ class Route
     public static function parseUrlPath($url)
     {
         // 分隔符替换 确保路由定义使用统一的分隔符
-        $url = str_replace('|', '/', $url);
+        //$url = str_replace('|', '/', $url);
         $url = trim($url, '/');
         $path = $var = [];
-        if (false !== strpos($url, '?')) {
-            // [模块/控制器/操作?]参数1=值1&参数2=值2...
-            $info = parse_url($url);
-            $path = explode('/', $info['path']);
-            parse_str($info['query'], $var);
-        } elseif (strpos($url, '/')) {
-            // [模块/控制器/操作]
+        if (SERVER_MODEL == 'SwooleHttp') {
             $path = explode('/', $url);
-        } elseif (false !== strpos($url, '=')) {
-            // 参数1=值1&参数2=值2...
-            parse_str($url, $var);
         } else {
-            $path = [$url];
+            if (false !== strpos($url, '?')) {
+                // [模块/控制器/操作?]参数1=值1&参数2=值2...
+                $info = parse_url($url);
+                $path = explode('/', $info['path']);
+                parse_str($info['query'], $var);
+            } elseif (strpos($url, '/')) {
+                // [模块/控制器/操作]
+                $path = explode('/', $url);
+            } elseif (false !== strpos($url, '=')) {
+                // 参数1=值1&参数2=值2...
+                parse_str($url, $var);
+            } else {
+                $path = [$url];
+            }
         }
+
 
         if (!empty($url) && '/' !== $url) {
             //路由替换

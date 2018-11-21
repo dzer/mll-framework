@@ -139,16 +139,12 @@ abstract class Base implements IRequest
 
     public function __construct($config = [])
     {
-        if (is_array($config)) {
+        if (!empty($config) && is_array($config)) {
             $this->config = array_merge($this->config, $config);
         }
         if (is_null($this->filter)) {
             $this->filter = $this->config['default_filter'];
         }
-        // 保存 php://input
-        $this->input = file_get_contents('php://input');
-        //设置请求时间
-        $this->setRequestTime();
     }
 
     /**
@@ -185,10 +181,6 @@ abstract class Base implements IRequest
         $this->method = $this->method(true);
 
         $this->tplFile = $this->module . DS . \str_replace('\\', DS, $this->controller) . DS . $this->action . '.php';
-
-        $this->setRequestId();
-
-        $this->setTraceId();
     }
 
     /**
@@ -204,10 +196,9 @@ abstract class Base implements IRequest
             $requestId = self::getRequestId(true);
         }
         $this->header([$this->config['request_id_key'] => $requestId]);
+
         //todo 添加响应头
-        if (SERVER_MODEL == 'Http') {
-            header("{$this->config['request_id_key']}: $requestId");
-        }
+        //Mll::app()->response->header($this->config['request_id_key'], $requestId);
         
         return $requestId;
     }
@@ -470,7 +461,7 @@ abstract class Base implements IRequest
         if ('' === $name) {
             return $this->header;
         }
-        $name = str_replace('_', '-', strtolower($name));
+        //$name = str_replace('_', '-', strtolower($name));
         return isset($this->header[$name]) ? $this->header[$name] : $default;
     }
 

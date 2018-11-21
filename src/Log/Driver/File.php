@@ -111,6 +111,12 @@ class File extends Base implements ILog
                 $logs .= implode("\r\n", $val) . "\r\n";
             }
         }
+        if (SERVER_MODEL == 'SwooleHttp') {
+            \Swoole\Coroutine::writeFile($destination, $logs);
+            $this->logs = null;
+            return true;
+        }
+
         if (($fp = @fopen($destination, 'a')) === false) {
             throw new \Exception("Unable to append to log file: {$destination}");
         }

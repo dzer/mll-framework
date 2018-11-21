@@ -32,9 +32,11 @@ class Error
      */
     public static function appException($e)
     {
+
         if (!$e instanceof \Exception) {
             $e = new ThrowableError($e);
         }
+        
         self::getExceptionHandler()->report($e);
         /*while (ob_get_level() > 1) {
             ob_end_clean();
@@ -43,10 +45,11 @@ class Error
 
         $outData = self::getExceptionHandler()->render($e);
         // 获取并清空缓存
-        $outData['echo'] = ob_get_clean();
+       // $outData['echo'] = ob_get_clean();
+        if (ob_get_level() == 0) {
+            ob_start();
+        }
 
-        ob_start();
-        
         // 判断请求头的content_type=json或者是ajax请求就返回json
         $headers = [];
         if ($e instanceof HttpException) {
@@ -66,10 +69,10 @@ class Error
             }
             // 获取并清空缓存
             $outData = ob_get_clean();
-            $type = 'view';
+            $type = 'html';
         }
 
-        return Response::create($outData, $type, $statusCode, $headers)->send();
+        return Mll::app()->response->data($outData)->type($type)->code($statusCode)->header($headers)->send();
     }
 
     /**

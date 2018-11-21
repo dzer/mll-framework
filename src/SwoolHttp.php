@@ -9,7 +9,7 @@ use Mll\Core\Container;
 use Mll\Session\Session;
 
 /**
- * Http服务22222
+ * SwooleHttp服务
  *
  * @package Mll\Server\Driver
  * @author Xu Dong <d20053140@gmail.com>
@@ -120,26 +120,20 @@ class SwoolHttp
     protected function onRequest()
     {
         $this->_server->on('request', function ($request, $response) {
-            $_GET = $request->get;
-            $_POST = $request->post;
-            $_COOKIE = $request->cookie;
-            $_FILES = $request->files;
-            $_SERVER = array_change_key_case($request->server, CASE_UPPER);
-            /*var_dump($_GET);
-            $response->end(print_r($_GET, true));
-            return;*/
-            //var_dump($_SERVER);return;
-            //$response->header(Mll::app()->request->header());
-            //$response->header(Mll::app()->respon->header());
             try {
+                //xhprof
+                //Mll::xhprof();
+
+                Container::set('swooleRequest', $request);
+                Container::set('swooleResponse', $response);
                 $rs = Mll::app()->server->run();
             } catch (\Throwable $e) {
                 $rs = Error::appException($e);
             }
-            //$response->header('Content-Type','application/json; charset=UTF-8;');
             $response->end($rs);
-            // 执行请求
-            //
+            go(function(){
+                Error::appShutdown();
+            });
         });
     }
 
@@ -169,6 +163,5 @@ EOL;
         echo "Listen      Port:      {$this->_port}" . PHP_EOL;
         echo 'Hot         Update:    ' . ($this->settings['max_request'] == 1 ? 'enabled' : 'disabled') . PHP_EOL;
         echo 'Coroutine   Mode:      ' . ($this->settings['enable_coroutine'] ? 'enabled' : 'disabled') . PHP_EOL;
-        echo 'Coroutine   Mode:      ' . print_r($this->settings, true) . PHP_EOL;
     }
 }

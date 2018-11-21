@@ -21,7 +21,7 @@ class Container
      * 对象
      * @var array
      */
-    private static $instances = [];
+    public static $instances = [];
 
     /**
      * 别名与实例关系
@@ -125,9 +125,13 @@ class Container
      * @param string $name 实例别名
      * @return bool
      */
-    public function has($name)
+    public static function has($name)
     {
-        if (isset(self::$instances[self::$classAlias[$name]])) {
+        if (isset(self::$classAlias[$name]) && isset(self::$instances[self::$classAlias[$name]])) {
+            return true;
+        }
+        
+        if (isset(self::$instances[$name])) {
             return true;
         }
         return false;
@@ -161,11 +165,26 @@ class Container
      * @return bool
      * @throws \Exception
      */
-    /*public function set($name, $value, $is_cover = true)
+    public static function set($name, $value, $is_cover = true)
     {
-        // todo 设置容器变量
+        if (isset(self::$instances[$name]) && !$is_cover) {
+            throw new \Exception('Container name is exists.');
+        }
 
-    }*/
+        if (isset(self::$classAlias[$name]) && isset(self::$instances[self::$classAlias[$name]])
+            && is_object(self::$instances[self::$classAlias[$name]] && !$is_cover)
+        ) {
+            throw new \Exception('Container name is exists.');
+        }
+
+        if (is_object($value)) {
+            self::$instances[$name] = $value;
+        } elseif (is_callable($value)) {
+            //服务容器
+            Container::addDefinitions(array($name => $value));
+        }
+        return true;
+    }
 
     /**
      * 设置容器变量，待完成

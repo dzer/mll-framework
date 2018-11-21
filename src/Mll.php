@@ -5,6 +5,7 @@ namespace Mll;
 use Mll\Config;
 use Mll\Exception\Error;
 use Mll\Core\Container;
+use Mll\Request\Driver\SwooleHttp;
 use Mll\Session\Session;
 
 /**
@@ -12,8 +13,9 @@ use Mll\Session\Session;
  *
  * @package Mll
  * @property \Mll\Config\Driver\ArrayFormat $config
- * @property \Mll\Request\Base $request
  * @property \Mll\Log\ILog $log
+ * @property \Mll\Request\Base $request
+ * @property \Mll\Response\Response $response
  * @property \Mll\Server\IServer $server
  * @property \Mll\Rpc\IRpc $rpc
  * @property \Mll\Session\Session $session
@@ -37,6 +39,15 @@ class Mll
      * @var
      */
     public static $serveModel;
+    
+    public $config;
+    
+    public function __construct()
+    {
+        $this->config = Config\Factory::getInstance();
+    }
+
+    public static $app;
 
     /**
      * 加载类.
@@ -50,6 +61,12 @@ class Mll
         return Container::get($name);
     }
 
+    public function __isset($name)
+    {
+        return Container::has($name);
+    }
+    
+
     /**
      * app
      *
@@ -57,7 +74,10 @@ class Mll
      */
     public static function app()
     {
-        return Container::getInstance(__CLASS__);
+        if (!isset(self::$app)) {
+            self::$app = new self();
+        }
+        return self::$app;
     }
 
     /**
@@ -70,14 +90,7 @@ class Mll
         self::$serveModel = $serveModel;
         //自动加载
         spl_autoload_register(__CLASS__ . '::autoload', true, true);
-
-        //先将配置组件加入容器
-        Container::addDefinitions([
-            'config' => function () {
-                return Config\Factory::getInstance();
-            },
-        ]);
-
+        
         //加载公共配置文件
         Mll::app()->config->loadFile(__DIR__ . '/config.php');
         Mll::app()->config->load(self::getConfigPath());
@@ -96,14 +109,13 @@ class Mll
         //设置错误级别
         error_reporting(Mll::app()->config->get('error_level', E_ALL));
 
-        //xhprof
-        self::xhprof();
-
         //错误注册
         Error::register();
 
         //run server
         if ($serveModel != 'SwooleHttp') {
+            //xhprof
+            self::xhprof();
             //session
             Session::init();
             Mll::app()->server->run();

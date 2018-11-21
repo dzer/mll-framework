@@ -17,6 +17,9 @@ return [
         'request' => function () {
             return Request\Factory::getInstance(SERVER_MODEL);
         },
+        'response' => function () {
+            return Response\Factory::getInstance();
+        },
         'rpc' => function () {
             return Rpc\Factory::getInstance(
                 Mll::app()->config->get('rpc.driver', 'yar')

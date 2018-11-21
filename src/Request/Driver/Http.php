@@ -16,6 +16,17 @@ use Mll\Request\Base;
  */
 class Http extends Base implements IRequest
 {
+    public function __construct(array $config = [])
+    {
+        parent::__construct($config);
+        
+        // 保存 php://input
+        $this->input = file_get_contents('php://input');
+
+        //设置请求时间
+        $this->setRequestTime();
+    }
+
     /**
      * 将不同server的传输数据统一格式.
      *
@@ -50,5 +61,21 @@ class Http extends Base implements IRequest
         $viewMode = Mll::app()->config->get('view_mode', 'Php');
 
         $this->init($module, $controller, $action, $data, $viewMode);
+    }
+
+    /**
+     * 初始化request.
+     *
+     * @param string $module 模块
+     * @param string $controller 控制器
+     * @param string $action 方法
+     * @param array $params 请求参数
+     * @param null $viewMode 视图模型
+     */
+    public function init($module, $controller, $action, array $params, $viewMode = null)
+    {
+        parent::init($module, $controller, $action, $params, $viewMode);
+        $this->setRequestId();
+        $this->setTraceId();
     }
 }
