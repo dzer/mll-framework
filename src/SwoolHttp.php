@@ -122,7 +122,7 @@ class SwoolHttp
         $this->_server->on('request', function ($request, $response) {
             try {
                 //xhprof
-                //Mll::xhprof();
+                Mll::xhprof();
 
                 Container::set('swooleRequest', $request);
                 Container::set('swooleResponse', $response);
@@ -130,10 +130,13 @@ class SwoolHttp
             } catch (\Throwable $e) {
                 $rs = Error::appException($e);
             }
+
             $response->end($rs);
+
             go(function(){
                 Error::appShutdown();
             });
+
         });
     }
 

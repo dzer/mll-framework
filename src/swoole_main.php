@@ -12,7 +12,6 @@ if (PHP_SAPI != 'cli') {
 }
 
 //cli 命令参数
-global $argv;
 foreach ($GLOBALS['argv'] as $key => $value) {
     // 获取命令
     if ($key == 1) {

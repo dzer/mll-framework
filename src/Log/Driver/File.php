@@ -112,7 +112,7 @@ class File extends Base implements ILog
             }
         }
         if (SERVER_MODEL == 'SwooleHttp') {
-            \Swoole\Coroutine::writeFile($destination, $logs);
+            \Swoole\Coroutine::writeFile($destination, $logs, FILE_APPEND);
             $this->logs = null;
             return true;
         }

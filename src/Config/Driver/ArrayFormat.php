@@ -109,16 +109,22 @@ class ArrayFormat implements IConfig
      */
     public function set($key, $value, $set = true)
     {
-        $key = '["' . implode('"]["', explode('.', $key)) . '"]';
-        $varStr = 'self::$config' . $key;
+        $keys = explode('.', $key);
+        $config = &self::$config;
+        $end_key = array_pop($keys);
+        foreach ($keys as $k) {
+            if (!isset($config[$k])) {
+                $config[$k] = [];
+            }
+            $config = &$config[$k];
+        }
         if ($set) {
-            eval("$varStr = \$value;");
+            $config[$end_key] = $value;
         } else {
-            if (empty(eval("return $varStr;"))) {
-                eval("$varStr = \$value;");
+            if (empty($config[$k])) {
+                $config[$k] = $value;
             }
         }
-
         return true;
     }
 
