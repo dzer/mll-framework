@@ -359,6 +359,27 @@ abstract class Base implements IRequest
     }
 
     /**
+     * 设置获取获取COOKIE参数.
+     *
+     * @param string|array $name 变量名
+     * @param mixed $default 默认值
+     * @param string|array $filter 过滤方法
+     *
+     * @return mixed
+     */
+    public function cookie($name = '', $default = null, $filter = '')
+    {
+        if (empty($this->cookie) && SERVER_MODEL == 'Http') {
+            $this->get = $_COOKIE;
+        }
+        if (is_array($name)) {
+            return $this->cookie = array_merge($this->cookie, $name);
+        }
+
+        return $this->input($this->cookie, $name, $default, $filter);
+    }
+
+    /**
      * 设置获取获取POST参数.
      *
      * @param string $name 变量名
@@ -384,6 +405,27 @@ abstract class Base implements IRequest
         }
 
         return $this->input($this->post, $name, $default, $filter);
+    }
+
+    /**
+     * 设置获取获取FILES参数.
+     *
+     * @param string $name 变量名
+     * @param mixed $default 默认值
+     * @param string|array $filter 过滤方法
+     *
+     * @return mixed
+     */
+    public function files($name = '', $default = null, $filter = '')
+    {
+        if (empty($this->file) && SERVER_MODEL == 'Http') {
+            $this->file = $_FILES;
+        }
+        if (is_array($name)) {
+            return $this->file = array_merge($this->file, $name);
+        }
+
+        return $this->input($this->file, $name, $default, $filter);
     }
 
     /**
@@ -414,7 +456,7 @@ abstract class Base implements IRequest
      */
     public function server($name = '', $default = null, $filter = '')
     {
-        if (empty($this->server)) {
+        if (empty($this->server) && SERVER_MODEL == 'Http') {
             $this->server = $_SERVER;
         }
         if (is_array($name)) {
@@ -434,7 +476,7 @@ abstract class Base implements IRequest
      */
     public function header($name = '', $default = null)
     {
-        if (empty($this->header)) {
+        if (empty($this->header) && SERVER_MODEL == 'Http') {
             $header = [];
             if (function_exists('apache_request_headers') && $result = apache_request_headers()) {
                 $header = $result;

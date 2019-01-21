@@ -31,23 +31,19 @@ class SwooleHttp
     public function run()
     {
         ob_start();
-        //Mll::app()->request->clear();
-        //Mll::app()->response->clear();
-        //Core\Container::$instances['Mll\\Request\\Driver\\SwooleHttp'] = null;
-        //Core\Container::$instances['Mll\\Response\\Response'] = null;
         $GLOBALS = null;
         $swooleRequest = Mll::app()->swooleRequest;
-
-        $_GET = $swooleRequest->get;
-        $_POST = $swooleRequest->post;
-        $_COOKIE = $swooleRequest->cookie;
-        $_FILES = $swooleRequest->files;
-        $_SERVER = array_change_key_case($swooleRequest->server, CASE_UPPER);
-
         $request = new \Mll\Request\Driver\SwooleHttp(self::$config);
         $response = new Response();
         Mll::app()->request = $request;
         Mll::app()->response = $response;
+
+        Mll::app()->request->get($swooleRequest->get);
+        Mll::app()->request->post($swooleRequest->post);
+        Mll::app()->request->cookie($swooleRequest->cookie);
+        Mll::app()->request->files($swooleRequest->files);
+        Mll::app()->request->server($swooleRequest->server);
+        Mll::app()->request->header($swooleRequest->header);
 
         $request->header($swooleRequest->header);
 
